@@ -7,7 +7,8 @@ class mainWindow(Gtk.Window):
 
     def __init__(self):
         Gtk.Window.__init__(self, title = "Main Window")
-
+        self.set_border_width(10)
+        
         ### Main Box ###
         self.mainBox = Gtk.Box(spacing=20)
         self.add(self.mainBox)
@@ -66,10 +67,7 @@ class mainWindow(Gtk.Window):
 
         self.infoScanNum = Gtk.Label("Scan number: ")
         self.infoBox.add(self.infoScanNum)        
-        
-        # self.button2 = Gtk.Button(label="Stuff")
-        # self.button2.connect("clicked", self.on_button2_clicked)
-        # self.mainBox.pack_start(self.button2, True, True, 0)
+
 
         ### Sub Boxes - Right ###
         self.rightBox = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = 12)
@@ -113,9 +111,6 @@ class mainWindow(Gtk.Window):
         else:
             self.startButton.set_label("START")
         print("Hello")
-
-    def on_button2_clicked(self, widget):
-        print("Goodbye")
 
     def on_camSelect_changed(self, widget):
 
