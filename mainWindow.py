@@ -90,26 +90,28 @@ class mainWindow(Gtk.Window):
 
         #pixbuf = GdkPixbuf.gdk_pixbuf_new_from_file("figure_1.png")
 
+        self.picSize = 200
         self.piczoom = GdkPixbuf.Pixbuf.new_from_file("figure_2.tif")
         self.piczoom2 = self.piczoom.scale_simple(100, 100, GdkPixbuf.InterpType.BILINEAR)
         self.picZoomed = Gtk.Image.new_from_pixbuf(self.piczoom2)#Gtk.Image.new_from_file("figure_1.tif")
         self.picZoomedBox.add(self.picZoomed)
 
-        self.picAtoms = GdkPixbuf.Pixbuf.new_from_file_at_scale("figure_2.tif", 300, 300, False)
-        self.picAtoms = Gtk.Image.new_from_pixbuf(self.picAtoms)
-        self.picGrid.attach(self.picAtoms, 0, 0, 1, 1)
+        # self.picAtoms = GdkPixbuf.Pixbuf.new_from_file_at_scale("figure_2.tif", 300, 300, False)
+        # self.picAtoms = Gtk.Image.new_from_pixbuf(self.picAtoms)
+        # self.picGrid.attach(self.picAtoms, 0, 0, 1, 1)
+        
+        # self.picNoAtoms = GdkPixbuf.Pixbuf.new_from_file_at_scale("figure_3.tif",300,300, False)
+        # self.picNoAtoms = Gtk.Image.new_from_pixbuf(self.picNoAtoms)
+        # self.picGrid.attach(self.picNoAtoms, 1, 0, 1, 1)
 
-        self.picNoAtoms = GdkPixbuf.Pixbuf.new_from_file_at_scale("figure_3.tif",300,300, False)
-        self.picNoAtoms = Gtk.Image.new_from_pixbuf(self.picNoAtoms)
-        self.picGrid.attach(self.picNoAtoms, 1, 0, 1, 1)
+        # self.picBkg = GdkPixbuf.Pixbuf.new_from_file_at_scale("figure_4.tif",300,300, False)
+        # self.picBkg = Gtk.Image.new_from_pixbuf(self.picBkg)
+        # self.picGrid.attach(self.picBkg, 0, 1, 1, 1)
 
-        self.picBkg = GdkPixbuf.Pixbuf.new_from_file_at_scale("figure_4.tif",300,300, False)
-        self.picBkg = Gtk.Image.new_from_pixbuf(self.picBkg)
-        self.picGrid.attach(self.picBkg, 0, 1, 1, 1)
-
-        self.picOriginal = GdkPixbuf.Pixbuf.new_from_file_at_scale("figure_5.tif",300,300, False)
-        self.picOriginal = Gtk.Image.new_from_pixbuf(self.picOriginal)
-        self.picGrid.attach(self.picOriginal, 1, 1, 1, 1)  
+        # self.picOriginal = GdkPixbuf.Pixbuf.new_from_file_at_scale("figure_5.tif",300,300, False)
+        # self.picOriginal = Gtk.Image.new_from_pixbuf(self.picOriginal)
+        # self.picGrid.attach(self.picOriginal, 1, 1, 1, 1) 
+        
 
 
         # Plot Window
@@ -124,9 +126,26 @@ class mainWindow(Gtk.Window):
         Gtk.main()
         
     def set_picAtoms(self, filename):
-        self.picAtoms = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename, 300, 300, True)
+        self.picAtoms = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename, self.picSize, self.picSize, False)
         self.picAtoms = Gtk.Image.new_from_pixbuf(self.picAtoms)
         self.picGrid.attach(self.picAtoms, 0, 0, 1, 1)
+
+    def set_picNoAtoms(self, filename):
+        self.picNoAtoms = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename, self.picSize, self.picSize, False)
+        self.picNoAtoms = Gtk.Image.new_from_pixbuf(self.picNoAtoms)
+        self.picGrid.attach(self.picNoAtoms, 1, 0, 1, 1)
+
+    def set_picBkg(self, filename):
+        self.picBkg = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename, self.picSize, self.picSize, False)
+        self.picBkg = Gtk.Image.new_from_pixbuf(self.picBkg)
+        self.picGrid.attach(self.picBkg, 0, 1, 1, 1)
+
+    def set_picOriginal(self, filename):
+        self.picOriginal = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename, self.picSize, self.picSize, False)
+        self.picOriginal = Gtk.Image.new_from_pixbuf(self.picOriginal)
+        self.picGrid.attach(self.picOriginal, 1, 1, 1, 1)
+
+
 
 ##############################
 ###         Buttons        ###
@@ -153,6 +172,11 @@ win = mainWindow()
 #print(dir(win.infoLabel))
 
 win.connect("destroy", Gtk.main_quit)
+win.set_picAtoms("figure_2.tif")
+win.set_picNoAtoms("figure_3.tif")
+win.set_picBkg("figure_4.tif")
+win.set_picOriginal("figure_5.tif")
+
 #win.set_resizable(False)
 win.show_all()
 Gtk.main()
