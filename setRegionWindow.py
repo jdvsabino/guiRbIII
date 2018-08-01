@@ -61,13 +61,6 @@ class SetRegionWindow(SettingWindow):
         self.mainGrid.attach(self.rightEntry_rbc, posUpLabel_col + 2, posUpLabel_row + 3, 1 ,1)
 
 
-win = SetRegionWindow()
-
-# #print(dir(win.infoLabel))
-
-win.connect("destroy", Gtk.main_quit)
-win.show_all()
-Gtk.main()
 
 
 
