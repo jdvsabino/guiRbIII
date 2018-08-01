@@ -1,6 +1,10 @@
 import gi
+import sys, os
 gi.require_version('Gtk', '3.0')
+sys.path.append('/home/colin/Desktop/Joao/GUI_RbIII')
+sys.path.append('/home/colin/Desktop/Joao/GUI_RbIII/classes')
 from gi.repository import Gtk, Gdk, GdkPixbuf
+
 
 class plotWindow(Gtk.Window):
 
@@ -58,6 +62,7 @@ class plotWindow(Gtk.Window):
 
         self.setRangeButton = Gtk.Button(label = "Set Range")
         self.plotButtonsBox.pack_start(self.setRangeButton, True, True, 0)
+        self.setRangeButton.connect("clicked", self.on_setRangeButton_clicked)
 
         self.saveDataButton = Gtk.Button(label = "Save Data")
         self.plotButtonsBox.pack_start(self.saveDataButton, True, True, 0)
@@ -128,7 +133,15 @@ class plotWindow(Gtk.Window):
         self.var8Entry = Gtk.Entry()
         self.rightVarBox.pack_start(self.var8Entry, True, True, 0)        
 
+    ### CALL BACK FUNCTIONS ###
+    def on_setRangeButton_clicked(self, widget):
+        from setRangeWindow import SetRangeWindow
+        setWindow = SetRangeWindow()
+        setWindow.show_all()
+        Gtk.main()
         
+        
+
         
         
 
