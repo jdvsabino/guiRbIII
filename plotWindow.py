@@ -144,11 +144,3 @@ class plotWindow(Gtk.Window):
 
         
         
-
-win = plotWindow()
-
-#print(dir(win.infoLabel))
-
-win.connect("destroy", Gtk.main_quit)
-win.show_all()
-Gtk.main()        
