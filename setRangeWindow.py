@@ -28,13 +28,13 @@ class SetRangeWindow(SettingWindow):
         self.mainGrid.attach(self.minEntry, 1, 1, 1 ,1)
         
 
-win = SetRangeWindow()
+# win = SetRangeWindow()
 
-#print(dir(win.infoLabel))
+# #print(dir(win.infoLabel))
 
-win.connect("destroy", Gtk.main_quit)
-win.show_all()
-Gtk.main()
+# win.connect("destroy", Gtk.main_quit)
+# win.show_all()
+# Gtk.main()
 
 
 
