@@ -9,6 +9,8 @@ class SettingWindow(Gtk.Window):
         Gtk.Window.__init__(self, title = ownTitle)
         self.connect("destroy", lambda x: Gtk.main_quit())
 
+        self.set_border_width(10)
+        
         self.mainBox = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = 20)
         self.add(self.mainBox)
         
