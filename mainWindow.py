@@ -1,7 +1,9 @@
 import gi
+import sys
+sys.path.append('/home/colin/Desktop/Joao/GUI_RbIII')
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk, GdkPixbuf
-
+from plotWindow import *
 
 class mainWindow(Gtk.Window):
 
@@ -98,7 +100,11 @@ class mainWindow(Gtk.Window):
 
         self.picOriginal = Gtk.Image.new_from_file("figure_5.png")
         self.picGrid.attach(self.picOriginal, 1, 1, 1, 1)  
-        
+
+
+        # Plot Window
+        self.plotWin = plotWindow()
+        self.plotWin.show_all()
     ### CALL BACK FUNCTIONS ###
     def on_setRegionButton_clicked(self, widget):
         from setRegionWindow import SetRegionWindow
