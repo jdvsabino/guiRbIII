@@ -9,8 +9,12 @@ class mainWindow(Gtk.Window):
 
     def __init__(self):
         Gtk.Window.__init__(self, title = "Main Window")
+
+        # Size settings
+        self.set_default_size(750, 1000)
+        print(self.get_size())
         self.set_border_width(10)
-        
+        #self.set_resizable(False)
         ### Main Box ###
         self.mainBox = Gtk.Box(spacing=20)
         self.add(self.mainBox)
@@ -85,20 +89,26 @@ class mainWindow(Gtk.Window):
         self.rightBox.add(self.picGrid)
 
         #pixbuf = GdkPixbuf.gdk_pixbuf_new_from_file("figure_1.png")
-        
-        self.picZoomed = Gtk.Image.new_from_file("figure_1.png")
+
+        self.piczoom = GdkPixbuf.Pixbuf.new_from_file("figure_2.tif")
+        self.piczoom2 = self.piczoom.scale_simple(100, 100, GdkPixbuf.InterpType.BILINEAR)
+        self.picZoomed = Gtk.Image.new_from_pixbuf(self.piczoom2)#Gtk.Image.new_from_file("figure_1.tif")
         self.picZoomedBox.add(self.picZoomed)
 
-        self.picAtoms = Gtk.Image.new_from_file("figure_2.png")
+        self.picAtoms = GdkPixbuf.Pixbuf.new_from_file_at_scale("figure_2.tif", 300, 300, False)
+        self.picAtoms = Gtk.Image.new_from_pixbuf(self.picAtoms)
         self.picGrid.attach(self.picAtoms, 0, 0, 1, 1)
 
-        self.picNoAtoms = Gtk.Image.new_from_file("figure_3.png")
+        self.picNoAtoms = GdkPixbuf.Pixbuf.new_from_file_at_scale("figure_3.tif",300,300, False)
+        self.picNoAtoms = Gtk.Image.new_from_pixbuf(self.picNoAtoms)
         self.picGrid.attach(self.picNoAtoms, 1, 0, 1, 1)
 
-        self.picBkg = Gtk.Image.new_from_file("figure_4.png")
+        self.picBkg = GdkPixbuf.Pixbuf.new_from_file_at_scale("figure_4.tif",300,300, False)
+        self.picBkg = Gtk.Image.new_from_pixbuf(self.picBkg)
         self.picGrid.attach(self.picBkg, 0, 1, 1, 1)
 
-        self.picOriginal = Gtk.Image.new_from_file("figure_5.png")
+        self.picOriginal = GdkPixbuf.Pixbuf.new_from_file_at_scale("figure_5.tif",300,300, False)
+        self.picOriginal = Gtk.Image.new_from_pixbuf(self.picOriginal)
         self.picGrid.attach(self.picOriginal, 1, 1, 1, 1)  
 
 
@@ -109,10 +119,14 @@ class mainWindow(Gtk.Window):
     def on_setRegionButton_clicked(self, widget):
         from setRegionWindow import SetRegionWindow
         setWindow = SetRegionWindow()
+        setWindow.connect("destroy", lambda x: Gtk.main_quit())
         setWindow.show_all()
         Gtk.main()
         
-        
+    def set_picAtoms(self, filename):
+        self.picAtoms = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename, 300, 300, True)
+        self.picAtoms = Gtk.Image.new_from_pixbuf(self.picAtoms)
+        self.picGrid.attach(self.picAtoms, 0, 0, 1, 1)
 
 ##############################
 ###         Buttons        ###
@@ -139,5 +153,6 @@ win = mainWindow()
 #print(dir(win.infoLabel))
 
 win.connect("destroy", Gtk.main_quit)
+#win.set_resizable(False)
 win.show_all()
 Gtk.main()
