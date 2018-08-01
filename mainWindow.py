@@ -52,6 +52,7 @@ class mainWindow(Gtk.Window):
         
         self.setManually = Gtk.Button(label="Set Manually")
         self.regionsBox.pack_start(self.setManually, True, True, 0)
+        self.setManually.connect("clicked", self.on_setRegionButton_clicked)
 
         self.infoNetwork = Gtk.Label("Network v0.0")
         self.infoBox.add(self.infoNetwork)
@@ -97,6 +98,14 @@ class mainWindow(Gtk.Window):
 
         self.picOriginal = Gtk.Image.new_from_file("figure_5.png")
         self.picGrid.attach(self.picOriginal, 1, 1, 1, 1)  
+        
+    ### CALL BACK FUNCTIONS ###
+    def on_setRegionButton_clicked(self, widget):
+        from setRegionWindow import SetRegionWindow
+        setWindow = SetRegionWindow()
+        setWindow.show_all()
+        Gtk.main()
+        
         
 
 ##############################
