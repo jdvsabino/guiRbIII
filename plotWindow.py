@@ -4,13 +4,26 @@ gi.require_version('Gtk', '3.0')
 sys.path.append('/home/colin/Desktop/Joao/GUI_RbIII')
 sys.path.append('/home/colin/Desktop/Joao/GUI_RbIII/classes')
 from gi.repository import Gtk, Gdk, GdkPixbuf
-
+from setRangeWindow import SetRangeWindow
+import matplotlib.image as mpimg
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_gtk3cairo import FigureCanvasGTK3Cairo as FigureCanvas
+from matplotlib.backends.backend_gtk3 import NavigationToolbar2GTK3 as NavigationToolbar
 
 class plotWindow(Gtk.Window):
 
     def __init__(self):
         Gtk.Window.__init__(self, title = "Online Plot")
+        # Size settings
+        self.set_default_size(700, 400)
+        print(self.get_size())
         self.set_border_width(10)
+        #self.set_resizable(True)
+        self.set_border_width(10)
+
+        # Set Range Window
+        #self.setRangeWin = SetRangeWindow()
+
         # Main box
         self.mainBox = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing=20)
         self.add(self.mainBox)
@@ -55,13 +68,23 @@ class plotWindow(Gtk.Window):
         self.middleBox.add(self.plotButtonsBox)
 
         self.onlinePlot = Gtk.Image.new_from_file("figure_1.png")
-        self.plotBox.add(self.onlinePlot)
-        
+        #self.plotBox.add(self.onlinePlot)
+
+        ### Plot with matplotlib
+        self.fig = Figure(figsize=(5,5), dpi=100)
+        self.ax = self.fig.add_subplot(111)
+        self.ax.plot()
+        self.canvas = FigureCanvas(self.fig)
+        self.canvas.set_size_request(600,400)
+        self.plotBox.add(self.canvas)
+        #self.toolbar = NavigationToolbar(self.canvas, self)
+
         self.autoRangeButton = Gtk.Button(label = "Auto Range")
         self.plotButtonsBox.pack_start(self.autoRangeButton, True, True, 0)
 
         self.setRangeButton = Gtk.Button(label = "Set Range")
         self.plotButtonsBox.pack_start(self.setRangeButton, True, True, 0)
+        #self.setRangeButton.connect("clicked", self.on_setRangeButton_clicked, self.setRangeWin)
         self.setRangeButton.connect("clicked", self.on_setRangeButton_clicked)
 
         self.saveDataButton = Gtk.Button(label = "Save Data")
@@ -133,14 +156,12 @@ class plotWindow(Gtk.Window):
         self.var8Entry = Gtk.Entry()
         self.rightVarBox.pack_start(self.var8Entry, True, True, 0)        
 
+
     ### CALL BACK FUNCTIONS ###
     def on_setRangeButton_clicked(self, widget):
         from setRangeWindow import SetRangeWindow
         setWindow = SetRangeWindow()
+        setWindow.connect("destroy", lambda x: Gtk.main_quit())
         setWindow.show_all()
         Gtk.main()
-        
-        
 
-        
-        
