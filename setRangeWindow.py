@@ -26,6 +26,13 @@ class SetRangeWindow(SettingWindow):
         self.mainGrid.attach(self.minLabel, 0, 1, 1 ,1)
         self.minEntry = Gtk.Entry()
         self.mainGrid.attach(self.minEntry, 1, 1, 1 ,1)
+
+        self.connect("destroy", self.on_destroy)
+
+        self.show_all()
+
+    def on_destroy(self, widget):
+        widget.hide()
         
 
 # win = SetRangeWindow()
