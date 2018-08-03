@@ -11,7 +11,7 @@ from matplotlib.backends.backend_gtk3cairo import FigureCanvasGTK3Cairo as Figur
 from matplotlib.backends.backend_gtk3 import NavigationToolbar2GTK3 as NavigationToolbar
 from numpy import sin, cos, pi, linspace
 from plotWindow import *
-
+from picture_generator import gen_canvas
 
 class mainWindow(Gtk.Window):
 
@@ -92,27 +92,21 @@ class mainWindow(Gtk.Window):
         self.rightBox.add(self.picZoomedBox)
 
         self.picGrid = Gtk.Grid()
-        self.picGrid.set_column_spacing(3)
-        self.picGrid.set_row_spacing(3)
+        self.picGrid.set_column_spacing(12)
+        self.picGrid.set_row_spacing(12)
         self.rightBox.add(self.picGrid)
 
-        #pixbuf = GdkPixbuf.gdk_pixbuf_new_from_file("figure_1.png")
+
 
         self.picSize = 200
-        self.piczoom = GdkPixbuf.Pixbuf.new_from_file("figure_2.tif")
-        self.piczoom2 = self.piczoom.scale_simple(100, 100, GdkPixbuf.InterpType.BILINEAR)
-        self.picZoomed = Gtk.Image.new_from_pixbuf(self.piczoom2)#Gtk.Image.new_from_file("figure_1.tif")
-        self.picZoomedBox.add(self.picZoomed)
+        #self.piczoom = GdkPixbuf.Pixbuf.new_from_file("figure_2.tif")
+        # self.piczoom2 = self.piczoom.scale_simple(100, 100, GdkPixbuf.InterpType.BILINEAR)
+        #self.picZoomed = Gtk.Image.new_from_pixbuf(self.piczoom2)#Gtk.Image.new_from_file("figure_1.tif")
+        #self.picZoomedBox.add(self.picZoomed)
 
         # Plot Window
         self.plotWin = newPlotWindow()
-        self.plotWin.show_all()
-
-        # Zoom stuff ???
-        self.picOriginal = Gtk.Image()
-        self.zoom = Gtk.GestureDrag.new(self.picOriginal)
-        self.zoom.connect("begin", self.zoomEvent)
-        
+        self.plotWin.show_all()        
         
         
         
@@ -124,30 +118,50 @@ class mainWindow(Gtk.Window):
         setWindow.connect("destroy", lambda x: Gtk.main_quit())
         setWindow.show_all()
         Gtk.main()
+
+    def set_picZoomed(self, filename):
+        
+        canvas = gen_canvas(filename, 10,10)
+        canvas.set_size_request(400, 300)
+        self.picZoomedBox.pack_start(canvas, True, True, 0)
+        toolbar = NavigationToolbar(canvas, self)
+        toolbar.get_size_request(400)
+        self.picZoomedBox.pack_start(toolbar, True, True, 0)
         
     def set_picAtoms(self, filename):
-        self.picAtoms = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename, self.picSize, self.picSize, False)
-        self.picAtoms = Gtk.Image.new_from_pixbuf(self.picAtoms)
-        self.picGrid.attach(self.picAtoms, 0, 0, 1, 1)
+        # self.picAtoms = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename, self.picSize, self.picSize, False)
+        # self.picAtoms = Gtk.Image.new_from_pixbuf(self.picAtoms)
+        # self.picGrid.attach(self.picAtoms, 0, 0, 1, 1)
+        canvas = gen_canvas(filename)
+        canvas.set_size_request(self.picSize, self.picSize)
+        self.picGrid.attach(canvas, 0, 0, 1, 1)
+
 
 
     def set_picNoAtoms(self, filename):
-        self.picNoAtoms = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename, self.picSize, self.picSize, False)
-        self.picNoAtoms = Gtk.Image.new_from_pixbuf(self.picNoAtoms)
-        self.picGrid.attach(self.picNoAtoms, 1, 0, 1, 1)
+        # self.picNoAtoms = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename, self.picSize, self.picSize, False)
+        # self.picNoAtoms = Gtk.Image.new_from_pixbuf(self.picNoAtoms)
+        # self.picGrid.attach(self.picNoAtoms, 1, 0, 1, 1)
+        canvas = gen_canvas(filename)
+        canvas.set_size_request(self.picSize, self.picSize)
+        self.picGrid.attach(canvas, 1, 0, 1, 1)
 
+        
     def set_picBkg(self, filename):
-        self.picBkg = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename, self.picSize, self.picSize, False)
-        self.picBkg = Gtk.Image.new_from_pixbuf(self.picBkg)
-        self.picGrid.attach(self.picBkg, 0, 1, 1, 1)
+        # self.picBkg = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename, self.picSize, self.picSize, False)
+        # self.picBkg = Gtk.Image.new_from_pixbuf(self.picBkg)
+        # self.picGrid.attach(self.picBkg, 0, 1, 1, 1)
+        canvas = gen_canvas(filename)
+        canvas.set_size_request(self.picSize, self.picSize)
+        self.picGrid.attach(canvas, 0, 1, 1, 1)
 
     def set_picOriginal(self, filename):
-        self.picOriginal = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename, self.picSize, self.picSize, False)
-        self.picOriginal = Gtk.Image.new_from_pixbuf(self.picOriginal)
-        self.picGrid.attach(self.picOriginal, 1, 1, 1, 1)
-        self.zoom = Gtk.GestureLongPress.new(self.picOriginal)
-        self.zoom.connect("pressed", self.zoomEvent)
+        canvas = gen_canvas(filename)
+        canvas.set_size_request(self.picSize, self.picSize)        
+        print(canvas.get_size_request())
+        self.picGrid.attach(canvas, 1, 1, 1, 1)
 
+        
     def zoomEvent(self, widget):
         print("Yaaaay")    
         
@@ -184,10 +198,12 @@ win.connect("destroy", Gtk.main_quit)
 # win.set_picBkg("figure_4.tif")
 # win.set_picOriginal("figure_5.tif")
 
-win.set_picAtoms("manos_na_neve.png")
-win.set_picNoAtoms("manos_na_neve.png")
-win.set_picBkg("manos_na_neve.png")
-win.set_picOriginal("manos_na_neve.png")
+win.set_picZoomed("figure_2.tif")
+win.set_picAtoms("figure_2.tif")
+win.set_picNoAtoms("figure_2.tif")
+win.set_picBkg("figure_2.tif")
+win.set_picOriginal("figure_2.tif")
+
 #win.set_resizable(False)
 
 
