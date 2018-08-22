@@ -58,7 +58,8 @@ class mainWindow(Gtk.Window):
         self.camSelect.append_text("Auto")
         self.camSelectBox.pack_start(self.camSelect, True, True, 0)
 
-        self.chooseROI = Gtk.Button(label="Choose ROI")
+        self.chooseROI = Gtk.ToggleButton(label="Choose ROI")
+        self.chooseROI.connect("toggled", self.set_ROI)
         self.regionsBox.pack_start(self.chooseROI, True, True, 0)
 
         self.chooseBkg = Gtk.Button(label="Choose Bkg.")
@@ -89,7 +90,11 @@ class mainWindow(Gtk.Window):
         self.mainBox.add(self.rightBox)
 
         self.picZoomedBox = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = 12)
+        self.picZoomedBox.set_size_request(600, 300)
         self.rightBox.add(self.picZoomedBox)
+        
+        self.toolbarBox = Gtk.Box()
+        self.rightBox.add(self.toolbarBox)
 
         self.picGrid = Gtk.Grid()
         self.picGrid.set_column_spacing(12)
@@ -125,8 +130,8 @@ class mainWindow(Gtk.Window):
         canvas.set_size_request(400, 300)
         self.picZoomedBox.pack_start(canvas, True, True, 0)
         toolbar = NavigationToolbar(canvas, self)
-        toolbar.get_size_request(400)
-        self.picZoomedBox.pack_start(toolbar, True, True, 0)
+        toolbar.set_size_request(400, 40)
+        self.toolbarBox.pack_start(toolbar, True, True, 0)
         
     def set_picAtoms(self, filename):
         # self.picAtoms = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename, self.picSize, self.picSize, False)
@@ -161,6 +166,22 @@ class mainWindow(Gtk.Window):
         print(canvas.get_size_request())
         self.picGrid.attach(canvas, 1, 1, 1, 1)
 
+    def set_ROI(self, widget):
+        print(self.chooseROI.get_active())
+        while( self.chooseROI.get_active()):
+            print("Set ROI!")
+            canvas = self.picGrid.get_child_at(1,1)
+            axis = canvas.get_child_visible()
+
+    def updatezoom(event, rectangle):
+        '''When mouse is right-clicked on the canvas get the coordiantes and return them'''
+        if event.button!=1: return
+        if (event.xdata is None): return
+        x,y = event.xdata, event.ydata
+        # else:
+        #     print("User cancelled ROI selection.")
+        rectangle.x = x
+        rectangle.y = y
         
     def zoomEvent(self, widget):
         print("Yaaaay")    
