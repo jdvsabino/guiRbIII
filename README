@@ -1,5 +1,7 @@
 TODO
  - Make code in newPlotWindow organized
  - clean code in 'plotWindow.py'
- - show figures as plots in main window
-
+ - Center (and make bigger) smallplots
+ - Fix window size
+ - Make good Plot axis 
+ - Change Background color??
