@@ -22,9 +22,6 @@ class plotWindow(Gtk.Window):
         #self.set_resizable(True)
         self.set_border_width(10)
 
-        # Set Range Window
-        #self.setRangeWin = SetRangeWindow()
-
         # Main box
         self.mainBox = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing=20)
         self.add(self.mainBox)
