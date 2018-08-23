@@ -1,7 +1,5 @@
 TODO
- - Make code in newPlotWindow organized
- - clean code in 'plotWindow.py'
- - Center (and make bigger) smallplots
- - Fix window size
+ - Select ROI and Bkg regions 
+ - Make buttons open windows only once
  - Make good Plot axis 
  - Change Background color??
