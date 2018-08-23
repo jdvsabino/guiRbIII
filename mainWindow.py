@@ -19,10 +19,11 @@ class mainWindow(Gtk.Window):
         Gtk.Window.__init__(self, title = "Main Window")
 
         # Size settings
-        self.set_default_size(750, 1000)
+        self.set_default_size(850, 1000)
         print(self.get_size())
         self.set_border_width(10)
-        #self.set_resizable(False)
+        self.set_resizable(False)
+
         ### Main Box ###
         self.mainBox = Gtk.Box(spacing=20)
         self.add(self.mainBox)
@@ -89,9 +90,9 @@ class mainWindow(Gtk.Window):
         self.rightBox = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = 12)
         self.mainBox.add(self.rightBox)
 
-        self.picZoomedBox = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = 12)
-        self.picZoomedBox.set_size_request(600, 300)
-        self.rightBox.add(self.picZoomedBox)
+        self.picZoomedBox = Gtk.Grid()#Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = 12)
+        # self.picZoomedBox.set_size_request(600, 300)
+        self.rightBox.pack_start(self.picZoomedBox, True, True, 0)
         
         self.toolbarBox = Gtk.Box()
         self.rightBox.add(self.toolbarBox)
@@ -99,11 +100,12 @@ class mainWindow(Gtk.Window):
         self.picGrid = Gtk.Grid()
         self.picGrid.set_column_spacing(12)
         self.picGrid.set_row_spacing(12)
-        self.rightBox.add(self.picGrid)
+        self.rightBox.pack_end(self.picGrid, True, True, 0)
+        #self.rightBox.set_center_widget(self.picGrid)
 
 
 
-        self.picSize = 200
+        self.picSize = 300
         #self.piczoom = GdkPixbuf.Pixbuf.new_from_file("figure_2.tif")
         # self.piczoom2 = self.piczoom.scale_simple(100, 100, GdkPixbuf.InterpType.BILINEAR)
         #self.picZoomed = Gtk.Image.new_from_pixbuf(self.piczoom2)#Gtk.Image.new_from_file("figure_1.tif")
@@ -127,11 +129,15 @@ class mainWindow(Gtk.Window):
     def set_picZoomed(self, filename):
         
         canvas = gen_canvas(filename, 10,10)
-        canvas.set_size_request(400, 300)
-        self.picZoomedBox.pack_start(canvas, True, True, 0)
+        canvas.set_size_request(600, 300)
+        # self.picZoomedBox.pack_start(canvas, False, False, 0)
+        self.picZoomedBox.attach(canvas, 0,0,1,1) 
         toolbar = NavigationToolbar(canvas, self)
-        toolbar.set_size_request(400, 40)
-        self.toolbarBox.pack_start(toolbar, True, True, 0)
+        
+        toolbar.set_size_request(200, 40)
+        toolbar.set_icon_size(toolbar.get_icon_size()/20)
+        
+        self.toolbarBox.pack_start(toolbar, False,False, 0)
         
     def set_picAtoms(self, filename):
         # self.picAtoms = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename, self.picSize, self.picSize, False)
@@ -181,10 +187,7 @@ class mainWindow(Gtk.Window):
         # else:
         #     print("User cancelled ROI selection.")
         rectangle.x = x
-        rectangle.y = y
-        
-    def zoomEvent(self, widget):
-        print("Yaaaay")    
+        rectangle.y = y 
         
 
 
