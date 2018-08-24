@@ -69,6 +69,7 @@ class mainWindow(Gtk.Window):
         self.setManually = Gtk.Button(label="Set Manually")
         self.regionsBox.pack_start(self.setManually, True, True, 0)
         self.setManually.connect("clicked", self.on_setRegionButton_clicked)
+        self.winControl = 0
 
         self.infoNetwork = Gtk.Label("Network v0.0")
         self.infoBox.add(self.infoNetwork)
@@ -121,10 +122,15 @@ class mainWindow(Gtk.Window):
     ### CALL BACK FUNCTIONS ###
     def on_setRegionButton_clicked(self, widget):
         from setRegionWindow import SetRegionWindow
-        setWindow = SetRegionWindow()
-        setWindow.connect("destroy", lambda x: Gtk.main_quit())
-        setWindow.show_all()
-        Gtk.main()
+
+        if self.winControl == 0:
+            self.winControl = 1
+            setWindow = SetRegionWindow()
+            setWindow.connect("destroy", lambda x: Gtk.main_quit())
+            setWindow.show_all()
+            Gtk.main()
+            self.winControl = 0
+        
 
     def set_picZoomed(self, filename):
         
@@ -174,20 +180,29 @@ class mainWindow(Gtk.Window):
 
     def set_ROI(self, widget):
         print(self.chooseROI.get_active())
+        
         while( self.chooseROI.get_active()):
             print("Set ROI!")
             canvas = self.picGrid.get_child_at(1,1)
             axis = canvas.get_child_visible()
 
-    def updatezoom(event, rectangle):
+
+    def updateCursorPosition(self, event):
+        '''When cursor inside plot, get position and print to statusbar'''
+        if event.inaxes:
+            x = event.xdata
+            y = event.ydata
+            print("Coordinates:" + " x= " + str(round(x,3)) + "  y= " + str(round(y,3)))#statbar.push(1, ("Coordinates:" + " x= " + str(round(x,3)) + "  y= " + str(round(y,3))))
+            
+    def updatezoom(self, event):#, rectangle):
         '''When mouse is right-clicked on the canvas get the coordiantes and return them'''
         if event.button!=1: return
         if (event.xdata is None): return
         x,y = event.xdata, event.ydata
         # else:
-        #     print("User cancelled ROI selection.")
-        rectangle.x = x
-        rectangle.y = y 
+        print("Ahahahhhhhhhhh")
+        #rectangle.x = x
+        #rectangle.y = y 
         
 
 
@@ -228,6 +243,10 @@ win.set_picNoAtoms("figure_2.tif")
 win.set_picBkg("figure_2.tif")
 win.set_picOriginal("figure_2.tif")
 
+
+picpic = win.picGrid.get_child_at(1,1)
+picpic.mpl_connect('motion_notify_event', win.updateCursorPosition)
+picpic.mpl_connect('button_press_event', win.updateCursorPosition)
 #win.set_resizable(False)
 
 
