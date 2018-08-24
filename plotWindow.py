@@ -189,6 +189,7 @@ class newPlotWindow(Gtk.Window):
         self.middleBox.pack_start(self.setRangeButton, True, True, 0)
         #self.setRangeButton.connect("clicked", self.on_setRangeButton_clicked, self.setRangeWin)
         self.setRangeButton.connect("clicked", self.on_setRangeButton_clicked)
+        self.winControl = 0
 
         self.saveDataButton = Gtk.Button(label = "Save Data")
         self.middleBox.pack_start(self.saveDataButton, True, True, 0)
@@ -296,10 +297,15 @@ class newPlotWindow(Gtk.Window):
     ### CALL BACK FUNCTIONS ###
     def on_setRangeButton_clicked(self, widget):
         from setRangeWindow import SetRangeWindow
-        setWindow = SetRangeWindow()
-        setWindow.connect("destroy", lambda x: Gtk.main_quit())
-        setWindow.show_all()
-        Gtk.main()
+        
+        if self.winControl == 0:
+            self.winControl = 1
+            setWindow = SetRangeWindow()
+            setWindow.connect("destroy", lambda x: Gtk.main_quit())
+            setWindow.show_all()
+            Gtk.main()
+            self.winControl = 0
+        
 
     def gen_plot(self):
 
