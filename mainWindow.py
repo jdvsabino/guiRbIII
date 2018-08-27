@@ -109,11 +109,14 @@ class mainWindow(Gtk.Window):
 
 
         self.picSize = 300
-        #self.piczoom = GdkPixbuf.Pixbuf.new_from_file("figure_2.tif")
-        # self.piczoom2 = self.piczoom.scale_simple(100, 100, GdkPixbuf.InterpType.BILINEAR)
-        #self.picZoomed = Gtk.Image.new_from_pixbuf(self.piczoom2)#Gtk.Image.new_from_file("figure_1.tif")
-        #self.picZoomedBox.add(self.picZoomed)
 
+        # Absorption picture -
+        # This pic is special becaus we need to zoom on it.
+        # Therefore we create a canvas object to manipulate it more easily.
+        # It is only set when you call the function 'set_picZoomed'.
+        self.canvas = None
+        
+        
 
         # Rectangle for ROI and RBC
         self.rectangleROI = roiRectangle(1,1,2,2)
@@ -141,11 +144,13 @@ class mainWindow(Gtk.Window):
 
     def set_picZoomed(self, filename):
         
-        canvas = gen_canvas(filename, 10,10)
-        canvas.set_size_request(600, 300)
+        self.canvas = gen_canvas(filename, 10,10)
+        self.canvas.set_size_request(600, 300)
+        self.canvas.figure.axes[0].callbacks.connect("xlim_changed", self.updateRegion)
+        self.canvas.figure.axes[0].callbacks.connect("ylim_changed", self.updateRegion)
         # self.picZoomedBox.pack_start(canvas, False, False, 0)
-        self.picZoomedBox.attach(canvas, 0,0,1,1) 
-        toolbar = NavigationToolbar(canvas, self)
+        self.picZoomedBox.attach(self.canvas, 0,0,1,1) 
+        toolbar = NavigationToolbar(self.canvas, self)
         
         toolbar.set_size_request(200, 40)
         toolbar.set_icon_size(toolbar.get_icon_size()/20)
@@ -199,11 +204,7 @@ class mainWindow(Gtk.Window):
         
         if self.chooseROI.get_active():
             # Try to create a self.canvas
-            print("Left:  " + str(self.rectangleROI.x_start))
-            print("Up:    " + str(self.rectangleROI.y_start))
-            print("Down:  " + str(self.rectangleROI.x_end))
-            print("Right: " + str(self.rectangleROI.y_end))
-            
+            print("Draw the ROI!")
             
         else:
             picpic = self.picGrid.get_child_at(1,1)
@@ -237,15 +238,33 @@ class mainWindow(Gtk.Window):
         if event.inaxes:
             #self.rectangleROI.x_end = event.xdata
             #self.rectangleROI.y_end = event.ydata
-            print("Coordinates:" + " x= " + str(round( self.rectangleROI.x_end,3)) + "  y= " + str(round( self.rectangleROI.y_end,3)))
+            print("Coordinates:" + " x= " + str(round( event.ydata, 3)) + "  y= " + str(round( event.xdata, 3)))
+            #print("Coordinates:" + " x= " + str(round( self.rectangleROI.x_end,3)) + "  y= " + str(round( self.rectangleROI.y_end,3)))
         
             # print("Left:  " + str(self.rectangleROI.x_start))
             # print("Up:    " + str(self.rectangleROI.y_start))
             # print("Down:  " + str(self.rectangleROI.x_end))
             # print("Right: " + str(self.rectangleROI.y_end))
 
-            
-            
+    def updateRegion(self, event):
+        
+        axes = self.canvas.figure.axes[0]
+        xlims = axes.get_xlim()
+        ylims = axes.get_ylim()
+
+        print(xlims)
+        print(ylims)
+        self.rectangleROI.x_start = xlims[0]
+        self.rectangleROI.y_start = ylims[1]
+        self.rectangleROI.x_end = xlims[1]
+        self.rectangleROI.y_end = ylims[0]
+
+        print("Left:  " + str(self.rectangleROI.x_start))
+        print("Up:    " + str(self.rectangleROI.y_start))
+        print("Down:  " + str(self.rectangleROI.y_end))
+        print("Right: " + str(self.rectangleROI.x_end))
+        
+        
     def zoomStart(self, event):#, rectangle):
         '''When mouse is right-clicked on the canvas get the coordiantes and return them'''
         if event.button!=1: return
@@ -266,6 +285,12 @@ class mainWindow(Gtk.Window):
         #x,y = event.xdata, event.ydata
         self.rectangleROI.x_end = event.xdata
         self.rectangleROI.y_end = event.ydata
+
+
+        print("Left:  " + str(self.rectangleROI.x_start))
+        print("Up:    " + str(self.rectangleROI.y_start))
+        print("Down:  " + str(self.rectangleROI.y_end))
+        print("Right: " + str(self.rectangleROI.x_end))
         
         # else:
         print("Bbbbbbbbbbbb")
