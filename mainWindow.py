@@ -65,7 +65,8 @@ class mainWindow(Gtk.Window):
         self.chooseROI.connect("toggled", self.set_ROI)
         self.regionsBox.pack_start(self.chooseROI, True, True, 0)
 
-        self.chooseBkg = Gtk.Button(label="Choose Bkg.")
+        self.chooseBkg = Gtk.ToggleButton(label="Choose Bkg.")
+        self.chooseBkg.connect("toggled", self.set_RBC)
         self.regionsBox.pack_start(self.chooseBkg, True, True, 0)
         
         self.setManually = Gtk.Button(label="Set Manually")
@@ -191,6 +192,12 @@ class mainWindow(Gtk.Window):
         self.picGrid.attach(canvas, 1, 1, 1, 1)
 
     def set_ROI(self, widget):
+        if self.chooseBkg.get_active() and self.chooseROI.get_active():
+            self.chooseBkg.set_active(False)
+            self.chooseROI.set_active(True)
+            
+        if self.chooseBkg.get_active() and not self.chooseROI.get_active():
+            return 0
         print(self.chooseROI.get_active())
         print("Set ROI!")
 
@@ -227,7 +234,14 @@ class mainWindow(Gtk.Window):
         if button_event_start_id != None:
             picpic.disconnect()
         
+    def set_RBC(self, widget):
+        if self.chooseROI.get_active() and self.chooseBkg.get_active():
+            self.chooseROI.set_active(False)
 
+        if self.chooseROI.get_active() and not self.chooseBkg.get_active():
+            return 0
+            
+        
             
             
             
@@ -247,22 +261,23 @@ class mainWindow(Gtk.Window):
             # print("Right: " + str(self.rectangleROI.y_end))
 
     def updateRegion(self, event):
-        
-        axes = self.canvas.figure.axes[0]
-        xlims = axes.get_xlim()
-        ylims = axes.get_ylim()
 
-        print(xlims)
-        print(ylims)
-        self.rectangleROI.x_start = xlims[0]
-        self.rectangleROI.y_start = ylims[1]
-        self.rectangleROI.x_end = xlims[1]
-        self.rectangleROI.y_end = ylims[0]
+        if self.chooseROI.get_active() == True:
+            axes = self.canvas.figure.axes[0]
+            xlims = axes.get_xlim()
+            ylims = axes.get_ylim()
 
-        print("Left:  " + str(self.rectangleROI.x_start))
-        print("Up:    " + str(self.rectangleROI.y_start))
-        print("Down:  " + str(self.rectangleROI.y_end))
-        print("Right: " + str(self.rectangleROI.x_end))
+            print(xlims)
+            print(ylims)
+            self.rectangleROI.x_start = xlims[0]
+            self.rectangleROI.y_start = ylims[1]
+            self.rectangleROI.x_end = xlims[1]
+            self.rectangleROI.y_end = ylims[0]
+
+            print("Left:  " + str(self.rectangleROI.x_start))
+            print("Up:    " + str(self.rectangleROI.y_start))
+            print("Down:  " + str(self.rectangleROI.y_end))
+            print("Right: " + str(self.rectangleROI.x_end))
         
         
     def zoomStart(self, event):#, rectangle):
@@ -316,11 +331,6 @@ class mainWindow(Gtk.Window):
             print("Camera will be selected automatically.")
         else:
             print(widget.get_active_text() + " is active!")
-
-    def on_setROI_clicked(self, widget):
-
-        ''' TODO '''
-        return Null
 
 
 
