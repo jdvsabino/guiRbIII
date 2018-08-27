@@ -12,6 +12,8 @@ from matplotlib.backends.backend_gtk3 import NavigationToolbar2GTK3 as Navigatio
 from numpy import sin, cos, pi, linspace
 from plotWindow import *
 from picture_generator import gen_canvas
+from classes.drawRectangle import *
+from classes.helpFunctions import *
 
 class mainWindow(Gtk.Window):
 
@@ -112,9 +114,14 @@ class mainWindow(Gtk.Window):
         #self.picZoomed = Gtk.Image.new_from_pixbuf(self.piczoom2)#Gtk.Image.new_from_file("figure_1.tif")
         #self.picZoomedBox.add(self.picZoomed)
 
+
+        # Rectangle for ROI and RBC
+        self.rectangleROI = roiRectangle(1,1,2,2)
+        
         # Plot Window
         self.plotWin = newPlotWindow()
-        self.plotWin.show_all()        
+        self.plotWin.show_all()
+        
         
         
         
@@ -180,31 +187,89 @@ class mainWindow(Gtk.Window):
 
     def set_ROI(self, widget):
         print(self.chooseROI.get_active())
+        print("Set ROI!")
+
+        motion_event_id = None
+        button_event_id = None
+        picpic = self.picGrid.get_child_at(1,1)
+
+        motion_event_id = picpic.mpl_connect('motion_notify_event', self.updateCursorPosition)
+        button_event_start_id = picpic.mpl_connect('button_press_event', self.zoomStart)
+        button_event_end_id = picpic.mpl_connect('button_release_event', self.zoomEnd)
         
-        while( self.chooseROI.get_active()):
-            print("Set ROI!")
-            canvas = self.picGrid.get_child_at(1,1)
-            axis = canvas.get_child_visible()
+        if self.chooseROI.get_active():
+            # Try to create a self.canvas
+            print("Left:  " + str(self.rectangleROI.x_start))
+            print("Up:    " + str(self.rectangleROI.y_start))
+            print("Down:  " + str(self.rectangleROI.x_end))
+            print("Right: " + str(self.rectangleROI.y_end))
+            
+            
+        else:
+            picpic = self.picGrid.get_child_at(1,1)
+            axes_temp = picpic.figure.axes[0]
+            
+            rectangle = self.rectangleROI.drawRectangle()
+            axes_temp.add_patch(rectangle)
+            print(rectangle)           
+            print("done! \n")
+            
+            picpic.figure.axes[0] = axes_temp
+            picpic.flush_events()
+            picpic.draw_idle()
+            
+            replace_widget(self.picGrid.get_child_at(1,1), picpic)
+            picpic.show()
+        if motion_event_id != None:
+            picpic.disconnect()
+            
+        if button_event_start_id != None:
+            picpic.disconnect()
+        
+
+            
+            
+            
 
 
     def updateCursorPosition(self, event):
         '''When cursor inside plot, get position and print to statusbar'''
         if event.inaxes:
-            x = event.xdata
-            y = event.ydata
-            print("Coordinates:" + " x= " + str(round(x,3)) + "  y= " + str(round(y,3)))#statbar.push(1, ("Coordinates:" + " x= " + str(round(x,3)) + "  y= " + str(round(y,3))))
+            #self.rectangleROI.x_end = event.xdata
+            #self.rectangleROI.y_end = event.ydata
+            print("Coordinates:" + " x= " + str(round( self.rectangleROI.x_end,3)) + "  y= " + str(round( self.rectangleROI.y_end,3)))
+        
+            # print("Left:  " + str(self.rectangleROI.x_start))
+            # print("Up:    " + str(self.rectangleROI.y_start))
+            # print("Down:  " + str(self.rectangleROI.x_end))
+            # print("Right: " + str(self.rectangleROI.y_end))
+
             
-    def updatezoom(self, event):#, rectangle):
+            
+    def zoomStart(self, event):#, rectangle):
         '''When mouse is right-clicked on the canvas get the coordiantes and return them'''
         if event.button!=1: return
         if (event.xdata is None): return
-        x,y = event.xdata, event.ydata
+        #x,y = event.xdata, event.ydata
+        self.rectangleROI.x_start = event.xdata
+        self.rectangleROI.y_start = event.ydata
+        
         # else:
         print("Ahahahhhhhhhhh")
         #rectangle.x = x
         #rectangle.y = y 
         
-
+    def zoomEnd(self, event):#, rectangle):
+        '''When mouse is right-clicked on the canvas get the coordiantes and return them'''
+        if event.button!=1: return
+        if (event.xdata is None): return
+        #x,y = event.xdata, event.ydata
+        self.rectangleROI.x_end = event.xdata
+        self.rectangleROI.y_end = event.ydata
+        
+        # else:
+        print("Bbbbbbbbbbbb")
+    
 
 
 ##############################
@@ -227,6 +292,14 @@ class mainWindow(Gtk.Window):
         else:
             print(widget.get_active_text() + " is active!")
 
+    def on_setROI_clicked(self, widget):
+
+        ''' TODO '''
+        return Null
+
+
+
+        
 win = mainWindow()
 
 #print(dir(win.infoLabel))
@@ -244,10 +317,10 @@ win.set_picBkg("figure_2.tif")
 win.set_picOriginal("figure_2.tif")
 
 
-picpic = win.picGrid.get_child_at(1,1)
-picpic.mpl_connect('motion_notify_event', win.updateCursorPosition)
-picpic.mpl_connect('button_press_event', win.updateCursorPosition)
-#win.set_resizable(False)
+# picpic = win.picGrid.get_child_at(1,1)
+# picpic.mpl_connect('motion_notify_event', win.updateCursorPosition)
+# picpic.mpl_connect('button_press_event', win.updateZoom)
+# win.set_resizable(False)
 
 
 # n = 1000
