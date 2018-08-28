@@ -45,7 +45,7 @@ class mainWindow(Gtk.Window):
 
         self.infoBox = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = 6)
         self.leftBox.add(self.infoBox)
-
+        
         
         ### Buttons, labels and boxes - Left ###
         self.startButton = Gtk.ToggleButton(label="START")
@@ -65,9 +65,9 @@ class mainWindow(Gtk.Window):
         self.chooseROI.connect("toggled", self.set_ROI)
         self.regionsBox.pack_start(self.chooseROI, True, True, 0)
 
-        self.chooseBkg = Gtk.ToggleButton(label="Choose Bkg.")
-        self.chooseBkg.connect("toggled", self.set_RBC)
-        self.regionsBox.pack_start(self.chooseBkg, True, True, 0)
+        self.chooseRBC = Gtk.ToggleButton(label="Choose Bkg.")
+        self.chooseRBC.connect("toggled", self.set_RBC)
+        self.regionsBox.pack_start(self.chooseRBC, True, True, 0)
         
         self.setManually = Gtk.Button(label="Set Manually")
         self.regionsBox.pack_start(self.setManually, True, True, 0)
@@ -111,16 +111,18 @@ class mainWindow(Gtk.Window):
 
         self.picSize = 300
 
-        # Absorption picture -
-        # This pic is special becaus we need to zoom on it.
-        # Therefore we create a canvas object to manipulate it more easily.
-        # It is only set when you call the function 'set_picZoomed'.
-        self.canvas = None
+        # Zoomed picture & Absorption picture  
+        # These pics are special becaus we need to zoom on it or select regions.
+        # Therefore we create a canvas object for each one to manipulate it more easily.
+        # It is only set when you call the function 'set_picZoomed' or 'set_picOriginal'.
+        self.canvasZoom = None
+        self.canvasOriginal = None
         
         
 
         # Rectangle for ROI and RBC
         self.rectangleROI = roiRectangle(1,1,2,2)
+        self.rectangleRBC = rbcRectangle(1,1,2,2)
         
         # Plot Window
         self.plotWin = newPlotWindow()
@@ -145,16 +147,16 @@ class mainWindow(Gtk.Window):
 
     def set_picZoomed(self, filename):
         
-        self.canvas = gen_canvas(filename, 10,10)
-        self.canvas.set_size_request(600, 300)
-        self.canvas.figure.axes[0].callbacks.connect("xlim_changed", self.updateRegion)
-        self.canvas.figure.axes[0].callbacks.connect("ylim_changed", self.updateRegion)
-        # self.picZoomedBox.pack_start(canvas, False, False, 0)
-        self.picZoomedBox.attach(self.canvas, 0,0,1,1) 
-        toolbar = NavigationToolbar(self.canvas, self)
+        self.canvasZoom = gen_canvas(filename, 10,10)
+        self.canvasZoom.set_size_request(600, 300)
+        self.canvasZoom.figure.axes[0].callbacks.connect("xlim_changed", self.updateRegion)
+        self.canvasZoom.figure.axes[0].callbacks.connect("ylim_changed", self.updateRegion)
+        # self.picZoomedBox.pack_start(canvasZoom, False, False, 0)
+        self.picZoomedBox.attach(self.canvasZoom, 0,0,1,1) 
+        toolbar = NavigationToolbar(self.canvasZoom, self)
         
-        toolbar.set_size_request(200, 40)
-        toolbar.set_icon_size(toolbar.get_icon_size()/20)
+        #toolbar.set_size_request(200, 40)
+        #toolbar.set_icon_size(toolbar.get_icon_size()/20)
         
         self.toolbarBox.pack_start(toolbar, False,False, 0)
         
@@ -186,60 +188,94 @@ class mainWindow(Gtk.Window):
         self.picGrid.attach(canvas, 0, 1, 1, 1)
 
     def set_picOriginal(self, filename):
-        canvas = gen_canvas(filename)
-        canvas.set_size_request(self.picSize, self.picSize)        
-        print(canvas.get_size_request())
-        self.picGrid.attach(canvas, 1, 1, 1, 1)
+        self.canvasOriginal = gen_canvas(filename)
+        self.canvasOriginal.set_size_request(self.picSize, self.picSize)        
+        # print(self.canvasOriginal.get_size_request())
+        self.picGrid.attach(self.canvasOriginal, 1, 1, 1, 1)
 
     def set_ROI(self, widget):
-        if self.chooseBkg.get_active() and self.chooseROI.get_active():
-            self.chooseBkg.set_active(False)
+        # Here we make sure that the Toggle Buttons that set the ROI and RBC regions
+        # are not activated at the same time.
+        
+        if self.chooseRBC.get_active() and self.chooseROI.get_active():
+            self.chooseRBC.set_active(False)
             self.chooseROI.set_active(True)
             
-        if self.chooseBkg.get_active() and not self.chooseROI.get_active():
+        if self.chooseRBC.get_active() and not self.chooseROI.get_active():
             return 0
-        print(self.chooseROI.get_active())
-        print("Set ROI!")
 
-        motion_event_id = None
-        button_event_id = None
-        picpic = self.picGrid.get_child_at(1,1)
-
-        motion_event_id = picpic.mpl_connect('motion_notify_event', self.updateCursorPosition)
-        button_event_start_id = picpic.mpl_connect('button_press_event', self.zoomStart)
-        button_event_end_id = picpic.mpl_connect('button_release_event', self.zoomEnd)
+        
+        motion_event_id = self.canvasOriginal.mpl_connect('motion_notify_event', self.updateCursorPosition)
+        button_event_start_id = self.canvasOriginal.mpl_connect('button_press_event', self.zoomStart)
+        button_event_end_id = self.canvasOriginal.mpl_connect('button_release_event', self.zoomEnd)
         
         if self.chooseROI.get_active():
             # Try to create a self.canvas
             print("Draw the ROI!")
             
         else:
-            picpic = self.picGrid.get_child_at(1,1)
-            axes_temp = picpic.figure.axes[0]
+            
+            axes_temp = self.canvasOriginal.figure.axes[0]
             
             rectangle = self.rectangleROI.drawRectangle()
             axes_temp.add_patch(rectangle)
             print(rectangle)           
             print("done! \n")
             
-            picpic.figure.axes[0] = axes_temp
-            picpic.flush_events()
-            picpic.draw_idle()
+            self.canvasOriginal.figure.axes[0] = axes_temp
+            self.canvasOriginal.flush_events()
+            self.canvasOriginal.draw_idle()
             
-            replace_widget(self.picGrid.get_child_at(1,1), picpic)
-            picpic.show()
-        if motion_event_id != None:
-            picpic.disconnect()
+            replace_widget(self.picGrid.get_child_at(1,1), self.canvasOriginal)
+            self.canvasOriginal.show()
+            if motion_event_id != None:
+                self.canvasOriginal.mpl_disconnect(motion_event_id)
             
-        if button_event_start_id != None:
-            picpic.disconnect()
+            if button_event_start_id != None:
+                self.canvasOriginal.mpl_disconnect(button_event_start_id)
+            if button_event_end_id != None:
+                self.canvasOriginal.mpl_disconnect(button_event_end_id)
         
     def set_RBC(self, widget):
-        if self.chooseROI.get_active() and self.chooseBkg.get_active():
+        # Here we make sure that the Toggle Buttons that set the ROI and RBC regions
+        # are not activated at the same time.
+
+        if self.chooseROI.get_active() and self.chooseRBC.get_active():
             self.chooseROI.set_active(False)
 
-        if self.chooseROI.get_active() and not self.chooseBkg.get_active():
+        if self.chooseROI.get_active() and not self.chooseRBC.get_active():
             return 0
+
+        motion_event_id = self.canvasOriginal.mpl_connect('motion_notify_event', self.updateCursorPosition)
+        button_event_start_id = self.canvasOriginal.mpl_connect('button_press_event', self.zoomStart)
+        button_event_end_id = self.canvasOriginal.mpl_connect('button_release_event', self.zoomEnd)
+
+        if self.chooseRBC.get_active():
+            # Try to create a self.canvas
+            print("Draw the RBC!")
+            
+        else:
+            axes_temp = self.canvasOriginal.figure.axes[0]
+            
+            rectangle = self.rectangleRBC.drawRectangle()
+            axes_temp.add_patch(rectangle)
+            print(rectangle)           
+            print("done! \n")
+            
+            self.canvasOriginal.figure.axes[0] = axes_temp
+            self.canvasOriginal.flush_events()
+            self.canvasOriginal.draw_idle()
+        
+            self.canvasOriginal.show()
+
+            if motion_event_id != None:
+                self.canvasOriginal.mpl_disconnect(motion_event_id)            
+            if button_event_start_id != None:
+                self.canvasOriginal.mpl_disconnect(button_event_start_id)
+            if button_event_end_id != None:
+                self.canvasOriginal.mpl_disconnect(button_event_end_id)
+            
+        
             
         
             
@@ -285,11 +321,33 @@ class mainWindow(Gtk.Window):
         if event.button!=1: return
         if (event.xdata is None): return
         #x,y = event.xdata, event.ydata
-        self.rectangleROI.x_start = event.xdata
-        self.rectangleROI.y_start = event.ydata
-        
+        self.rectangleRBC.x_start = event.xdata
+        self.rectangleRBC.y_start = event.ydata
+
+
+        if self.chooseROI.get_active():
+            self.rectangleROI.x_start = event.xdata
+            self.rectangleROI.y_start = event.ydata
+            print("Left:  " + str(self.rectangleROI.x_start))
+            print("Up:    " + str(self.rectangleROI.y_start))
+            print("Down:  " + str(self.rectangleROI.y_end))
+            print("Right: " + str(self.rectangleROI.x_end))            
+            print("ROI recangle drawn!")
+            
+            
+        elif self.chooseRBC.get_active():
+            self.rectangleRBC.x_end = event.xdata
+            self.rectangleRBC.y_end = event.ydata
+            print("Left:  " + str(self.rectangleRBC.x_start))
+            print("Up:    " + str(self.rectangleRBC.y_start))
+            print("Down:  " + str(self.rectangleRBC.y_end))
+            print("Right: " + str(self.rectangleRBC.x_end))
+            print("RBC recangle drawn!")
+            
+        else:
+            return False
         # else:
-        print("Ahahahhhhhhhhh")
+
         #rectangle.x = x
         #rectangle.y = y 
         
@@ -298,17 +356,29 @@ class mainWindow(Gtk.Window):
         if event.button!=1: return
         if (event.xdata is None): return
         #x,y = event.xdata, event.ydata
-        self.rectangleROI.x_end = event.xdata
-        self.rectangleROI.y_end = event.ydata
-
-
-        print("Left:  " + str(self.rectangleROI.x_start))
-        print("Up:    " + str(self.rectangleROI.y_start))
-        print("Down:  " + str(self.rectangleROI.y_end))
-        print("Right: " + str(self.rectangleROI.x_end))
-        
+                
         # else:
-        print("Bbbbbbbbbbbb")
+        if self.chooseROI.get_active():
+            self.rectangleROI.x_end = event.xdata
+            self.rectangleROI.y_end = event.ydata
+            print("Left:  " + str(self.rectangleROI.x_start))
+            print("Up:    " + str(self.rectangleROI.y_start))
+            print("Down:  " + str(self.rectangleROI.y_end))
+            print("Right: " + str(self.rectangleROI.x_end))            
+            print("ROI recangle drawn!")
+            self.chooseROI.set_active(False)
+            
+        elif self.chooseRBC.get_active():
+            self.rectangleRBC.x_end = event.xdata
+            self.rectangleRBC.y_end = event.ydata
+            print("Left:  " + str(self.rectangleRBC.x_start))
+            print("Up:    " + str(self.rectangleRBC.y_start))
+            print("Down:  " + str(self.rectangleRBC.y_end))
+            print("Right: " + str(self.rectangleRBC.x_end))
+            print("RBC recangle drawn!")
+            self.chooseRBC.set_active(False)
+        else:
+            return False
     
 
 
