@@ -7,7 +7,20 @@ from matplotlib.figure import Figure
 import numpy as np
 from matplotlib.backends.backend_gtk3cairo import FigureCanvasGTK3Cairo as FigureCanvas
 
-def gen_canvas(filename, width = 5, height = 5, x_min=0, x_max=0, y_min=0, y_max=0):
+def gen_canvas(filename, width = 5, height = 5, x_min=0, x_max=0, y_min=0, y_max=0, cbar = 0):
+    ''' 
+    Generates a canvas object from a file picture. 
+
+    filename:  the name of the original picture
+    width: width of the figure to be generated
+    height: height of the figure to be generated
+    x/y_min/max: limits for plot axes
+    cbar: flag for colorbar
+
+    Returns: FigureCanvas 
+
+    TODO: More options are to be added, for example, adding plots for integrated pics
+    '''
 
 
     img = mpimg.imread(filename)
@@ -18,7 +31,10 @@ def gen_canvas(filename, width = 5, height = 5, x_min=0, x_max=0, y_min=0, y_max
         ax.set_xlabel([x_min,x_max])
         ax.set_ylabel([y_min,y_max])    
 
-    ax.imshow(img)
+    im = ax.imshow(img)
+
+    if cbar == 1:
+        fig.colorbar(im, ax = ax)
     canvas = FigureCanvas(fig)
     
     return canvas
