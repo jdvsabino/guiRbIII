@@ -147,7 +147,7 @@ class mainWindow(Gtk.Window):
 
     def set_picZoomed(self, filename):
         
-        self.canvasZoom = gen_canvas(filename, 10,10)
+        self.canvasZoom = gen_canvas(filename, 10,10, cbar=1)
         self.canvasZoom.set_size_request(600, 300)
         self.canvasZoom.figure.axes[0].callbacks.connect("xlim_changed", self.updateRegion)
         self.canvasZoom.figure.axes[0].callbacks.connect("ylim_changed", self.updateRegion)
