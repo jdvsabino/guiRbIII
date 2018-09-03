@@ -17,3 +17,13 @@ def replace_widget(old, new):
 
     for name, value in props.iteritems():
         parent.child_set_property(new, name, value)
+
+
+##### MATH FUNCTIONS #####
+
+def gaussian_func(data, a, b, c):
+    ''' 
+    Returns the value of the function
+       a*np.exp(-(x-b)**2/(2*c))
+    '''
+    return a*np.exp(-(x-b)*(x-b)/(2*c))
