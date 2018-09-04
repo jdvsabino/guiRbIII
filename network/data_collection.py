@@ -1,6 +1,6 @@
 class Data_Collection():
 
-    def __init__():
+    def __init__(self):
 
         self.path = ""
         self.imsc = ""
