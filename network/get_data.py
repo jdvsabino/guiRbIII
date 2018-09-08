@@ -1,10 +1,11 @@
 from open_port import start_comm
 from data_collection import Data_Collection
 import select
+import threading
 
 # Maybe define these as global??
-REC_PORT = "17600"#"8101" 
-LOCAL_IP = "127.0.0.1"#"128.131.60.27"
+REC_PORT = "17620"#"8101" 
+LOCAL_IP = "0.0.0.0"#"128.131.60.27"
 
 input_info = Data_Collection() # This is going to be a global variable -  CAREFUL!!
 
@@ -29,9 +30,11 @@ def get_data(local_ip, rec_port_adwin, rec_port_c1, rec_port_c2, rec_port_c3):
     
     while True:
         print("Inside while loop!")
-        readable, writable, exceptional = select.select(inputs,[],[],3) #check if any port received something
+        readable, writable, exceptional = select.select(inputs,[],[]) #check if any port received something
         print("Read something...")
         print(readable)
+        print(writable)
+        print(exceptional)
         for socket in readable:
             data, addr = message.recvfrom(1024)
             print("DATA: " + data)
@@ -54,5 +57,10 @@ def get_data(local_ip, rec_port_adwin, rec_port_c1, rec_port_c2, rec_port_c3):
             
 
 print("Started listening to port " + REC_PORT + ", on local machine.")
-get_data(LOCAL_IP, REC_PORT)
+#t = threading.Thread(get_data(LOCAL_IP, REC_PORT,5,6,7))
+while True:
+    sender = socket.socket()
+    sender.connect('localhost', 17620)
+    sender.sendall('Here I am!')
+sender.close()
 
