@@ -11,7 +11,7 @@ from matplotlib.backends.backend_gtk3cairo import FigureCanvasGTK3Cairo as Figur
 from matplotlib.backends.backend_gtk3 import NavigationToolbar2GTK3 as NavigationToolbar
 from numpy import sin, cos, pi, linspace
 from plotWindow import *
-from picture_generator import gen_canvas
+from picture_generator import gen_canvas, gen_canvas_zoomed
 from classes.drawRectangle import *
 from classes.helpFunctions import *
 
@@ -21,7 +21,7 @@ class mainWindow(Gtk.Window):
         Gtk.Window.__init__(self, title = "Main Window")
 
         # Size settings
-        self.set_default_size(850, 1000)
+        self.set_default_size(900, 1000)
         print(self.get_size())
         self.set_border_width(10)
         self.set_resizable(False)
@@ -109,7 +109,7 @@ class mainWindow(Gtk.Window):
 
 
 
-        self.picSize = 300
+        self.picSize = [250, 160]
 
         # Zoomed picture & Absorption picture  
         # These pics are special becaus we need to zoom on it or select regions.
@@ -146,8 +146,11 @@ class mainWindow(Gtk.Window):
         
 
     def set_picZoomed(self, filename):
-        
-        self.canvasZoom = gen_canvas(filename, 10,10, cbar=1)
+
+        img1 = mpimg.imread(filename)
+        img2 = mpimg.imread("figure_3.tif")
+        img3 = mpimg.imread("figure_4.tif") 
+        self.canvasZoom = gen_canvas_zoomed(img1,img2,img3, 15,10, cbar=1)
         self.canvasZoom.set_size_request(600, 300)
         self.canvasZoom.figure.axes[0].callbacks.connect("xlim_changed", self.updateRegion)
         self.canvasZoom.figure.axes[0].callbacks.connect("ylim_changed", self.updateRegion)
@@ -165,7 +168,7 @@ class mainWindow(Gtk.Window):
         # self.picAtoms = Gtk.Image.new_from_pixbuf(self.picAtoms)
         # self.picGrid.attach(self.picAtoms, 0, 0, 1, 1)
         canvas = gen_canvas(filename)
-        canvas.set_size_request(self.picSize, self.picSize)
+        canvas.set_size_request(self.picSize[0], self.picSize[1])
         self.picGrid.attach(canvas, 0, 0, 1, 1)
 
 
@@ -174,8 +177,8 @@ class mainWindow(Gtk.Window):
         # self.picNoAtoms = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename, self.picSize, self.picSize, False)
         # self.picNoAtoms = Gtk.Image.new_from_pixbuf(self.picNoAtoms)
         # self.picGrid.attach(self.picNoAtoms, 1, 0, 1, 1)
-        canvas = gen_canvas(filename)
-        canvas.set_size_request(self.picSize, self.picSize)
+        canvas = gen_canvas(filename, font=8)
+        canvas.set_size_request(self.picSize[0], self.picSize[1])
         self.picGrid.attach(canvas, 1, 0, 1, 1)
 
         
@@ -183,13 +186,13 @@ class mainWindow(Gtk.Window):
         # self.picBkg = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename, self.picSize, self.picSize, False)
         # self.picBkg = Gtk.Image.new_from_pixbuf(self.picBkg)
         # self.picGrid.attach(self.picBkg, 0, 1, 1, 1)
-        canvas = gen_canvas(filename)
-        canvas.set_size_request(self.picSize, self.picSize)
+        canvas = gen_canvas(filename, font=8)
+        canvas.set_size_request(self.picSize[0], self.picSize[1])
         self.picGrid.attach(canvas, 0, 1, 1, 1)
 
     def set_picOriginal(self, filename):
-        self.canvasOriginal = gen_canvas(filename)
-        self.canvasOriginal.set_size_request(self.picSize, self.picSize)        
+        self.canvasOriginal = gen_canvas(filename, font=8)
+        self.canvasOriginal.set_size_request(self.picSize[0], self.picSize[1])        
         # print(self.canvasOriginal.get_size_request())
         self.picGrid.attach(self.canvasOriginal, 1, 1, 1, 1)
 
