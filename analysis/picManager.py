@@ -17,8 +17,9 @@ class PictureManager():
 
         self.TOF = -1
         self.gain = -1
-        self.ROI = roiRectangle(1,1,1,1)
-        self.RBC = rbcRectangle(1,1,1,1)
+        self.ROI = [1, 1, 1, 1]#roiRectangle(1,1,1,1)
+        self.RBC = [1, 1, 1, 1]#rbcRectangle(1,1,1,1)
+        
 
 
     ''' Getters are  defined '''
@@ -29,16 +30,33 @@ class PictureManager():
     def get_cam(self):
         return self.cam
 
+    def get_ROI(self):
+        roi_info = [self.ROI.x_start, self.ROI.y_start, self.ROI.x_end, self.ROI.y_end
+        return roi_info
+
+    def get_RBC(self):
+        rbc_info = [self.RBC.x_start, self.RBC.y_start, self.RBC.x_end, self.RBC.y_end
+        return rbc_info
+    
 
     
     ''' Useful functions are defined '''
     def get_atoms(self):
         '''
-        Returns number of atoms in the picture
+        Returns number of atoms in the picture.
         '''
+        px_size = self.cam.pixel2um
+        mag = self.cam.magnification
+        abs_cross = self.cam.abs_cross
+        final_pic = self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[4]]
+        atom_number = px_size*pix_size/(mag*mag)/abs_cross*np.sum(np.sum(final_pic))
 
+        return atom_number
+
+    def get_absorption_picture(self):
+        
         return NotImplemented
-
+    
     def integrate_x(self):
         '''
         Returns an array with the pixels summed over y
@@ -104,6 +122,7 @@ class Camera():
             self.pixel_size = 13.*1e-4 # cm
             self.magnification = 12.39
             self.pixel2um = 1.05
+            self.abs_cross = 1.938*1e-9
             self.correction = 0.
 
             return 0
@@ -113,6 +132,7 @@ class Camera():
             self.pixel_size = 13.*1e-4 # cm
             self.magnification = 5.3
             self.pixel2um = 2.45
+            self.abs_cross = 2.9*1e-9
             self.correction = 0.
 
             return 0
@@ -122,6 +142,7 @@ class Camera():
             self.pixel_size = 13.*1e-4 # cm
             self.magnification = 1.68
             self.pixel2um = 3.84
+            self.abs_cross = 1.938*1e-9                    
             self.correction = 0.
 
             return 0
