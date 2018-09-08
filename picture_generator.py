@@ -7,7 +7,7 @@ from matplotlib.figure import Figure
 import numpy as np
 from matplotlib.backends.backend_gtk3cairo import FigureCanvasGTK3Cairo as FigureCanvas
 
-def gen_canvas(filename, width = 5, height = 5, x_min=0, x_max=0, y_min=0, y_max=0, cbar = 0):
+def gen_canvas(filename, width = 5, height = 5, x_min=0, x_max=0, y_min=0, y_max=0, cbar = 0, font=8):
     ''' 
     Generates a canvas object from a file picture. 
 
@@ -26,6 +26,7 @@ def gen_canvas(filename, width = 5, height = 5, x_min=0, x_max=0, y_min=0, y_max
     img = mpimg.imread(filename)
     fig = Figure(figsize = (width, height), dpi = 100)
     ax = fig.add_subplot(111)
+    ax.tick_params(labelsize=font)
 
     if (x_min != x_max and y_min != y_max):   
         ax.set_xlabel([x_min,x_max])
@@ -35,11 +36,71 @@ def gen_canvas(filename, width = 5, height = 5, x_min=0, x_max=0, y_min=0, y_max
 
     if cbar == 1:
         fig.colorbar(im, ax = ax)
+        
     canvas = FigureCanvas(fig)
     
     return canvas
 
+def gen_canvas_zoomed(fig1, fig2, fig3, width = 5, height = 5, x_min=0, x_max=0, y_min=0, y_max=0, cbar = 0, font=8):
+    ''' 
+    Generates a canvas object for the zoomed picture.
+    The picture can be loaded from a file or from an existing picture (so far a matrix). 
 
+    filename:  the name of the original picture
+    width: width of the figure to be generated
+    height: height of the figure to be generated
+    x/y_min/max: limits for plot axes
+    cbar: flag for colorbar
+
+    Returns: FigureCanvas 
+
+    TODO: More options are to be added, for example, adding plots for integrated pics
+    '''
+    import matplotlib.gridspec as gridspec
+
+    
+    gs = gridspec.GridSpec(4, 4, hspace=0.2, wspace=0.2)#gridspec.GridSpec(3,3) #width_ratios=[3, 1], height_ratios=[3, 1])
+    #img = mpimg.imread(filename)
+    fig = Figure(figsize = (width, height), dpi = 100)
+
+    #--- Absorption picture
+    ax1 =fig.add_subplot(gs[:-1, 1:])# fig.add_subplot(gs[0:2,0:2])
+    ax1.yaxis.set_ticks_position('right')
+    ax1.tick_params(labelsize = font)
+
+    #--- Bottom fit
+    ax2 =fig.add_subplot(gs[:-1, 0], xticklabels=[], sharey=ax1)# fig.add_subplot(gs[2,:2])
+    ax2.tick_params(labelsize = font)
+
+    #--- Right fit
+    ax3 =fig.add_subplot(gs[-1, 1:], yticklabels=[], sharex=ax1) # fig.add_subplot(gs[0:2,2])
+    ax3.yaxis.set_ticks_position('right')
+    ax3.tick_params(labelsize = font)
+
+    
+    if (x_min != x_max and y_min != y_max):   
+        ax1.set_xlabel([x_min,x_max])
+        ax2.set_ylabel([y_min,y_max])    
+
+    #--- Drawing the pictures    
+    im1 = ax1.imshow(fig1)
+    im2 = ax2.imshow(fig2)
+    im3 = ax3.imshow(fig3.T)
+
+    #--- Setting colorbar
+    if cbar == 1:
+        cbaxes = fig.add_axes([0.95, 0.4, 0.02, 0.45])
+        cbaxes.yaxis.set_ticks_position('left')
+        cbar = fig.colorbar(im1, cax = cbaxes)
+
+        cb_max = np.max(fig1)
+        cb_min = np.min(fig1)
+        cb_step = 100
+        cbar.ax.set_yticklabels(np.arange(int(cb_min), int(cb_max+cb_step), int(cb_step)), fontsize=8)
+        
+    canvas = FigureCanvas(fig)
+    
+    return canvas
     
 def rescale_pic(pic, factor=1, title=""):
     '''
