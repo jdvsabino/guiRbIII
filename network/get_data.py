@@ -4,8 +4,8 @@ import select
 import threading
 
 # Maybe define these as global??
-REC_PORT = "17620"#"8101" 
-LOCAL_IP = "0.0.0.0"#"128.131.60.27"
+REC_PORT = "5005"#"8101" 
+LOCAL_IP = "127.0.0.1"#"128.131.60.27"
 
 input_info = Data_Collection() # This is going to be a global variable -  CAREFUL!!
 
@@ -26,7 +26,7 @@ def get_data(local_ip, rec_port_adwin, rec_port_c1, rec_port_c2, rec_port_c3):
     c2_socket = start_comm(local_ip, rec_port_c2)
     c3_socket = start_comm(local_ip, rec_port_c3)    
 
-    inputs = [adwin_socket]
+    inputs = [adwin_socket, c1_socket, c2_socket, c3_socket]
     
     while True:
         print("Inside while loop!")
@@ -36,7 +36,7 @@ def get_data(local_ip, rec_port_adwin, rec_port_c1, rec_port_c2, rec_port_c3):
         print(writable)
         print(exceptional)
         for socket in readable:
-            data, addr = message.recvfrom(1024)
+            data, addr = socket.recvfrom(1024)
             print("DATA: " + data)
 
             if socket is adwin_socket:
@@ -53,14 +53,11 @@ def get_data(local_ip, rec_port_adwin, rec_port_c1, rec_port_c2, rec_port_c3):
 
             else:
                 print("Error: wierd socket detected!")
-            
+
+
             
 
 print("Started listening to port " + REC_PORT + ", on local machine.")
-#t = threading.Thread(get_data(LOCAL_IP, REC_PORT,5,6,7))
-while True:
-    sender = socket.socket()
-    sender.connect('localhost', 17620)
-    sender.sendall('Here I am!')
-sender.close()
+t = threading.Thread(get_data(LOCAL_IP, REC_PORT,5,6,7))
+
 
