@@ -64,17 +64,22 @@ def gen_canvas_zoomed(fig1, fig2, fig3, width = 5, height = 5, x_min=0, x_max=0,
     fig = Figure(figsize = (width, height), dpi = 100)
 
     #--- Absorption picture
-    ax1 =fig.add_subplot(gs[:-1, 1:])# fig.add_subplot(gs[0:2,0:2])
+    ax1 =fig.add_subplot(gs[:-1, :-1])#(gs[:-1, 1:])# fig.add_subplot(gs[0:2,0:2])
+    ax1.xaxis.set_alpha(0.)
+    ax1.xaxis.set_visible(False)
+    ax1.yaxis.set_visible(False)    
+    ax1.yaxis.set_alpha(0.)
     ax1.yaxis.set_ticks_position('right')
     ax1.tick_params(labelsize = font)
 
-    #--- Bottom fit
-    ax2 =fig.add_subplot(gs[:-1, 0], xticklabels=[], sharey=ax1)# fig.add_subplot(gs[2,:2])
+    #--- Right fit
+#    ax2 =fig.add_subplot(gs[:-1, 0], xticklabels=[], sharey=ax1)# fig.add_subplot(gs[2,:2])
+    ax2 =fig.add_subplot(gs[:-1, -1], xticklabels=[], sharey=ax1)# fig.add_subplot(gs[2,:2])
+    ax2.yaxis.set_ticks_position('right')
     ax2.tick_params(labelsize = font)
 
-    #--- Right fit
-    ax3 =fig.add_subplot(gs[-1, 1:], yticklabels=[], sharex=ax1) # fig.add_subplot(gs[0:2,2])
-    ax3.yaxis.set_ticks_position('right')
+    #--- Bottom fit
+    ax3 =fig.add_subplot(gs[-1, 0:-1], yticklabels=[], sharex=ax1) # fig.add_subplot(gs[0:2,2])
     ax3.tick_params(labelsize = font)
 
     
@@ -84,19 +89,19 @@ def gen_canvas_zoomed(fig1, fig2, fig3, width = 5, height = 5, x_min=0, x_max=0,
 
     #--- Drawing the pictures    
     im1 = ax1.imshow(fig1)
-    im2 = ax2.imshow(fig2)
-    im3 = ax3.imshow(fig3.T)
+    im2 = ax2.imshow(fig2.T)
+    im3 = ax3.imshow(fig3)
 
     #--- Setting colorbar
     if cbar == 1:
-        cbaxes = fig.add_axes([0.95, 0.4, 0.02, 0.45])
+        cbaxes = fig.add_axes([0.02, 0.4, 0.02, 0.45])
         cbaxes.yaxis.set_ticks_position('left')
         cbar = fig.colorbar(im1, cax = cbaxes)
 
-        cb_max = np.max(fig1)
-        cb_min = np.min(fig1)
-        cb_step = 100
-        cbar.ax.set_yticklabels(np.arange(int(cb_min), int(cb_max+cb_step), int(cb_step)), fontsize=8)
+        # cb_max = np.max(fig1)
+        # cb_min = np.min(fig1)
+        # cb_step = 100
+        # cbar.ax.set_yticklabels(np.arange(int(cb_min), int(cb_max+cb_step), int(cb_step)), fontsize=8)
         
     canvas = FigureCanvas(fig)
     
