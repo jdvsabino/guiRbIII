@@ -14,6 +14,8 @@ class drawRectangle:
 
         self.width = self.x_end -self.x_start
         self.height = self.y_end - self.y_start
+
+        self.rectangle = None
         
 
 
@@ -27,12 +29,17 @@ class roiRectangle(drawRectangle):
         drawRectangle.__init__(self, up, down, left, right)
         self.ID = 0 # Defines object's identity as a ROI recangle
     
-    def drawRectangle(self):
+    def drawRectangle(self, alpha=-1):
         self.width = self.x_end -self.x_start
         self.height = self.y_end - self.y_start
-        rectangle = Rectangle((self.x_start,self.y_start), self.width, self.height, facecolor = 'none', linewidth=1, edgecolor='b')
+
+        if alpha != -1:
+            self.rectangle = Rectangle((self.x_start,self.y_start), self.width, self.height, facecolor = 'none', linewidth=1, edgecolor='b', alpha=alpha)
+            #return self.rectangle
+            
         
-        return rectangle
+        self.rectangle = Rectangle((self.x_start,self.y_start), self.width, self.height, facecolor = 'none', linewidth=1, edgecolor='r')
+        #return self.rectangle
 
 
 class rbcRectangle(drawRectangle):
@@ -41,10 +48,13 @@ class rbcRectangle(drawRectangle):
         drawRectangle.__init__(self, up, down, left, right)
         self.ID = 1 # Defines object's identity as a RBC recangle
     
-    def drawRectangle(self):
+    def drawRectangle(self, alpha=-1):
         self.width = self.x_end -self.x_start
         self.height = self.y_end - self.y_start
-        rectangle = Rectangle((self.x_start,self.y_start), self.width, self.height, facecolor = 'none', linewidth=1, edgecolor='--k')
-        return rectangle
 
-
+        if alpha != -1:
+            self.rectangle = Rectangle((self.x_start,self.y_start), self.width, self.height, facecolor = 'none', linewidth=1, edgecolor='k', alpha=alpha)
+            #return self.rectangle
+        
+        self.rectangle = Rectangle((self.x_start,self.y_start), self.width, self.height, facecolor = 'none', linewidth=1, edgecolor='k')
+        #return self.rectangle
