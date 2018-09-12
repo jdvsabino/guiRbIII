@@ -28,7 +28,15 @@ class roiRectangle(drawRectangle):
         self.ID = 0 # Defines object's identity as a ROI recangle
     
     def drawRectangle(self):
-        rectangle = Rectangle((self.x_start,self.y_end), self.width, self.height, facecolor = "green", alpha = 0.2)
+        self.width = self.x_end -self.x_start
+        self.height = self.y_end - self.y_start
+        rectangle = Rectangle((self.x_start,self.y_start), self.width, self.height, facecolor = 'none', linewidth=1, edgecolor='b')
+
+        print("X start = " + str(self.x_start))
+        print("Y end = " + str(self.y_end))
+        print("Width = " + str(self.width))
+        print("Height = " + str(self.height))
+        
         return rectangle
 
 
@@ -39,7 +47,9 @@ class rbcRectangle(drawRectangle):
         self.ID = 1 # Defines object's identity as a RBC recangle
     
     def drawRectangle(self):
-        rectangle = Rectangle((self.x_start,self.y_end), self.width, self.height, facecolor = "green", alpha = 0.2)
+        self.width = self.x_end -self.x_start
+        self.height = self.y_end - self.y_start
+        rectangle = Rectangle((self.x_start,self.y_start), self.width, self.height, facecolor = 'none', linewidth=1, edgecolor='k')
         return rectangle
 
 
