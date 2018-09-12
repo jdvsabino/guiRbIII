@@ -121,7 +121,7 @@ class mainWindow(Gtk.Window):
         
 
         # Rectangle for ROI and RBC
-        self.rectangleROI = roiRectangle(1,1,2,2)
+        self.rectangleROI = roiRectangle(1,1,1,1)
         self.rectangleRBC = rbcRectangle(1,1,2,2)
         
         # Plot Window
@@ -149,13 +149,14 @@ class mainWindow(Gtk.Window):
 
         img1 = mpimg.imread(filename)
         img2 = mpimg.imread("figure_3.tif")
-        img3 = mpimg.imread("figure_4.tif") 
-        self.canvasZoom = gen_canvas_zoomed(img1,img2,img3, 15,10, cbar=1)
-        self.canvasZoom.set_size_request(600, 300)
+        img3 = mpimg.imread("figure_2.tif") 
+        self.canvasZoom = gen_canvas_zoomed(img1,img2,img3, 15,15, cbar=1)
+        self.canvasZoom.set_size_request(600, 500)
         self.canvasZoom.figure.axes[0].callbacks.connect("xlim_changed", self.updateRegion)
         self.canvasZoom.figure.axes[0].callbacks.connect("ylim_changed", self.updateRegion)
         # self.picZoomedBox.pack_start(canvasZoom, False, False, 0)
-        self.picZoomedBox.attach(self.canvasZoom, 0,0,1,1) 
+        self.picZoomedBox.attach(self.canvasZoom, 0,0,1,1)
+        print(self.canvasZoom.get_child_visible())
         toolbar = NavigationToolbar(self.canvasZoom, self)
         
         #toolbar.set_size_request(200, 40)
@@ -218,18 +219,7 @@ class mainWindow(Gtk.Window):
             
         else:
             
-            axes_temp = self.canvasOriginal.figure.axes[0]
-            
-            rectangle = self.rectangleROI.drawRectangle()
-            axes_temp.add_patch(rectangle)
-            print(rectangle)           
-            print("done! \n")
-            
-            self.canvasOriginal.figure.axes[0] = axes_temp
-            self.canvasOriginal.flush_events()
-            self.canvasOriginal.draw_idle()
-            
-            replace_widget(self.picGrid.get_child_at(1,1), self.canvasOriginal)
+            # replace_widget(self.picGrid.get_child_at(1,1), self.canvasOriginal)
             self.canvasOriginal.show()
             if motion_event_id != None:
                 self.canvasOriginal.mpl_disconnect(motion_event_id)
@@ -291,7 +281,7 @@ class mainWindow(Gtk.Window):
         if event.inaxes:
             #self.rectangleROI.x_end = event.xdata
             #self.rectangleROI.y_end = event.ydata
-            print("Coordinates:" + " x= " + str(round( event.ydata, 3)) + "  y= " + str(round( event.xdata, 3)))
+            print("Coordinates:" + " x= " + str(round( event.xdata, 3)) + "  y= " + str(round( event.ydata, 3)))
             #print("Coordinates:" + " x= " + str(round( self.rectangleROI.x_end,3)) + "  y= " + str(round( self.rectangleROI.y_end,3)))
         
             # print("Left:  " + str(self.rectangleROI.x_start))
@@ -367,7 +357,25 @@ class mainWindow(Gtk.Window):
             print("Left:  " + str(self.rectangleROI.x_start))
             print("Up:    " + str(self.rectangleROI.y_start))
             print("Down:  " + str(self.rectangleROI.y_end))
-            print("Right: " + str(self.rectangleROI.x_end))            
+            print("Right: " + str(self.rectangleROI.x_end))
+            #rect = self.rectangleROI.drawRectangle()
+            #self.canvasOriginal.figure.axes[0].add_artist(rect)
+            #self.canvasOriginal.figure.axes[0].draw_artist(rect)
+            
+            rectangle = self.rectangleROI.drawRectangle()
+            #print(self.canvasOriginal.figure.axes)
+            self.canvasOriginal.figure.axes[0].add_patch(rectangle)
+            print(self.canvasOriginal.figure.axes[0].get_children())
+            #self.canvasOriginal.draw_idle()
+            
+            print(rectangle)           
+            print("done! \n")
+            
+            #self.canvasOriginal.figure.axes[0] = axes_temp
+            self.canvasOriginal.show_all()
+            self.canvasOriginal.draw_idle()
+            
+            #self.canvasOriginal.draw()
             print("ROI recangle drawn!")
             self.chooseROI.set_active(False)
             
@@ -418,7 +426,7 @@ win.connect("destroy", Gtk.main_quit)
 # win.set_picBkg("figure_4.tif")
 # win.set_picOriginal("figure_5.tif")
 
-win.set_picZoomed("figure_2.tif")
+win.set_picZoomed("manos_na_neve.png")
 win.set_picAtoms("figure_2.tif")
 win.set_picNoAtoms("figure_2.tif")
 win.set_picBkg("figure_2.tif")
