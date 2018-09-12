@@ -31,11 +31,6 @@ class roiRectangle(drawRectangle):
         self.width = self.x_end -self.x_start
         self.height = self.y_end - self.y_start
         rectangle = Rectangle((self.x_start,self.y_start), self.width, self.height, facecolor = 'none', linewidth=1, edgecolor='b')
-
-        print("X start = " + str(self.x_start))
-        print("Y end = " + str(self.y_end))
-        print("Width = " + str(self.width))
-        print("Height = " + str(self.height))
         
         return rectangle
 
@@ -49,7 +44,7 @@ class rbcRectangle(drawRectangle):
     def drawRectangle(self):
         self.width = self.x_end -self.x_start
         self.height = self.y_end - self.y_start
-        rectangle = Rectangle((self.x_start,self.y_start), self.width, self.height, facecolor = 'none', linewidth=1, edgecolor='k')
+        rectangle = Rectangle((self.x_start,self.y_start), self.width, self.height, facecolor = 'none', linewidth=1, edgecolor='--k')
         return rectangle
 
 
