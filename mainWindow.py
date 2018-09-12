@@ -123,6 +123,7 @@ class mainWindow(Gtk.Window):
         # Rectangle for ROI and RBC
         self.rectangleROI = roiRectangle(1,1,1,1)
         self.rectangleRBC = rbcRectangle(1,1,2,2)
+        self.regionControl = -1
         
         # Plot Window
         self.plotWin = newPlotWindow()
@@ -152,8 +153,8 @@ class mainWindow(Gtk.Window):
         img3 = mpimg.imread("figure_2.tif") 
         self.canvasZoom = gen_canvas_zoomed(img1,img2,img3, 15,15, cbar=1)
         self.canvasZoom.set_size_request(600, 500)
-        self.canvasZoom.figure.axes[0].callbacks.connect("xlim_changed", self.updateRegion)
-        self.canvasZoom.figure.axes[0].callbacks.connect("ylim_changed", self.updateRegion)
+        #self.canvasZoom.figure.axes[0].callbacks.connect("xlim_changed", self.updateRegion)
+        #self.canvasZoom.figure.axes[0].callbacks.connect("ylim_changed", self.updateRegion)
         # self.picZoomedBox.pack_start(canvasZoom, False, False, 0)
         self.picZoomedBox.attach(self.canvasZoom, 0,0,1,1)
         print(self.canvasZoom.get_child_visible())
@@ -208,6 +209,9 @@ class mainWindow(Gtk.Window):
         if self.chooseRBC.get_active() and not self.chooseROI.get_active():
             return 0
 
+        if self.chooseROI.get_active():
+            self.clearRegion(0)        
+        
         
         motion_event_id = self.canvasOriginal.mpl_connect('motion_notify_event', self.updateCursorPosition)
         button_event_start_id = self.canvasOriginal.mpl_connect('button_press_event', self.zoomStart)
@@ -235,10 +239,15 @@ class mainWindow(Gtk.Window):
 
         if self.chooseROI.get_active() and self.chooseRBC.get_active():
             self.chooseROI.set_active(False)
-
+            self.clearRegion(1)
+            
         if self.chooseROI.get_active() and not self.chooseRBC.get_active():
             return 0
 
+        if self.chooseRBC.get_active():
+            self.clearRegion(1)
+
+        
         motion_event_id = self.canvasOriginal.mpl_connect('motion_notify_event', self.updateCursorPosition)
         button_event_start_id = self.canvasOriginal.mpl_connect('button_press_event', self.zoomStart)
         button_event_end_id = self.canvasOriginal.mpl_connect('button_release_event', self.zoomEnd)
@@ -248,18 +257,18 @@ class mainWindow(Gtk.Window):
             print("Draw the RBC!")
             
         else:
-            axes_temp = self.canvasOriginal.figure.axes[0]
+            # axes_temp = self.canvasOriginal.figure.axes[0]
             
-            rectangle = self.rectangleRBC.drawRectangle()
-            axes_temp.add_patch(rectangle)
-            print(rectangle)           
-            print("done! \n")
+            # rectangle = self.rectangleRBC.drawRectangle()
+            # axes_temp.add_patch(rectangle)
+            # print(rectangle)           
+            # print("done! \n")
             
-            self.canvasOriginal.figure.axes[0] = axes_temp
-            self.canvasOriginal.flush_events()
-            self.canvasOriginal.draw_idle()
+            # self.canvasOriginal.figure.axes[0] = axes_temp
+            # self.canvasOriginal.flush_events()
+            # self.canvasOriginal.draw_idle()
         
-            self.canvasOriginal.show()
+            # self.canvasOriginal.show()
 
             if motion_event_id != None:
                 self.canvasOriginal.mpl_disconnect(motion_event_id)            
@@ -278,10 +287,23 @@ class mainWindow(Gtk.Window):
 
     def updateCursorPosition(self, event):
         '''When cursor inside plot, get position and print to statusbar'''
-        if event.inaxes:
+
+        
+        if event.inaxes and self.rectangleROI.ID == -1:
             #self.rectangleROI.x_end = event.xdata
             #self.rectangleROI.y_end = event.ydata
             print("Coordinates:" + " x= " + str(round( event.xdata, 3)) + "  y= " + str(round( event.ydata, 3)))
+            self.rectangleROI.x_end = event.xdata
+            self.rectangleROI.y_end = event.ydata
+
+            self.rectangleROI.drawRectangle(alpha=0.5)
+            #print(self.canvasOriginal.figure.axes)
+            self.canvasOriginal.figure.axes[0].add_patch(self.rectangleROI.rectangle)
+            self.canvasOriginal.draw_idle()
+
+
+            # self.canvasOriginal.figure.axes[0].patches = []
+            # self.canvasOriginal.draw_idle()
             #print("Coordinates:" + " x= " + str(round( self.rectangleROI.x_end,3)) + "  y= " + str(round( self.rectangleROI.y_end,3)))
         
             # print("Left:  " + str(self.rectangleROI.x_start))
@@ -289,7 +311,7 @@ class mainWindow(Gtk.Window):
             # print("Down:  " + str(self.rectangleROI.x_end))
             # print("Right: " + str(self.rectangleROI.y_end))
 
-    def updateRegion(self, event):
+    def updateRegion(self):
 
         if self.chooseROI.get_active() == True:
             axes = self.canvas.figure.axes[0]
@@ -314,6 +336,8 @@ class mainWindow(Gtk.Window):
         if event.button!=1: return
         if (event.xdata is None): return
         #x,y = event.xdata, event.ydata
+        #self.canvasOriginal.fig.axes[0].clear()
+        
         self.rectangleRBC.x_start = event.xdata
         self.rectangleRBC.y_start = event.ydata
 
@@ -321,6 +345,7 @@ class mainWindow(Gtk.Window):
         if self.chooseROI.get_active():
             self.rectangleROI.x_start = event.xdata
             self.rectangleROI.y_start = event.ydata
+            self.rectangleROI.ID = -1
             print("Left:  " + str(self.rectangleROI.x_start))
             print("Up:    " + str(self.rectangleROI.y_start))
             print("Down:  " + str(self.rectangleROI.y_end))
@@ -331,6 +356,7 @@ class mainWindow(Gtk.Window):
         elif self.chooseRBC.get_active():
             self.rectangleRBC.x_end = event.xdata
             self.rectangleRBC.y_end = event.ydata
+            self.rectangleRBC = -1
             print("Left:  " + str(self.rectangleRBC.x_start))
             print("Up:    " + str(self.rectangleRBC.y_start))
             print("Down:  " + str(self.rectangleRBC.y_end))
@@ -339,19 +365,17 @@ class mainWindow(Gtk.Window):
             
         else:
             return False
-        # else:
 
-        #rectangle.x = x
-        #rectangle.y = y 
         
     def zoomEnd(self, event):#, rectangle):
         '''When mouse is right-clicked on the canvas get the coordiantes and return them'''
         if event.button!=1: return
         if (event.xdata is None): return
         #x,y = event.xdata, event.ydata
-                
+#        self.canvasOriginal.figure.axes[0]        
         # else:
         if self.chooseROI.get_active():
+            self.rectangleROI.ID = 0
             self.rectangleROI.x_end = event.xdata
             self.rectangleROI.y_end = event.ydata
             print("Left:  " + str(self.rectangleROI.x_start))
@@ -362,13 +386,11 @@ class mainWindow(Gtk.Window):
             #self.canvasOriginal.figure.axes[0].add_artist(rect)
             #self.canvasOriginal.figure.axes[0].draw_artist(rect)
             
-            rectangle = self.rectangleROI.drawRectangle()
+            self.rectangleROI.drawRectangle()
             #print(self.canvasOriginal.figure.axes)
-            self.canvasOriginal.figure.axes[0].add_patch(rectangle)
-            print(self.canvasOriginal.figure.axes[0].get_children())
+            self.canvasOriginal.figure.axes[0].add_patch(self.rectangleROI.rectangle)
+            print(self.canvasOriginal.figure.axes[0].patches)
             #self.canvasOriginal.draw_idle()
-            
-            print(rectangle)           
             print("done! \n")
             
             #self.canvasOriginal.figure.axes[0] = axes_temp
@@ -376,22 +398,61 @@ class mainWindow(Gtk.Window):
             self.canvasOriginal.draw_idle()
             
             #self.canvasOriginal.draw()
+            self.regionControl = 0
             print("ROI recangle drawn!")
             self.chooseROI.set_active(False)
             
         elif self.chooseRBC.get_active():
+            self.rectangleRBC = 1
             self.rectangleRBC.x_end = event.xdata
             self.rectangleRBC.y_end = event.ydata
             print("Left:  " + str(self.rectangleRBC.x_start))
             print("Up:    " + str(self.rectangleRBC.y_start))
             print("Down:  " + str(self.rectangleRBC.y_end))
             print("Right: " + str(self.rectangleRBC.x_end))
+
+            self.rectangleRBC.drawRectangle()
+            #print(self.canvasOriginal.figure.axes)
+            self.canvasOriginal.figure.axes[0].add_patch(self.rectangleRBC.rectangle)
+            print(self.canvasOriginal.figure.axes[0].patches)
+            #self.canvasOriginal.draw_idle()
+            print("done! \n")
+            
+            #self.canvasOriginal.figure.axes[0] = axes_temp
+            self.canvasOriginal.show_all()
+            self.canvasOriginal.draw_idle()
+
+            self.regionControl = 1
             print("RBC recangle drawn!")
             self.chooseRBC.set_active(False)
         else:
             return False
     
+    def clearRegion(self, region):
+        
+        if self.regionControl == -1:
+            print("Nothing to clear.")
+            return -1
 
+        patches = self.canvasOriginal.figure.axes[0].patches
+
+        
+        if len(self.canvasOriginal.figure.axes[0].patches) == 1:
+            if self.regionControl==region:
+                patches = []
+                self.regionControl = -1
+                print("Emptied patches!")
+        elif self.regionControl != region:
+            del  patches[0]
+            print("Cleared First!")
+        else:
+            del patches[1]
+            print("Cleared second!")
+
+        self.canvasOriginal.figure.axes[0].patches = patches
+        self.canvasOriginal.draw_idle()
+
+        
 
 ##############################
 ###         Buttons        ###
