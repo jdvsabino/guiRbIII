@@ -9,7 +9,7 @@ import matplotlib.image as mpimg
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_gtk3cairo import FigureCanvasGTK3Cairo as FigureCanvas
 from matplotlib.backends.backend_gtk3 import NavigationToolbar2GTK3 as NavigationToolbar
-from numpy import sin, cos, pi, linspace
+from numpy import sin, cos, pi, linspace, sqrt
 from plotWindow import *
 from picture_generator import gen_canvas, gen_canvas_zoomed
 from classes.drawRectangle import *
@@ -21,29 +21,36 @@ class mainWindow(Gtk.Window):
         Gtk.Window.__init__(self, title = "Main Window")
 
         # Size settings
-        self.set_default_size(900, 1000)
-        print(self.get_size())
-        self.set_border_width(10)
-        self.set_resizable(False)
+        self.width = 900
+        self.height = 1000
+        self.border = 10
+        self.set_default_size(self.width, self.height)
+        
+        self.set_border_width(self.border)
+        self.set_resizable(True)
 
         ### Main Box ###
-        self.mainBox = Gtk.Box(spacing=20)
+        self.mainBoxSpacing = 20
+        
+        self.mainBox = Gtk.Box(spacing=self.mainBoxSpacing)
         self.add(self.mainBox)
 
         ### Sub Boxes - Left ###
-        self.leftBox = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = 12)
+        self.boxSpacing = 12
+        self.buttonSpacing = 3
+        self.leftBox = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = self.boxSpacing)
         self.mainBox.add(self.leftBox)
         
-        self.buttonBox = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = 3)
+        self.buttonBox = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = self.buttonSpacing)
         self.leftBox.add(self.buttonBox)
         
-        self.camSelectBox = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = 3)
+        self.camSelectBox = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = self.buttonSpacing)
         self.leftBox.add(self.camSelectBox)
 
-        self.regionsBox = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = 3)
+        self.regionsBox = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = self.buttonSpacing)
         self.leftBox.add(self.regionsBox)
 
-        self.infoBox = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = 6)
+        self.infoBox = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = self.boxSpacing/2)
         self.leftBox.add(self.infoBox)
         
         
@@ -91,7 +98,7 @@ class mainWindow(Gtk.Window):
 
 
         ### Sub Boxes - Right ###
-        self.rightBox = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = 12)
+        self.rightBox = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = self.boxSpacing)
         self.mainBox.add(self.rightBox)
 
         self.picZoomedBox = Gtk.Grid()#Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = 12)
@@ -290,16 +297,25 @@ class mainWindow(Gtk.Window):
 
         
         if event.inaxes and self.rectangleROI.ID == -1:
+            patches = self.canvasOriginal.figure.axes[0].patches
+            if len(patches) > 5:
+                patches = patches[-1:]
+                self.canvasOriginal.figure.axes[0].patches = patches
             #self.rectangleROI.x_end = event.xdata
             #self.rectangleROI.y_end = event.ydata
             print("Coordinates:" + " x= " + str(round( event.xdata, 3)) + "  y= " + str(round( event.ydata, 3)))
-            self.rectangleROI.x_end = event.xdata
-            self.rectangleROI.y_end = event.ydata
-
-            self.rectangleROI.drawRectangle(alpha=0.5)
-            #print(self.canvasOriginal.figure.axes)
-            self.canvasOriginal.figure.axes[0].add_patch(self.rectangleROI.rectangle)
-            self.canvasOriginal.draw_idle()
+            dx = event.xdata - self.rectangleROI.x_start
+            dy = event.ydata - self.rectangleROI.y_start
+            dist = sqrt(dx*dx + dy*dy)
+            
+            # #if dist >10:
+            # self.rectangleROI.x_end = event.xdata
+            # self.rectangleROI.y_end = event.ydata
+            
+            # self.rectangleROI.drawRectangle(alpha=0.1)
+            # #print(self.canvasOriginal.figure.axes)
+            # self.canvasOriginal.figure.axes[0].add_patch(self.rectangleROI.rectangle)
+            # self.canvasOriginal.draw_idle()
 
 
             # self.canvasOriginal.figure.axes[0].patches = []
@@ -356,7 +372,7 @@ class mainWindow(Gtk.Window):
         elif self.chooseRBC.get_active():
             self.rectangleRBC.x_end = event.xdata
             self.rectangleRBC.y_end = event.ydata
-            self.rectangleRBC = -1
+            self.rectangleRBC.ID = -1
             print("Left:  " + str(self.rectangleRBC.x_start))
             print("Up:    " + str(self.rectangleRBC.y_start))
             print("Down:  " + str(self.rectangleRBC.y_end))
@@ -403,7 +419,7 @@ class mainWindow(Gtk.Window):
             self.chooseROI.set_active(False)
             
         elif self.chooseRBC.get_active():
-            self.rectangleRBC = 1
+            self.rectangleRBC.ID = 1
             self.rectangleRBC.x_end = event.xdata
             self.rectangleRBC.y_end = event.ydata
             print("Left:  " + str(self.rectangleRBC.x_start))
