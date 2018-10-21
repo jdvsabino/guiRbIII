@@ -27,7 +27,7 @@ class mainWindow(Gtk.Window):
         self.set_default_size(self.width, self.height)
         
         self.set_border_width(self.border)
-        self.set_resizable(True)
+        self.set_resizable(False)
 
         ### Main Box ###
         self.mainBoxSpacing = 20
@@ -156,8 +156,8 @@ class mainWindow(Gtk.Window):
     def set_picZoomed(self, filename):
 
         img1 = mpimg.imread(filename)
-        img2 = mpimg.imread("figure_3.tif")
-        img3 = mpimg.imread("figure_2.tif") 
+        img2 = mpimg.imread("atoms.tif")
+        img3 = mpimg.imread("noatoms.tif") 
         self.canvasZoom = gen_canvas_zoomed(img1,img2,img3, 15,15, cbar=1)
         self.canvasZoom.set_size_request(600, 500)
         #self.canvasZoom.figure.axes[0].callbacks.connect("xlim_changed", self.updateRegion)
@@ -176,7 +176,8 @@ class mainWindow(Gtk.Window):
         # self.picAtoms = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename, self.picSize, self.picSize, False)
         # self.picAtoms = Gtk.Image.new_from_pixbuf(self.picAtoms)
         # self.picGrid.attach(self.picAtoms, 0, 0, 1, 1)
-        canvas = gen_canvas(filename)
+        img = mpimg.imread(filename)
+        canvas = gen_canvas(img, title="With atoms",font=8)
         canvas.set_size_request(self.picSize[0], self.picSize[1])
         self.picGrid.attach(canvas, 0, 0, 1, 1)
 
@@ -186,7 +187,8 @@ class mainWindow(Gtk.Window):
         # self.picNoAtoms = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename, self.picSize, self.picSize, False)
         # self.picNoAtoms = Gtk.Image.new_from_pixbuf(self.picNoAtoms)
         # self.picGrid.attach(self.picNoAtoms, 1, 0, 1, 1)
-        canvas = gen_canvas(filename, font=8)
+        img = mpimg.imread(filename)
+        canvas = gen_canvas(img, title="Without Atoms",font=8)
         canvas.set_size_request(self.picSize[0], self.picSize[1])
         self.picGrid.attach(canvas, 1, 0, 1, 1)
 
@@ -195,12 +197,14 @@ class mainWindow(Gtk.Window):
         # self.picBkg = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename, self.picSize, self.picSize, False)
         # self.picBkg = Gtk.Image.new_from_pixbuf(self.picBkg)
         # self.picGrid.attach(self.picBkg, 0, 1, 1, 1)
-        canvas = gen_canvas(filename, font=8)
+        img = mpimg.imread(filename)
+        canvas = gen_canvas(img, title="Background", font=8)
         canvas.set_size_request(self.picSize[0], self.picSize[1])
         self.picGrid.attach(canvas, 0, 1, 1, 1)
 
     def set_picOriginal(self, filename):
-        self.canvasOriginal = gen_canvas(filename, font=8)
+        img = mpimg.imread(filename)
+        self.canvasOriginal = gen_canvas(img, title="Absorption picture",font=8)
         self.canvasOriginal.set_size_request(self.picSize[0], self.picSize[1])        
         # print(self.canvasOriginal.get_size_request())
         self.picGrid.attach(self.canvasOriginal, 1, 1, 1, 1)
@@ -504,10 +508,10 @@ win.connect("destroy", Gtk.main_quit)
 # win.set_picOriginal("figure_5.tif")
 
 win.set_picZoomed("manos_na_neve.png")
-win.set_picAtoms("figure_2.tif")
-win.set_picNoAtoms("figure_2.tif")
-win.set_picBkg("figure_2.tif")
-win.set_picOriginal("figure_2.tif")
+win.set_picAtoms("atoms.tif")
+win.set_picNoAtoms("noatoms.tif")
+win.set_picBkg("atoms.tif")
+win.set_picOriginal("noatoms.tif")
 
 
 # picpic = win.picGrid.get_child_at(1,1)
