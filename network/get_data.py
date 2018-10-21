@@ -11,7 +11,7 @@ input_info = Data_Collection() # This is going to be a global variable -  CAREFU
 
 def get_data(local_ip, rec_port_adwin, rec_port_c1, rec_port_c2, rec_port_c3):
     '''
-    This function is responsible for getting all the data necessary
+    Gets all the data necessary
     for the program to work. It should be run in a new thread
     to make synching easier.
     '''
@@ -59,5 +59,6 @@ def get_data(local_ip, rec_port_adwin, rec_port_c1, rec_port_c2, rec_port_c3):
 
 print("Started listening to port " + REC_PORT + ", on local machine.")
 t = threading.Thread(get_data(LOCAL_IP, REC_PORT,5,6,7))
+
 
 
