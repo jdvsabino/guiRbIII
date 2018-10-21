@@ -3,14 +3,16 @@ import sys, os
 gi.require_version('Gtk', '3.0')
 sys.path.append('/home/colin/Desktop/Joao/GUI_RbIII')
 sys.path.append('/home/colin/Desktop/Joao/GUI_RbIII/classes')
-# if __name__ == "__main__" and __package__ is None:
-#     __package__ = "classes.settingWindow"
-
 from gi.repository import Gtk, Gdk, GdkPixbuf
 from classes.settingWindow import *
 
 
 class SetRangeWindow(SettingWindow):
+    '''
+	Sets the definition for the window that pops up
+	when the user sets the limits of ROI and RBC
+	manually.
+    '''
 
     def __init__(self):
 
@@ -33,15 +35,3 @@ class SetRangeWindow(SettingWindow):
 
     def on_destroy(self, widget):
         widget.hide()
-        
-
-# win = SetRangeWindow()
-
-# #print(dir(win.infoLabel))
-
-# win.connect("destroy", Gtk.main_quit)
-# win.show_all()
-# Gtk.main()
-
-
-
