@@ -8,7 +8,11 @@ from classes.settingWindow import *
 
 
 class SetRegionWindow(SettingWindow):
-
+    '''
+       Sets the definitions for the window that pops up
+       when the user chooses the limits of ROI and RBC
+       manually.
+    '''
     def __init__(self):
 
         SettingWindow.__init__(self, "Set Region")
