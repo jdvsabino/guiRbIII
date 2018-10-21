@@ -10,6 +10,9 @@ class Data_Collection():
         self.T_cam = -1
         self.L_cam = -1
         self.V_cam = -1
+
+        ###---- Chosses the starting point to read data from adwin
+        self.adwin_data_start = 5
         
     def set_data_adwin(self, data):
         ''' 
@@ -20,23 +23,23 @@ class Data_Collection():
         if "STAT_sending" in data:
             self.stat_sending()
         elif "PATH" in data:
-            self.path = data[5:]
+            self.path = data[self.adwin_data_start:]
             return 1
         
         elif "IMSC" in data:
-            self.imsc = int(data[5:])
+            self.imsc = int(data[self.adwin_data_start:])
             return 1
         
         elif "SCAN" in data:
-            self.scan = int(data[5:])
+            self.scan = int(data[self.adwin_data_start:])
             return 1
         
         elif "LOOP" in data:
-            self.loop = int(data[5:])
+            self.loop = int(data[self.adwin_data_start:])
             return 1
         
         elif "GLOB" in data:
-            self.glob = int(data[5:])
+            self.glob = int(data[self.adwin_data_start:])
             return 1
         
         else:
@@ -46,7 +49,7 @@ class Data_Collection():
 
     def st_data_c1(self, data):
         if 'LCAM' in data:
-            self.L_cam = data[5:]
+            self.L_cam = data[self.adwin_data_start:]
             return 1
 
         print("Signal from Celcius 1 recieved but no LCAM info.")
@@ -54,7 +57,7 @@ class Data_Collection():
 
     def st_data_c2(self, data):
         if 'TCAM' in data:
-            self.L_cam = data[5:]
+            self.T_cam = data[self.adwin_data_start:]
             return 1
 
         print("Signal from Celcius 2 recieved but no TCAM info.")
@@ -62,7 +65,7 @@ class Data_Collection():
 
     def st_data_c3(self, data):
         if 'VCAM' in data:
-            self.L_cam = data[5:]
+            self.V_cam = data[self.adwin_data_start:]
             return 1
 
         print("Signal from Celcius 3 recieved but no VCAM info.")
