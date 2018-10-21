@@ -10,8 +10,7 @@ from classes.settingWindow import *
 class SetRangeWindow(SettingWindow):
     '''
 	Sets the definition for the window that pops up
-	when the user sets the limits of ROI and RBC
-	manually.
+	when the user sets the limits of the on-line plot.
     '''
 
     def __init__(self):
