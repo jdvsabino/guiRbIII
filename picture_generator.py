@@ -7,7 +7,7 @@ from matplotlib.figure import Figure
 import numpy as np
 from matplotlib.backends.backend_gtk3cairo import FigureCanvasGTK3Cairo as FigureCanvas
 
-def gen_canvas(filename, width = 5, height = 5, x_min=0, x_max=0, y_min=0, y_max=0, cbar = 0, font=8):
+def gen_canvas(img, width = 5, height = 5, x_min=0, x_max=0, y_min=0, y_max=0, cbar = 0, title="", font=8):
     ''' 
     Generates a canvas object from a file picture. 
 
@@ -22,17 +22,19 @@ def gen_canvas(filename, width = 5, height = 5, x_min=0, x_max=0, y_min=0, y_max
     TODO: More options are to be added, for example, adding plots for integrated pics
     '''
 
-
-    img = mpimg.imread(filename)
+    colormap = "RdYlBu_r"
+    #img = mpimg.imread(filename)
     fig = Figure(figsize = (width, height), dpi = 100)
+    
     ax = fig.add_subplot(111)
+    ax.set_title(title, fontsize=font)
     ax.tick_params(labelsize=font)
-
+    
     if (x_min != x_max and y_min != y_max):   
         ax.set_xlabel([x_min,x_max])
         ax.set_ylabel([y_min,y_max])    
 
-    im = ax.imshow(img)
+    im = ax.imshow(img, cmap=colormap)
 
     if cbar == 1:
         fig.colorbar(im, ax = ax)
@@ -62,6 +64,7 @@ def gen_canvas_zoomed(fig1, fig2, fig3, width = 5, height = 5, x_min=0, x_max=0,
     gs = gridspec.GridSpec(4, 4, hspace=0.2, wspace=0.2)#gridspec.GridSpec(3,3) #width_ratios=[3, 1], height_ratios=[3, 1])
     #img = mpimg.imread(filename)
     fig = Figure(figsize = (width, height), dpi = 100)
+    colormap = "RdYlBu_r"
 
     #--- Absorption picture
     ax1 =fig.add_subplot(gs[:-1, :-1])#(gs[:-1, 1:])# fig.add_subplot(gs[0:2,0:2])
@@ -73,7 +76,7 @@ def gen_canvas_zoomed(fig1, fig2, fig3, width = 5, height = 5, x_min=0, x_max=0,
     ax1.tick_params(labelsize = font)
 
     #--- Right fit
-#    ax2 =fig.add_subplot(gs[:-1, 0], xticklabels=[], sharey=ax1)# fig.add_subplot(gs[2,:2])
+#   ax2 =fig.add_subplot(gs[:-1, 0], xticklabels=[], sharey=ax1)# fig.add_subplot(gs[2,:2])
     ax2 =fig.add_subplot(gs[:-1, -1], xticklabels=[], sharey=ax1)# fig.add_subplot(gs[2,:2])
     ax2.yaxis.set_ticks_position('right')
     ax2.tick_params(labelsize = font)
@@ -88,9 +91,9 @@ def gen_canvas_zoomed(fig1, fig2, fig3, width = 5, height = 5, x_min=0, x_max=0,
         ax2.set_ylabel([y_min,y_max])    
 
     #--- Drawing the pictures    
-    im1 = ax1.imshow(fig1)
-    im2 = ax2.imshow(fig2.T)
-    im3 = ax3.imshow(fig3)
+    im1 = ax1.imshow(fig1, cmap=colormap)
+    im2 = ax2.imshow(fig2.T, cmap=colormap)
+    im3 = ax3.imshow(fig3, cmap=colormap)
 
     #--- Setting colorbar
     if cbar == 1:
