@@ -1,8 +1,7 @@
 import numpy as np
 import pylab as plb
 import sys
-#sys.path.append("..")
-#from classes.drawRectangle import roiRectangle, rbcRectangle
+
 
 class PictureManager():
     '''
@@ -16,7 +15,7 @@ class PictureManager():
           3 - Picture without atoms
           4 - Background picture
     '''
-    def __init__(pic, cam = None):
+    def __init__(self,pic, cam = None, path=""):
         
         self.path = ""
         self.ID = -1
@@ -49,10 +48,10 @@ class PictureManager():
 
 class AbsorptionPicture(PictureManager):
 
-    def __init__(pic, cam = None, path=""):
+    def __init__(self, pic, cam = None):
 
-        PictureManager.__init__()
-        self.path = path
+        PictureManager.__init__(self, pic)
+        self.path = ""
         self.ID = 1
         
         self.pic = pic
@@ -132,7 +131,7 @@ class AbsorptionPicture(PictureManager):
     
 class Camera():
 
-    def __init__(cam_type):
+    def __init__(self, cam_type):
 
         self.cam_type = int(cam_type)
 
@@ -174,7 +173,3 @@ class Camera():
         else:
             print("Camera was not initialized. Problem with 'cam_type'. \n Check it is a number!\n")
             print("You can also defined the values manually.")
-            
-
-
-    
