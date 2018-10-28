@@ -1,14 +1,23 @@
 import numpy as np
 import pylab as plb
 import sys
-sys.path.append("..")
-from classes.drawRectangle import roiRectangle, rbcRectangle
-
+#sys.path.append("..")
+#from classes.drawRectangle import roiRectangle, rbcRectangle
 
 class PictureManager():
-
+    '''
+    Stores a picture with all the information 
+    related to it, namely:
+    - Path
+    - Camera
+    - ID: specifies the type of picture
+          1 - Absorption Picture
+          2 - Picture with atoms 
+          3 - Picture without atoms
+          4 - Background picture
+    '''
     def __init__(pic, cam = None):
-
+        
         self.path = ""
         self.ID = -1
         
@@ -19,29 +28,44 @@ class PictureManager():
         self.gain = -1
         self.ROI = [1, 1, 1, 1]#roiRectangle(1,1,1,1)
         self.RBC = [1, 1, 1, 1]#rbcRectangle(1,1,1,1)
+
+    # ''' Getters are  defined ''' ### Getters are unecessary
+
+    # def get_pic(self):
+    #     return self.pic
+        
+    # def get_cam(self):
+    #     return self.cam
+
+    # def get_ROI(self):
+    #     roi_info = [self.ROI.x_start, self.ROI.y_start, self.ROI.x_end, self.ROI.y_end]
+    #     return roi_info
+
+    # def get_RBC(self):
+    #     rbc_info = [self.RBC.x_start, self.RBC.y_start, self.RBC.x_end, self.RBC.y_end]
+    #     return rbc_info
         
 
 
-    ''' Getters are  defined '''
+class AbsorptionPicture(PictureManager):
 
-    def get_pic(self):
-        return self.pic
+    def __init__(pic, cam = None, path=""):
+
+        PictureManager.__init__()
+        self.path = path
+        self.ID = 1
         
-    def get_cam(self):
-        return self.cam
+        self.pic = pic
+        self.cam = cam
 
-    def get_ROI(self):
-        roi_info = [self.ROI.x_start, self.ROI.y_start, self.ROI.x_end, self.ROI.y_end
-        return roi_info
-
-    def get_RBC(self):
-        rbc_info = [self.RBC.x_start, self.RBC.y_start, self.RBC.x_end, self.RBC.y_end
-        return rbc_info
-    
+        self.TOF = -1
+        self.gain = -1
+        self.ROI = [1, 1, 1, 1]#roiRectangle(1,1,1,1)
+        self.RBC = [1, 1, 1, 1]#rbcRectangle(1,1,1,1)  
 
     
     ''' Useful functions are defined '''
-    def get_atoms(self):
+    def get_atom_number(self):
         '''
         Returns number of atoms in the picture.
         '''
