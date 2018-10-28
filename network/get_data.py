@@ -1,25 +1,24 @@
 from open_port import start_comm
-from data_collection import Data_Collection
+import data_collection as dc
 import select
 import threading
 
 # Maybe define these as global??
-REC_PORT = "5005"#"8101" 
-LOCAL_IP = "127.0.0.1"#"128.131.60.27"
+#REC_PORT = "5005"#"8101" 
+#LOCAL_IP = "127.0.0.1"#"128.131.60.27"
 
-input_info = Data_Collection() # This is going to be a global variable -  CAREFUL!!
+#input_info = Data_Collection() # This is going to be a global variable -  CAREFUL!!
 
-def get_data(local_ip, rec_port_adwin, rec_port_c1, rec_port_c2, rec_port_c3):
+def get_data(local_ip, rec_port_adwin, rec_port_c1, rec_port_c2, rec_port_c3, input_info):
     '''
     Gets all the data necessary
     for the program to work. It should be run in a new thread
     to make synching easier.
     '''
-    ###---- Defined in the main program
-    global input_info 
-
+    
     ###---- Opening sockets for communication
     adwin_socket = start_comm(local_ip, rec_port_adwin)
+
 
     #---- Celcius computers
     c1_socket = start_comm(local_ip, rec_port_c1)
@@ -27,8 +26,9 @@ def get_data(local_ip, rec_port_adwin, rec_port_c1, rec_port_c2, rec_port_c3):
     c3_socket = start_comm(local_ip, rec_port_c3)    
 
     inputs = [adwin_socket, c1_socket, c2_socket, c3_socket]
+    input_info = dc.data_collector
     
-    while True:
+    while 0:
         print("Inside while loop!")
         readable, writable, exceptional = select.select(inputs,[],[]) #check if any port received something
         print("Read something...")
@@ -53,12 +53,21 @@ def get_data(local_ip, rec_port_adwin, rec_port_c1, rec_port_c2, rec_port_c3):
 
             else:
                 print("Error: wierd socket detected!")
+                if i%2==0:
+                    input_info.path="PAR!"
+                else:
+                    input_info.path="IMPAR!"
+                
+                    
+                
 
+        
+        
 
             
 
-print("Started listening to port " + REC_PORT + ", on local machine.")
-t = threading.Thread(get_data(LOCAL_IP, REC_PORT,5,6,7))
+#print("Started listening to port " + REC_PORT + ", on local machine.")
+#t = threading.Thread(get_data(LOCAL_IP, REC_PORT,5,6,7))
 
 
 
