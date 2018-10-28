@@ -74,3 +74,5 @@ class Data_Collection():
     
     def stat_sending():
         print("Receiving stuff!")
+
+data_collector = Data_Collection()
