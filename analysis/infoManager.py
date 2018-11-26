@@ -72,8 +72,8 @@ class InfoManager():
         #
         ### Talk to Thomas
 
-        self.abs_pic = AbsorptionPicture(None)
-        self.abs_pic.get_absorption_picture(self.atom_pic, self.no_atom_pic)
+        self.abs_pic = AbsorptionPicture(self.atom_pic, self.no_atom_pic)
+        #self.abs_pic.get_absorption_picture(self.atom_pic, self.no_atom_pic) # I
 
         self.atom_num = self.abs_pic.get_atom_number()
         
