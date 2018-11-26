@@ -1,6 +1,6 @@
 import sys
-sys.path.append('~/Dropbox/GUI_RbIII/network')
-sys.path.append('~/Dropbox/GUI_RbIII/analysis')
+sys.path.append('./network')
+sys.path.append('./analysis')
 
 import threading, select
 from mainWindow import mainWindow
