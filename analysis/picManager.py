@@ -9,7 +9,7 @@ class PictureManager():
     related to it, namely:
     - Path
     - Camera
-    - ID: specifies the type of picture
+    - ID: specifies the type of picture // OR PIC NUMBER???
           1 - Absorption Picture
           2 - Picture with atoms 
           3 - Picture without atoms
@@ -48,11 +48,11 @@ class PictureManager():
 
 class AbsorptionPicture(PictureManager):
 
-    def __init__(self, pic, cam = None):
+    def __init__(self, pic, cam = None, correction=True):
 
         PictureManager.__init__(self, pic)
         self.path = ""
-        self.ID = 1
+        self.ID = 1 ### DECIDE ABOUT THIS _ CAREFUL!!! 
         
         self.pic = pic
         self.cam = cam
@@ -60,13 +60,15 @@ class AbsorptionPicture(PictureManager):
         self.TOF = -1
         self.gain = -1
         self.ROI = [1, 1, 1, 1]#roiRectangle(1,1,1,1)
-        self.RBC = [1, 1, 1, 1]#rbcRectangle(1,1,1,1)  
+        self.RBC = [1, 1, 1, 1]#rbcRectangle(1,1,1,1)
+        self.bkg_correction = correction
 
     
     ''' Useful functions are defined '''
     def get_atom_number(self):
         '''
         Returns number of atoms in the picture.
+        Check if it is the complete formula!
         '''
         px_size = self.cam.pixel2um
         mag = self.cam.magnification
@@ -76,9 +78,17 @@ class AbsorptionPicture(PictureManager):
 
         return atom_number
 
-    def get_absorption_picture(self):
+    def get_absorption_picture(self, atom, no_atom):
+        '''
+        Computes the absorption picture.
+        - Check formula - use gain?
+                        - what the hell is eps? (in fringe analysis file)
+        - We shouls set all negative elements to zero
+        '''
         
-        return NotImplemented
+        abs_pic = -np.log(atom/no_atom)
+        
+        return abs_pic
     
     def integrate_x(self):
         '''
@@ -112,7 +122,7 @@ class AbsorptionPicture(PictureManager):
 
         
 
-    def fit_integrated_y(plot=0):
+    def fit_integrated_y(self, plot=0):
         ''' 
         Fits a gaussian function to the picture summed over x
         and returns the data of the fit. It alsor returns the plot if 
@@ -127,7 +137,9 @@ class AbsorptionPicture(PictureManager):
 
         return popt, pcov
 
-
+    def background_correction(self):
+        return NotImplementedError
+        
     
 class Camera():
 
