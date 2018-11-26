@@ -1,5 +1,10 @@
+import sys
+sys.path.append('../network')
 from picManager import PictureManager
 import matplotlib.image as mpimg
+import copy
+from data_collection import data_collector as dc
+
 
 class InfoManager():
     '''
@@ -12,8 +17,8 @@ class InfoManager():
 
     def __init__(self):
 
-        # 
-        self.dc = dc
+        # Buffer for data collector? -- seems to make sense - How/When to update it?
+        self.dc = copy.deepcopy(dc)
         
         
         ### Pictures are to be set only when we get the
@@ -32,6 +37,9 @@ class InfoManager():
         self.status = dict()   ### TODO - Think how to implement
         self.history = dict()  ### TODO - Think how to implement
 
+
+    def update_data_buffer(self):
+        self.dc = copy.deepcopy(dc)
         
     def update_info(self, dc, win):
         '''
