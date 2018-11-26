@@ -19,6 +19,7 @@ class PictureManager():
         
         self.path = ""
         self.ID = -1
+        self.num = -1
         
         self.pic = pic
         self.cam = cam
@@ -48,13 +49,13 @@ class PictureManager():
 
 class AbsorptionPicture(PictureManager):
 
-    def __init__(self, pic, cam = None, correction=True):
+    def __init__(self, atom_pic, no_atom_pic, cam = None, correction=True):
 
         PictureManager.__init__(self, pic)
         self.path = ""
         self.ID = 1 ### DECIDE ABOUT THIS _ CAREFUL!!! 
         
-        self.pic = pic
+        self.pic = get_absorption_picture(atom_pic, no_atom_pic)
         self.cam = cam
 
         self.TOF = -1
@@ -63,8 +64,14 @@ class AbsorptionPicture(PictureManager):
         self.RBC = [1, 1, 1, 1]#rbcRectangle(1,1,1,1)
         self.bkg_correction = correction
 
+
+        '''
+        Add a self.pic_roi?
+        back_pics?
+        '''
+
     
-    ''' Useful functions are defined '''
+    ### Useful functions are defined 
     def get_atom_number(self):
         '''
         Returns number of atoms in the picture.
