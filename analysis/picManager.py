@@ -29,22 +29,6 @@ class PictureManager():
         self.ROI = [1, 1, 1, 1]#roiRectangle(1,1,1,1)
         self.RBC = [1, 1, 1, 1]#rbcRectangle(1,1,1,1)
 
-    # ''' Getters are  defined ''' ### Getters are unecessary
-
-    # def get_pic(self):
-    #     return self.pic
-        
-    # def get_cam(self):
-    #     return self.cam
-
-    # def get_ROI(self):
-    #     roi_info = [self.ROI.x_start, self.ROI.y_start, self.ROI.x_end, self.ROI.y_end]
-    #     return roi_info
-
-    # def get_RBC(self):
-    #     rbc_info = [self.RBC.x_start, self.RBC.y_start, self.RBC.x_end, self.RBC.y_end]
-    #     return rbc_info
-        
 
 
 class AbsorptionPicture(PictureManager):
