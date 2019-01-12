@@ -76,3 +76,15 @@ class Data_Collection():
         print("Receiving stuff!")
 
 data_collector = Data_Collection()
+
+
+####---- Needed paths - TALK TO THOMAS!!!
+''' 
+These paths are the soure of the information.
+Where to get the pics, for example.
+'''
+
+LOOP_DATA_DIR_SRC = ""
+SCAN_COUNT_FILE_SRC = ""
+PIC_SRC = ""
+AQ_DATA_SRC = ""
