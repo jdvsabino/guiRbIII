@@ -66,37 +66,44 @@ class InfoManager():
 
         self.scan_num = dc.scan
             
-        ### Implement how to get the Pics
-        # 
-        # path_atom_pic = ""
-        # path_no_abs_pic = ""
-        # 
-        # pic = mpimg.imread(path_atom_pic)
-        # self.atom_pic = PictureManager(pic, path=path_atom_pic)
-        #
-        # pic = mpimg.imread(path_no_atom_pic, path=path_no_atom_pic)
-        # self.no_atom_pic = PictureManager(pic)
-        # self.background_pic = NONE ????
-        #
-        ### Talk to Thomas
+        ### Implement how to get the Pics - Talk to Thomas
+
+        pic_atoms_name = "atoms" ### ?? Ask people about these
+        pic_no_atoms_name = "noatoms" ### ?? Ask people about these
+
+        path_atom_pic = PIC_SRC + dc.path + pic_atoms_name
+        path_no_atom_pic = PIC_SRC + dc.path + pic_no_atoms_name
+        
+        pic = mpimg.imread(path_atom_pic)
+        self.atom_pic = PictureManager(pic, path=path_atom_pic)
+        
+        pic = mpimg.imread(path_no_atom_pic, path=path_no_atom_pic)
+        self.no_atom_pic = PictureManager(pic, path=path_no_atom_pic)
+        self.background_pic = None
+        
+
 
         self.abs_pic = AbsorptionPicture(self.atom_pic, self.no_atom_pic)
-        #self.abs_pic.get_absorption_picture(self.atom_pic, self.no_atom_pic) # I
-
         self.atom_num = self.abs_pic.get_atom_number()
+
+        update_history()
+        update_status()
         
 
         ###--- TODO: Update hist and status
 
-        def update_history():
-           ''' TODO '''
+    def update_history():
+        ''' 
+        Stores the values of the variables 
+        and adds the new ones
+        '''
 
-           return NotImplemented
+        return NotImplemented
 
-        def update_status():
-           ''' TODO '''
-
-           return NotImplemented
+    def update_status():
+        ''' TODO '''
+        
+        return NotImplemented
 
         
 
