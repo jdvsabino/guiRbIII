@@ -1,11 +1,12 @@
 import sys
 sys.path.append('./network')
 sys.path.append('./analysis')
+sys.path.append('./gui')
 
 import threading, select
 from mainWindow import mainWindow
 from analysis.picManager import PictureManager
-import network.data_collection as dc
+from network.data_collection import data_collector as  dc
 from network.get_data import get_data
 
 
@@ -17,16 +18,14 @@ REC_PORT_C3 = "1236"
 
 LOCAL_IP = "127.0.0.1"
 
-###---- This is a global variable - BE CAREFUL
-###---- If you change its name, make sure it is updated on function 'get_data'!
-input_info = dc.data_collector
+
 
 
 
 ###---- Thread to receive data
-t = threading.Thread(get_data(LOCAL_IP, REC_PORT_AD, REC_PORT_C1, REC_PORT_C2, REC_PORT_C3, input_info))
+t = threading.Thread(get_data(LOCAL_IP, REC_PORT_AD, REC_PORT_C1, REC_PORT_C2, REC_PORT_C3, dc))
 
-print("BBBB: " + input_info.path)
+print("BBBB: " + dc.path)
 
 
 
