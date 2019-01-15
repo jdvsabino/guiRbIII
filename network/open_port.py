@@ -1,7 +1,7 @@
 import os
 import socket
 import select
-import thread
+import threading
 
 #REC_PORT = "8101"
 #LOCAL_IP = "192.0.0.123"
