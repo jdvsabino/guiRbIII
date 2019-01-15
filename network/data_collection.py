@@ -22,6 +22,8 @@ class Data_Collection():
         '''
         if "STAT_sending" in data:
             self.stat_sending()
+        elif "STAT_waiting" in data:
+            self.stat_waiting()
         elif "PATH" in data:
             self.path = data[self.adwin_data_start:]
             return 1
@@ -72,8 +74,11 @@ class Data_Collection():
         return 0
 
     
-    def stat_sending():
+    def stat_sending(self):
         print("Receiving stuff!")
+    
+    def stat_waiting(self):
+        print("Waiting for stuff")
 
 data_collector = Data_Collection()
 
