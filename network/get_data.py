@@ -3,11 +3,6 @@ import data_collection as dc
 import select
 import threading
 
-# Maybe define these as global??
-#REC_PORT = "5005"#"8101" 
-#LOCAL_IP = "127.0.0.1"#"128.131.60.27"
-
-#input_info = Data_Collection() # This is going to be a global variable -  CAREFUL!!
 
 def get_data(local_ip, rec_port_adwin, rec_port_c1, rec_port_c2, rec_port_c3, input_info):
     '''
@@ -28,7 +23,7 @@ def get_data(local_ip, rec_port_adwin, rec_port_c1, rec_port_c2, rec_port_c3, in
     inputs = [adwin_socket, c1_socket, c2_socket, c3_socket]
     input_info = dc.data_collector
     
-    while 0:
+    while 1:
         print("Inside while loop!")
         readable, writable, exceptional = select.select(inputs,[],[]) #check if any port received something
         print("Read something...")
@@ -50,24 +45,11 @@ def get_data(local_ip, rec_port_adwin, rec_port_c1, rec_port_c2, rec_port_c3, in
 
             elif socket is c3_socket:
                 input_info.set_data_c3(data)
-
+        
             else:
                 print("Error: wierd socket detected!")
                 if i%2==0:
                     input_info.path="PAR!"
                 else:
                     input_info.path="IMPAR!"
-                
-                    
-                
-
-        
-        
-
-            
-
-#print("Started listening to port " + REC_PORT + ", on local machine.")
-#t = threading.Thread(get_data(LOCAL_IP, REC_PORT,5,6,7))
-
-
 
