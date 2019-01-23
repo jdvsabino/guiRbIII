@@ -57,27 +57,27 @@ class InfoManager():
         win - main window where the info is displayed to the user 
         '''
         # update_data_buffer() ### INCLUDE THIS HERE???
-        if self.cycle_num +1 == dc.loop:
+        if self.cycle_num +1 == self.dc.loop:
             self.cycle_num +=1
         else:
-            self.cycle_num = dc.loop
+            self.cycle_num = self.dc.loop
             print("WARNING: Corrected loop number to " + str(self.cycle_num))
         
-        if self.global_cycle_num +1 == dc.glob:
+        if self.global_cycle_num +1 == self.dc.glob:
             self.global_cycle_num +=1
         else:
-            self.cycle_num = dc.loop
+            self.cycle_num = self.dc.loop
             print("WARNING: Corrected global loop number to " + str(self.cycle_num))        
         
-        self.scan_num = dc.scan
+        self.scan_num = self.dc.scan
         
         ### Implement how to get the Pics - Talk to Thomas
         
         pic_atoms_name = "atoms" ### ?? Ask people about these
         pic_no_atoms_name = "noatoms" ### ?? Ask people about these
         
-        path_atom_pic = PIC_SRC + dc.path + pic_atoms_name
-        path_no_atom_pic = PIC_SRC + dc.path + pic_no_atoms_name
+        path_atom_pic = PIC_SRC + self.dc.path + pic_atoms_name
+        path_no_atom_pic = PIC_SRC + self.dc.path + pic_no_atoms_name
         
         pic = mpimg.imread(path_atom_pic)
         self.atom_pic = PictureManager(pic, path=path_atom_pic)
