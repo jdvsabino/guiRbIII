@@ -2,6 +2,7 @@ class Data_Collection():
 
     def __init__(self):
 
+        self.receiving = 0
         self.path = ""
         self.scan = ""
         self.imsc = ""
@@ -21,6 +22,7 @@ class Data_Collection():
         field: a string representing the field (example: "PATH", "IMSC", etc.)
         '''
         if "STAT_sending" in data:
+            self.receiving = 1
             self.stat_sending()
         elif "STAT_waiting" in data:
             self.stat_waiting()
@@ -30,6 +32,7 @@ class Data_Collection():
         
         elif "IMSC" in data:
             self.imsc = int(data[self.adwin_data_start:])
+            self.receiving = 0
             return 1
         
         elif "SCAN" in data:
