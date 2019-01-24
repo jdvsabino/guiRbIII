@@ -1,8 +1,8 @@
 import gi
 import sys, os
 gi.require_version('Gtk', '3.0')
-sys.path.append('../')
-sys.path.append('./classes')
+sys.path.append('..\')
+sys.path.append('.\classes\')
 from gi.repository import Gtk, Gdk, GdkPixbuf
 from setRangeWindow import SetRangeWindow
 import matplotlib.image as mpimg

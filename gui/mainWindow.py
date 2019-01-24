@@ -156,8 +156,8 @@ class mainWindow(Gtk.Window):
     def set_picZoomed(self, filename):
 
         img1 = mpimg.imread(filename)
-        img2 = mpimg.imread("../atoms.tif")
-        img3 = mpimg.imread("../noatoms.tif") 
+        img2 = mpimg.imread("./atoms.tif")
+        img3 = mpimg.imread("./noatoms.tif") 
         self.canvasZoom = gen_canvas_zoomed(img1,img2,img3, 15,15, cbar=1)
         self.canvasZoom.set_size_request(600, 500)
         #self.canvasZoom.figure.axes[0].callbacks.connect("xlim_changed", self.updateRegion)
@@ -504,10 +504,10 @@ win = mainWindow()
 win.connect("destroy", Gtk.main_quit)
 
 win.set_picZoomed("/home/colin/Dropbox/GUI_RbIII/manos_na_neve.png")
-win.set_picAtoms("../atoms.tif")
-win.set_picNoAtoms("../noatoms.tif")
-win.set_picBkg("../atoms.tif")
-win.set_picOriginal("../noatoms.tif")
+win.set_picAtoms("./atoms.tif")
+win.set_picNoAtoms("./noatoms.tif")
+win.set_picBkg("./atoms.tif")
+win.set_picOriginal("./noatoms.tif")
 
 
 # picpic = win.picGrid.get_child_at(1,1)
