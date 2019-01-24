@@ -92,7 +92,7 @@ These paths are the soure of the information.
 Where to get the pics, for example.
 '''
 
-LOOP_DATA_DIR_SRC = ""
-SCAN_COUNT_FILE_SRC = ""
-PIC_SRC = ""
-AQ_DATA_SRC = ""
+LOOP_DATA_DIR_SRC = "G:\\data\\AdWin_v2\\loop-data"
+SCAN_COUNT_FILE_SRC = "G:\\data\\AdWin_v2\\loop-data\\scan_cnt.txt"
+PIC_SRC = "G:\\data\\pics"
+# AQ_DATA_SRC = ""
