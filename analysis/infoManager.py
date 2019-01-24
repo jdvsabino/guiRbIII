@@ -2,8 +2,10 @@ import sys
 sys.path.append('../network')
 from picManager import PictureManager
 import matplotlib.image as mpimg
+import matplotlib.pyplot as plt # For teting purposes
 import copy
-from data_collection import data_collector as dc
+from network.data_collection import data_collector as dc
+from network.data_collection import PIC_SRC
 
 
 class InfoManager():
@@ -15,10 +17,10 @@ class InfoManager():
     and make it available in the future.   
     '''
     
-    def __init__(self):
+    def __init__(self, data_collector=dc):
         
         # Buffer for data collector? -- seems to make sense - How/When to update it?
-        self.dc = copy.deepcopy(dc)
+        self.dc = copy.deepcopy(data_collector)
         
         
         ### Pictures are to be set only when we get the
@@ -46,7 +48,7 @@ class InfoManager():
         self.dc = copy.deepcopy(dc)
         
 
-    def update_info(self, dc, win):
+    def update_info(self, win):
         '''
         Receives information from Adwin through dc and 
         gets the pictures, calculates the absorption picture,
@@ -73,7 +75,7 @@ class InfoManager():
         
         ### Implement how to get the Pics - Talk to Thomas
         
-        pic_atoms_name = "atoms" ### ?? Ask people about these
+        pic_atoms_name = "manos_na_neve.png" ### ?? Ask people about these
         pic_no_atoms_name = "noatoms" ### ?? Ask people about these
         
         path_atom_pic = PIC_SRC + self.dc.path + pic_atoms_name
@@ -85,6 +87,11 @@ class InfoManager():
         pic = mpimg.imread(path_no_atom_pic, path=path_no_atom_pic)
         self.no_atom_pic = PictureManager(pic, path=path_no_atom_pic)
         self.background_pic = None
+
+        # TESTING BLOCK
+        plt.imshow(self.atom_pic.pic)
+        plt.savefig("Test_GUI_atompic", dpi=100)
+        
         
         
         self.abs_pic = AbsorptionPicture(self.atom_pic, self.no_atom_pic)
