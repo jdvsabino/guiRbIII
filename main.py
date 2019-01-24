@@ -10,6 +10,7 @@ import threading, select
 from network.data_collection import data_collector as  dc
 
 from network.get_data import get_data
+from analysis.info_manager import InfoManager
 
 
 ###---- MAIN VARIABLES
@@ -22,8 +23,12 @@ LOCAL_IP = "192.0.0.100"
 
 
 
+###---- OBJECT TO MANAGE INFO
+info_man = InfoManager()
 
-dcbuffer =  "" # Just for testing
+
+###---- GRAPHIC OBJECTS - uncommented for testing purposes
+# win = mainWindow()
 
 
 ###---- Thread to receive data
@@ -36,20 +41,19 @@ print("Done!")
 print(t.is_alive())
 while(1):
 
-    if dc.glob != dcbuffer:
+    
+    # Holds the program while dc
+    # does not receive data from  Adwin.
+    while(dc.glob = -1):
+        continue
+
+    read_data = dc.receiving != 1 and dc.glob !=
+    if read_data:
         print("#####+++++#####")
-        print(str(dc.glob))
+        info_man.update_data_buffer()
+        info_man.update_info(None) # Argument is none for testing purposes
         print("#####+++++#####")
-        dcbuffer = dc.glob
+        
     
 
-a=input("Press any key to exit...")
-print("BBBB: " + dc.path)
-
-
-
-
-
-
-
-
+a=str(input("Press any key to exit..."))
