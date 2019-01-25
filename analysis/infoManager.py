@@ -20,7 +20,9 @@ class InfoManager():
     def __init__(self, data_collector=dc):
         
         # Buffer for data collector? -- seems to make sense - How/When to update it?
-        self.dc = copy.deepcopy(data_collector)
+        # Waits for dc to get some data before coping it the first time.
+        if dc.glob != -1:
+            self.dc = copy.deepcopy(data_collector)
         
         
         ### Pictures are to be set only when we get the
@@ -73,10 +75,9 @@ class InfoManager():
         
         self.scan_num = self.dc.scan
         
-        ### Implement how to get the Pics - Talk to Thomas
         
-        pic_atoms_name = "manos_na_neve.png" ### ?? Ask people about these
-        pic_no_atoms_name = "noatoms" ### ?? Ask people about these
+        pic_atoms_name = "-withoutatoms.tif" ### name given by default
+        pic_no_atoms_name = "-atomcloud.tif" ### 
         
         path_atom_pic = PIC_SRC + self.dc.path + pic_atoms_name
         path_no_atom_pic = PIC_SRC + self.dc.path + pic_no_atoms_name
@@ -87,7 +88,7 @@ class InfoManager():
         pic = mpimg.imread(path_no_atom_pic, path=path_no_atom_pic)
         self.no_atom_pic = PictureManager(pic, path=path_no_atom_pic)
         self.background_pic = None
-
+        
         # TESTING BLOCK
         plt.imshow(self.atom_pic.pic)
         plt.savefig("Test_GUI_atompic", dpi=100)
