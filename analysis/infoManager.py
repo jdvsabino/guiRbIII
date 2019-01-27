@@ -103,6 +103,7 @@ class InfoManager():
 
         # Saves a matlab file with the data for this run
         file_name = PIC_SRC + self.dc.path + self.dc.loop + "-data.mat"
+        file_name = "datazinha.mat" # FOR TESTING
         sio.savemat(file_name, self.status)
         
         ###--- TODO: Update hist and status
@@ -115,7 +116,7 @@ class InfoManager():
         They are read from the variable 'self.vars'
         '''
             
-        for var in self.var_computer.keys():
+        for var in list(self.var_computer.keys()):
                 self.history[var] = []
                 self.status[var]  = []
                 
@@ -126,7 +127,7 @@ class InfoManager():
         They are read from the variable 'self.variables'
         '''
 
-        if var in self.var_computer.keys():
+        if var in list(self.var_computer.keys()):
             return self.var_computer[var]()
         else:
             print("WARNING: Variable not found!")
