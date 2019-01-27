@@ -4,6 +4,7 @@ from picManager import PictureManager
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt # For teting purposes
 import copy
+import scipy as sio
 from network.data_collection import data_collector as dc
 from network.data_collection import PIC_SRC
 
@@ -99,10 +100,13 @@ class InfoManager():
         self.atom_num = self.abs_pic.get_atom_number()
         
         update_history()
-        # update_status() ### Really necessary?
-        
+
+        # Saves a matlab file with the data for this run
+        file_name = PIC_SRC + self.dc.path + self.dc.loop + "-data.mat"
+        sio.savemat(file_name, self.status)
         
         ###--- TODO: Update hist and status
+        # update_status() ### Really necessary?
 
 
     def set_vars(self):
@@ -113,6 +117,7 @@ class InfoManager():
             
         for var in self.var_computer.keys():
                 self.history[var] = []
+                self.status[var]  = []
                 
 
     def compute_vars(self, var):
@@ -153,13 +158,21 @@ class InfoManager():
 
         for var in self.var_computer:
             self.history[var].append(self.compute_vars(var))
+
         
         
 
     def update_status():
-        ''' TODO '''
+        ''' 
+        Stores the values of the variables of the last cycle
+        The information is lost when information of another cycle 
+        comes.
+        '''
+
+        for var in self.var_computer:
+            self.status[var].append(self.compute_vars(var))
         
-        return NotImplemented
+        
 
         
 
