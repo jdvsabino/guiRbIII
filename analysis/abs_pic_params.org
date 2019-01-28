@@ -1,0 +1,26 @@
+* Properties (default values are given)
+
+- [X] pic_path = ''- the path to the picture directory
+- [X] pic_number = 1 - the number of the picture in the given picture directory
+- [X] ROI = [1 1 1 1] - coordinates for ROI
+- [X] RBC = [1 1 1 1] - coordinates for RBC
+- [X] background_correction = 1 do background corr. on ROI_data? 0 = false, 1 = true
+- [X] gain = 3 gain factor for plotting, used when calculating ROI_data()
+- [X] raw_data = [] - the raw data, log of atom versus back pictures without any gain factor —> should be our optical depth!
+- [X] atompic = [] - picture with atoms
+- [X] backpic = [] - picture without atoms
+- [ ] useBackPics = 1 - switch: 0… do not use back pics, 1… use background images, 2… use a fixed number as background
+- [X] imaging_system = 'longitudinalAndor' - (or transversalAndor or Pixelfly) sets the imaging system and all related parameters
+- [X] TOF = 20 - time of flight in ms, only needed for fringe analysis.
+- [X] pixel2um = 0 - pixel to µm conversion factor, is defined by the specified imaging system in use- [ ]
+
+
+* Methods
+
+- [X] abs_pic(var) - IMPORTANT: contructor that initialized the class with parameters giving in the struct 'var', i.e. 'var.TOF = 20;'
+- [X] linescan = get_linescan_x() - projects linescan onto x axis
+- [X] linescan = get_linescan_y() - projects linescan onto y axis
+- [ ] do_background_correction(value) - change settings wether to do or not to do a background correction
+- [X] set_gain(value) - change gain value (affects only ROI_data)
+- [X] atomnumber = get_atomnumber() - calculates the atomnumber in the ROI
+- [X] [NEEDS TESTING] gauss_fit() - simple gaussian fit to extract [hor_pos, ver_pos, hor_width, ver_width] in µm
