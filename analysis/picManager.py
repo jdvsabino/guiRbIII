@@ -35,11 +35,11 @@ class AbsorptionPicture(PictureManager):
 
     def __init__(self, atom_pic, no_atom_pic, cam = None, correction=True):
 
-        PictureManager.__init__(self, pic)
+        PictureManager.__init__(self, atom_pic) # Doesnt make much sense, think about this...
         self.path = ""
         self.ID = 1 ### DECIDE ABOUT THIS _ CAREFUL!!! 
         
-        self.pic = get_absorption_picture(atom_pic, no_atom_pic)
+        self.pic = self.get_absorption_picture(atom_pic, no_atom_pic)
         self.cam = cam
 
         self.TOF = -1
