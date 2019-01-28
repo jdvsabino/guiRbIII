@@ -1,10 +1,11 @@
 import sys
 sys.path.append('../network')
-from picManager import PictureManager
+from picManager import PictureManager, AbsorptionPicture
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt # For teting purposes
 import copy
 import scipy as sio
+from network.data_collection import Data_Collection
 from network.data_collection import data_collector as dc
 from network.data_collection import PIC_SRC
 
@@ -22,8 +23,9 @@ class InfoManager():
         
         # Buffer for data collector? -- seems to make sense - How/When to update it?
         # Waits for dc to get some data before coping it the first time.
+        self.dc = Data_Collection()
         if dc.glob != -1:
-            self.dc = copy.deepcopy(data_collector)
+            self.update_data_buffer()
         
         
         ### Pictures are to be set only when we get the
@@ -48,6 +50,7 @@ class InfoManager():
         self.set_var_computer()
 
     def update_data_buffer(self):
+        print("GLOBAAAAAL: " + str(dc.glob))
         self.dc = copy.deepcopy(dc)
         
 
@@ -80,19 +83,24 @@ class InfoManager():
         pic_atoms_name = "-withoutatoms.tif" ### name given by default
         pic_no_atoms_name = "-atomcloud.tif" ### 
         
-        path_atom_pic = PIC_SRC + self.dc.path + pic_atoms_name
-        path_no_atom_pic = PIC_SRC + self.dc.path + pic_no_atoms_name
-        
+        path_atom_pic = PIC_SRC + self.dc.file[:-1] + pic_atoms_name
+        path_no_atom_pic = PIC_SRC + self.dc.file[:-1] + pic_no_atoms_name
+
+        # TESTING
+        print("PATH: " + path_atom_pic)
+        path_atom_pic = "G:\\Codes\\MatLab\\Adwin_programs\\krb_acquisition_program_v10_Joao\\GUI_RbIII\\manos_na_neve.png"
+        path_no_atom_pic = "G:\\Codes\\MatLab\\Adwin_programs\\krb_acquisition_program_v10_Joao\\GUI_RbIII\\manos_na_neve.png"
         pic = mpimg.imread(path_atom_pic)
         self.atom_pic = PictureManager(pic, path=path_atom_pic)
-        
-        pic = mpimg.imread(path_no_atom_pic, path=path_no_atom_pic)
+
+        # TESTING --- Uncomment to work properly
+        pic = mpimg.imread(path_no_atom_pic)
         self.no_atom_pic = PictureManager(pic, path=path_no_atom_pic)
         self.background_pic = None
         
         # TESTING BLOCK
         plt.imshow(self.atom_pic.pic)
-        plt.savefig("Test_GUI_atompic", dpi=100)
+        plt.savefig("G:\\Codes\\MatLab\\Adwin_programs\\krb_acquisition_program_v10_Joao\\GUI_RbIII\\Test_GUI_atompic", dpi=100)
         
         
         

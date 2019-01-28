@@ -4,6 +4,7 @@ class Data_Collection():
 
         self.receiving = 0
         self.path = ""
+        self.file = ""
         self.scan = ""
         self.imsc = ""
         self.loop = -1
@@ -24,10 +25,16 @@ class Data_Collection():
         if "STAT_sending" in data:
             self.receiving = 1
             self.stat_sending()
+            
         elif "STAT_waiting" in data:
             self.stat_waiting()
+            
         elif "PATH" in data:
             self.path = data[self.adwin_data_start:]
+            return 1
+        
+        elif "FILE" in data:
+            self.file = data[self.adwin_data_start:]
             return 1
         
         elif "IMSC" in data:

@@ -46,7 +46,7 @@ while(1):
     # does not receive data from  Adwin.
     while(dc.glob == -1):
         continue
-
+    #print("CURRENT GLOB: " + str(dc.glob))
     read_data = dc.receiving != 1 and dc.glob != info_man.dc.glob
     if read_data:
         print("#####+++++#####")
