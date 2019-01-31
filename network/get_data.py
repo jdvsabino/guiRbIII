@@ -39,13 +39,16 @@ def get_data(local_ip, rec_port_adwin, rec_port_c1, rec_port_c2, rec_port_c3, in
 
             elif socket is c1_socket:
                 dc.set_data_c1(data)
+                print("Socket C1!")
 
             elif socket is c2_socket:
                 dc.set_data_c2(data)
-
+                print("Socket C2!")
+                
             elif socket is c3_socket:
                 dc.set_data_c3(data)
-        
+                print("Socket C3!")
+                
             else:
                 print("Error: wierd socket detected!")
                 if i%2==0:
