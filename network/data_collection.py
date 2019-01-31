@@ -12,6 +12,7 @@ class Data_Collection():
         self.T_cam = -1
         self.L_cam = -1
         self.V_cam = -1
+        self.cam_flag = -1
 
         ###---- Chosses the starting point to read data from adwin
         self.adwin_data_start = 5
@@ -62,6 +63,7 @@ class Data_Collection():
     def st_data_c1(self, data):
         if 'LCAM' in data:
             self.L_cam = data[self.adwin_data_start:]
+            self.cam_flag = 1
             return 1
 
         print("Signal from Celcius 1 recieved but no LCAM info.")
@@ -70,6 +72,7 @@ class Data_Collection():
     def st_data_c2(self, data):
         if 'TCAM' in data:
             self.T_cam = data[self.adwin_data_start:]
+            self.cam_flag = 0
             return 1
 
         print("Signal from Celcius 2 recieved but no TCAM info.")
@@ -78,6 +81,7 @@ class Data_Collection():
     def st_data_c3(self, data):
         if 'VCAM' in data:
             self.V_cam = data[self.adwin_data_start:]
+            self.cam_flag = 3
             return 1
 
         print("Signal from Celcius 3 recieved but no VCAM info.")
