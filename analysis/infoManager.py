@@ -1,10 +1,12 @@
 import sys
 sys.path.append('../network')
+import os
 from picManager import PictureManager, AbsorptionPicture
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt # For teting purposes
 import copy
 import scipy as sio
+import numpy as np
 from network.data_collection import Data_Collection
 from network.data_collection import data_collector as dc
 from network.data_collection import PIC_SRC
@@ -82,37 +84,39 @@ class InfoManager():
         
         pic_atoms_name = "-withoutatoms.tif" ### name given by default
         pic_no_atoms_name = "-atomcloud.tif" ### 
-        
-        path_atom_pic = PIC_SRC + self.dc.file[:-1] + pic_atoms_name
-        path_no_atom_pic = PIC_SRC + self.dc.file[:-1] + pic_no_atoms_name
+        num = int(self.dc.file[-7:-1]) - 3
+        path_atom_pic = PIC_SRC + self.dc.file[:-7] + str(num) + pic_atoms_name
+        path_no_atom_pic = PIC_SRC + self.dc.file[:-7] + str(num) + pic_no_atoms_name
+
+        #os.listdir(PIC_SRC + self.dc.file[:-7])
+        #a = str(input("WAIT..."))
+
 
         # TESTING
-        print("PATH: " + path_atom_pic)
-        path_atom_pic = "G:\\Codes\\MatLab\\Adwin_programs\\krb_acquisition_program_v10_Joao\\GUI_RbIII\\manos_na_neve.png"
-        path_no_atom_pic = "G:\\Codes\\MatLab\\Adwin_programs\\krb_acquisition_program_v10_Joao\\GUI_RbIII\\manos_na_neve.png"
+        print("PATH my PATH: " + path_atom_pic)
+        #path_atom_pic = "G:\\Codes\\MatLab\\Adwin_programs\\krb_acquisition_program_v10_Joao\\GUI_RbIII\\manos_na_neve.png"
+        #path_no_atom_pic = "G:\\Codes\\MatLab\\Adwin_programs\\krb_acquisition_program_v10_Joao\\GUI_RbIII\\manos_na_neve.png"
         pic = mpimg.imread(path_atom_pic)
         self.atom_pic = PictureManager(pic, path=path_atom_pic)
 
-        # TESTING --- Uncomment to work properly
+        
         pic = mpimg.imread(path_no_atom_pic)
         self.no_atom_pic = PictureManager(pic, path=path_no_atom_pic)
-        self.background_pic = None
+        self.background_pic = None        
         
+        
+        self.abs_pic = AbsorptionPicture(self.atom_pic.pic, self.no_atom_pic.pic)
+        #self.atom_num = self.abs_pic.get_atom_number()
+
         # TESTING BLOCK
-        plt.imshow(self.atom_pic.pic)
+        plt.imshow(self.abs_pic.pic)
         plt.savefig("G:\\Codes\\MatLab\\Adwin_programs\\krb_acquisition_program_v10_Joao\\GUI_RbIII\\Test_GUI_atompic", dpi=100)
-        
-        
-        
-        self.abs_pic = AbsorptionPicture(self.atom_pic, self.no_atom_pic)
-        self.atom_num = self.abs_pic.get_atom_number()
-        
-        update_history()
+        self.update_history()
 
         # Saves a matlab file with the data for this run
-        file_name = PIC_SRC + self.dc.path + self.dc.loop + "-data.mat"
+        file_name = PIC_SRC + self.dc.path + str(self.dc.loop) + "-data.mat"
         file_name = "datazinha.mat" # FOR TESTING
-        sio.savemat(file_name, self.status)
+        #sio.savemat(file_name, self.status)
         
         ###--- TODO: Update hist and status
         # update_status() ### Really necessary?
