@@ -77,7 +77,8 @@ class AbsorptionPicture(PictureManager):
         - We shouls set all negative elements to zero
         '''
         
-        abs_pic = -np.log(atom/no_atom)
+        abs_pic = np.divide(atom, no_atom, out=np.ones_like(atom), where=no_atom!=0)
+        abs_pic = -np.log(abs_pic)
         
         return abs_pic
     
