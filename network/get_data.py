@@ -24,12 +24,12 @@ def get_data(local_ip, rec_port_adwin, rec_port_c1, rec_port_c2, rec_port_c3, in
     #input_info = dc.data_collector
     
     while 1:
-        print("Inside while loop!")
+        #print("Inside while loop!")
         readable, writable, exceptional = select.select(inputs,[],[]) #check if any port received something
-        print("Read something...")
-        print(readable)
-        print(writable)
-        print(exceptional)
+        #print("Read something...")
+        #print(readable)
+        #print(writable)
+        #print(exceptional)
         for socket in readable:
             data, addr = socket.recvfrom(1024)
             print("DATA: " + data)
