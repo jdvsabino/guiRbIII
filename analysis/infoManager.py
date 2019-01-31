@@ -51,6 +51,7 @@ class InfoManager():
         self.history = dict()  ### TODO - Think how to implement
 
         self.set_var_computer()
+        self.set_vars()
 
     def update_data_buffer(self):
         print("GLOBAAAAAL: " + str(dc.glob))
@@ -67,7 +68,7 @@ class InfoManager():
         dc  - global 'Data_Collection' object
         win - main window where the info is displayed to the user 
         '''
-        # update_data_buffer() ### INCLUDE THIS HERE???
+        # update_data_buffer() ### INCLUDE THIS HERE??? Maybe in the end
         if self.cycle_num +1 == self.dc.loop:
             self.cycle_num +=1
         else:
@@ -85,7 +86,7 @@ class InfoManager():
         
         pic_atoms_name = "-withoutatoms.tif" ### name given by default
         pic_no_atoms_name = "-atomcloud.tif" ### 
-        num = int(self.dc.file[-7:-1]) - 3
+        num = int(self.dc.file[-7:-1]) - 4
         path_atom_pic = PIC_SRC + self.dc.file[:-7] + str(num) + pic_atoms_name
         path_no_atom_pic = PIC_SRC + self.dc.file[:-7] + str(num) + pic_no_atoms_name
 
@@ -97,21 +98,24 @@ class InfoManager():
         print("PATH my PATH: " + path_atom_pic)
         #path_atom_pic = "G:\\Codes\\MatLab\\Adwin_programs\\krb_acquisition_program_v10_Joao\\GUI_RbIII\\manos_na_neve.png"
         #path_no_atom_pic = "G:\\Codes\\MatLab\\Adwin_programs\\krb_acquisition_program_v10_Joao\\GUI_RbIII\\manos_na_neve.png"
+        camera = self.gen_camera(self.dc.cam_flag)
         pic = mpimg.imread(path_atom_pic)
-        self.atom_pic = PictureManager(pic, path=path_atom_pic)
+        self.atom_pic = PictureManager(pic, path=path_atom_pic, cam = camera)
 
         
         pic = mpimg.imread(path_no_atom_pic)
-        self.no_atom_pic = PictureManager(pic, path=path_no_atom_pic)
+        self.no_atom_pic = PictureManager(pic, path=path_no_atom_pic, cam = camera)
         self.background_pic = None        
         
         
-        self.abs_pic = AbsorptionPicture(self.atom_pic.pic, self.no_atom_pic.pic)
-        #self.atom_num = self.abs_pic.get_atom_number()
+        self.abs_pic = AbsorptionPicture(self.atom_pic.pic, self.no_atom_pic.pic, cam = camera)
+        self.atom_num = self.abs_pic.get_atom_number()
 
         # TESTING BLOCK
         plt.imshow(self.abs_pic.pic)
         plt.savefig("G:\\Codes\\MatLab\\Adwin_programs\\krb_acquisition_program_v10_Joao\\GUI_RbIII\\Test_GUI_atompic", dpi=100)
+
+        self.update_status()
         self.update_history()
 
         # Saves a matlab file with the data for this run
@@ -131,7 +135,7 @@ class InfoManager():
             
         for var in list(self.var_computer.keys()):
                 self.history[var] = []
-                self.status[var]  = []
+                self.status[var]  = ""
                 
 
     def compute_vars(self, var):
@@ -139,16 +143,13 @@ class InfoManager():
         Computes the variables shown in plot window.
         They are read from the variable 'self.variables'
         '''
-
         
-
         if var in list(self.var_computer.keys()):
             return self.var_computer[var](self)
         else:
             print("WARNING: Variable not found!")
             print("Computation of '" + var + "' was not possible." )
             return -1
-        
 
 
     def set_var_computer(self):
@@ -182,12 +183,12 @@ class InfoManager():
         '''
 
         for var in self.var_computer:
-            self.history[var].append(self.compute_vars(var))
+            self.history[var].append(self.status[var])
 
         
         
 
-    def update_status():
+    def update_status(self):
         ''' 
         Stores the values of the variables of the last cycle
         The information is lost when information of another cycle 
@@ -195,10 +196,21 @@ class InfoManager():
         '''
 
         for var in self.var_computer:
-            self.status[var].append(self.compute_vars(var))
+            self.status[var] = self.compute_vars(var)
         
         
 
-        
+    def gen_camera(self):
 
+        if self.dc.cam_flag == 0:
+            return Camera(0)
         
+        elif self.dc.cam_flag == 1:
+            return Camera(1)
+        
+        elif self.dc.cam_flag == 3:
+            return Camera(3)
+        
+        else:
+            print("Bad camera flag!")
+            return -1
