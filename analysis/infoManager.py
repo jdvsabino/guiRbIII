@@ -10,6 +10,7 @@ import numpy as np
 from network.data_collection import Data_Collection
 from network.data_collection import data_collector as dc
 from network.data_collection import PIC_SRC
+from function_vars import *
 
 
 class InfoManager():
@@ -139,8 +140,10 @@ class InfoManager():
         They are read from the variable 'self.variables'
         '''
 
+        
+
         if var in list(self.var_computer.keys()):
-            return self.var_computer[var]()
+            return self.var_computer[var](self)
         else:
             print("WARNING: Variable not found!")
             print("Computation of '" + var + "' was not possible." )
@@ -162,6 +165,15 @@ class InfoManager():
         var_computer["Mean"] = function_that_computes_the_mean
         
         '''
+
+        if self.variables == []:
+            self.variables = var_list
+        
+        self.var_computer= copy.deepcopy(func_dict)
+        
+            
+
+        
    
     def update_history(self):
         ''' 
