@@ -54,8 +54,14 @@ class InfoManager():
         self.set_vars()
 
     def update_data_buffer(self):
+
+        ###--- Make sure that dc is not being updated
+        while(dc.receiving_flag == 1):
+            continue
+        dc.copy_flag = 1
         print("GLOBAAAAAL: " + str(dc.glob))
         self.dc = copy.deepcopy(dc)
+        dc.copy_flag = 0
         
 
     def update_info(self, win):
@@ -83,22 +89,29 @@ class InfoManager():
         
         self.scan_num = self.dc.scan
         
-        
-        pic_atoms_name = "-withoutatoms.tif" ### name given by default
-        pic_no_atoms_name = "-atomcloud.tif" ### 
-        num = int(self.dc.file[-7:-1]) - 4
-        path_atom_pic = PIC_SRC + self.dc.file[:-7] + str(num) + pic_atoms_name
-        path_no_atom_pic = PIC_SRC + self.dc.file[:-7] + str(num) + pic_no_atoms_name
+
 
         #os.listdir(PIC_SRC + self.dc.file[:-7])
         #a = str(input("WAIT..."))
 
 
         # TESTING
-        print("PATH my PATH: " + path_atom_pic)
         #path_atom_pic = "G:\\Codes\\MatLab\\Adwin_programs\\krb_acquisition_program_v10_Joao\\GUI_RbIII\\manos_na_neve.png"
         #path_no_atom_pic = "G:\\Codes\\MatLab\\Adwin_programs\\krb_acquisition_program_v10_Joao\\GUI_RbIII\\manos_na_neve.png"
         camera = self.gen_camera(self.dc.cam_flag)
+        
+        pic_atoms_name = "-withoutatoms.tif" ### name given by default
+        pic_no_atoms_name = "-atomcloud.tif" ### 
+        num = int(self.dc.file[-7:-1]) - 4
+        ###--- Paths from phantom
+        # path_atom_pic = PIC_SRC + self.dc.file[:-7] + str(num) + pic_atoms_name
+        # path_no_atom_pic = PIC_SRC + self.dc.file[:-7] + str(num) + pic_no_atoms_name
+
+        ###--- Paths to network share
+        path_atom_pic = PIC_SRC + camera.label + "\\" + self.dc.last_pic + str(num) + pic_atoms_name
+        path_no_atom_pic = PIC_SRC + camera.label + "\\" + self.dc.last_pic + str(num) + pic_no_atoms_name
+        print("PATH my PATH: " + path_atom_pic)
+
         pic = mpimg.imread(path_atom_pic)
         self.atom_pic = PictureManager(pic, path=path_atom_pic, cam = camera)
 
