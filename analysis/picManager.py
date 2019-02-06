@@ -69,15 +69,32 @@ class AbsorptionPicture(PictureManager):
 
         return atom_number
 
-    def get_absorption_picture(self, atom, no_atom):
+    def get_absorption_picture(self, atom, no_atom, full=False):
         '''
         Computes the absorption picture.
         - Check formula - use gain?
                         - what the hell is eps? (in fringe analysis file)
         - We shouls set all negative elements to zero
         '''
-        
         abs_pic = np.divide(atom, no_atom, out=np.ones_like(atom), where=no_atom!=0)
+        if full:
+            '''
+            For details on these values check Thomas Schweigler thesis, chapter 3.
+            Discuss these formulas, is sig0 really necessary? Apparently not.
+            '''
+            hbar = 1.0546*1e-34 # m^2.Kg/s
+            alpha = 1.83
+            lamb = 111
+            w = 0
+            tau = 1
+            sig0 = 3*lamb*lamb/(2*np.pi)
+            sig = sig0/alpha
+            I_sat = hbar*w/(2*sig0*tau)
+            I_sat = I_sat*alpha
+            abs_pic = -np.log(abs_pic) + (atom-no_atom)/I_sat
+
+            return abs_pic
+        
         abs_pic = -np.log(abs_pic)
         
         return abs_pic
@@ -145,7 +162,7 @@ class Camera():
         self.correction = 0.
 
         if cam_type == 0:
-            self.label = "TANDOR"
+            self.label = "TAndor"
             self.pixel_size = 13.*1e-4 # cm
             self.magnification = 12.39
             self.pixel2um = 1.05
@@ -155,7 +172,7 @@ class Camera():
             return 0
         
         elif cam_type == 1 or cam_type == 2:
-            self.label = "LANDOR"
+            self.label = "LAndor"
             self.pixel_size = 13.*1e-4 # cm
             self.magnification = 5.3
             self.pixel2um = 2.45
@@ -165,7 +182,7 @@ class Camera():
             return 0
         
         elif cam_type == 3:
-            self.label = "VANDOR"
+            self.label = "VAndor"
             self.pixel_size = 13.*1e-4 # cm
             self.magnification = 1.68
             self.pixel2um = 3.84
