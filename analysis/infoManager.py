@@ -1,7 +1,7 @@
 import sys
 sys.path.append('../network')
 import os
-from picManager import PictureManager, AbsorptionPicture
+from picManager import PictureManager, AbsorptionPicture, Camera
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt # For teting purposes
 import copy
@@ -80,11 +80,12 @@ class InfoManager():
         else:
             self.cycle_num = self.dc.loop
             print("WARNING: Corrected loop number to " + str(self.cycle_num))
+
         
         if self.global_cycle_num +1 == self.dc.glob:
             self.global_cycle_num +=1
         else:
-            self.cycle_num = self.dc.loop
+            self.global_cycle_num = self.dc.glob
             print("WARNING: Corrected global loop number to " + str(self.cycle_num))        
         
         self.scan_num = self.dc.scan
@@ -98,18 +99,26 @@ class InfoManager():
         # TESTING
         #path_atom_pic = "G:\\Codes\\MatLab\\Adwin_programs\\krb_acquisition_program_v10_Joao\\GUI_RbIII\\manos_na_neve.png"
         #path_no_atom_pic = "G:\\Codes\\MatLab\\Adwin_programs\\krb_acquisition_program_v10_Joao\\GUI_RbIII\\manos_na_neve.png"
-        camera = self.gen_camera(self.dc.cam_flag)
+        camera = self.gen_camera()
+        if camera == -1:
+            return -1
+
+        if self.dc.last_pic == -1:
+            print(dc.last_pic)
+            print("Dont know last pic...")
+            return -1
         
-        pic_atoms_name = "-withoutatoms.tif" ### name given by default
-        pic_no_atoms_name = "-atomcloud.tif" ### 
+        pic_atoms_name = camera.label + "_" + str(self.dc.last_pic[0]) + "atompic.tif"#"-withoutatoms.tif" ### name given by default
+        pic_no_atoms_name = camera.label + "_" + str(self.dc.last_pic[0]) + "backpic.tif"#"-atomcloud.tif" ### 
         num = int(self.dc.file[-7:-1]) - 4
         ###--- Paths from phantom
         # path_atom_pic = PIC_SRC + self.dc.file[:-7] + str(num) + pic_atoms_name
         # path_no_atom_pic = PIC_SRC + self.dc.file[:-7] + str(num) + pic_no_atoms_name
 
         ###--- Paths to network share
-        path_atom_pic = PIC_SRC + camera.label + "\\" + self.dc.last_pic + str(num) + pic_atoms_name
-        path_no_atom_pic = PIC_SRC + camera.label + "\\" + self.dc.last_pic + str(num) + pic_no_atoms_name
+        print(pic_atoms_name)
+        path_atom_pic = PIC_SRC + camera.label + "\\" + pic_atoms_name
+        path_no_atom_pic = PIC_SRC + camera.label + "\\" + pic_no_atoms_name
         print("PATH my PATH: " + path_atom_pic)
 
         pic = mpimg.imread(path_atom_pic)
@@ -214,14 +223,14 @@ class InfoManager():
         
 
     def gen_camera(self):
-
-        if self.dc.cam_flag == 0:
+        
+        if self.dc.imsc == 0:
             return Camera(0)
         
-        elif self.dc.cam_flag == 1:
+        elif self.dc.imsc == 1 or self.dc.imsc == 2:
             return Camera(1)
         
-        elif self.dc.cam_flag == 3:
+        elif self.dc.imsc == 3:
             return Camera(3)
         
         else:
