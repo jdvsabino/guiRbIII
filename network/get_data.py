@@ -27,7 +27,7 @@ def get_data(local_ip, rec_port_adwin, rec_port_c1, rec_port_c2, rec_port_c3, in
         #print("Inside while loop!")
         readable, writable, exceptional = select.select(inputs,[],[]) #check if any port received something
         #print("Read something...")
-        #print(readable)
+        #print("READABLE:" + str(readable))
         #print(writable)
         #print(exceptional)
         for socket in readable:
