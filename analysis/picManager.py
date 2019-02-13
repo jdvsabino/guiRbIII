@@ -2,6 +2,9 @@ import numpy as np
 # import pylab as plb
 import sys
 
+###---- Minimum value to avoid zeros while computing abs_pic
+MIN = sys.float_info.min
+
 
 class PictureManager():
     '''
@@ -64,8 +67,9 @@ class AbsorptionPicture(PictureManager):
         px_size = self.cam.pixel2um
         mag = self.cam.magnification
         abs_cross = self.cam.abs_cross
-        final_pic = self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[4]]
-        atom_number = px_size*pix_size/(mag*mag)/abs_cross*np.sum(np.sum(final_pic))
+        # FOR TESTING PURPOSES
+        final_pic = self.pic#self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[4]]
+        atom_number = self.cam.pixel_size*self.cam.pixel_size/(self.cam.magnification*self.cam.magnification)/self.cam.abs_cross*np.sum(np.sum(final_pic))
 
         return atom_number
 
@@ -76,27 +80,31 @@ class AbsorptionPicture(PictureManager):
                         - what the hell is eps? (in fringe analysis file)
         - We shouls set all negative elements to zero
         '''
-        abs_pic = np.divide(atom, no_atom, out=np.ones_like(atom), where=no_atom!=0)
+        # abs_pic = np.divide(atom, no_atom, out=np.ones_like(atom), where=no_atom!=0) # test these arguments
+        abs_pic = np.divide(atom, no_atom + MIN) # test if this works
         if full:
             '''
             For details on these values check Thomas Schweigler thesis, chapter 3.
             Discuss these formulas, is sig0 really necessary? Apparently not.
             '''
-            hbar = 1.0546*1e-34 # m^2.Kg/s
-            alpha = 1.83
-            lamb = 111
-            w = 0
-            tau = 1
-            sig0 = 3*lamb*lamb/(2*np.pi)
-            sig = sig0/alpha
-            I_sat = hbar*w/(2*sig0*tau)
-            I_sat = I_sat*alpha
+            # More versatile way of writing  I_sat
+            # hbar = 1.0546*1e-34 # m^2.Kg/s
+            # alpha = 1.83
+            # lamb = 111
+            # w = 0
+            # tau = 1
+            # sig0 = 3*lamb*lamb/(2*np.pi)
+            # sig = sig0/alpha
+            # I_sat = hbar*w/(2*sig0*tau)
+            # I_sat = I_sat*alpha
+
+            # Value for I_sat from KRbTools
+            I_sat = 16.6933
             abs_pic = -np.log(abs_pic) + (atom-no_atom)/I_sat
 
             return abs_pic
         
         abs_pic = -np.log(abs_pic)
-        
         return abs_pic
     
     def integrate_x(self):
@@ -169,7 +177,7 @@ class Camera():
             self.abs_cross = 1.938*1e-9
             self.correction = 0.
 
-            return 0
+            #return 0
         
         elif cam_type == 1 or cam_type == 2:
             self.label = "LAndor"
@@ -179,7 +187,7 @@ class Camera():
             self.abs_cross = 2.9*1e-9
             self.correction = 0.
 
-            return 0
+            #return 0
         
         elif cam_type == 3:
             self.label = "VAndor"
@@ -189,7 +197,7 @@ class Camera():
             self.abs_cross = 1.938*1e-9                    
             self.correction = 0.
 
-            return 0
+            #return 0
 
         else:
             print("Camera was not initialized. Problem with 'cam_type'. \n Check it is a number!\n")
