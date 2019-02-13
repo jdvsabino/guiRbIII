@@ -58,11 +58,12 @@ class InfoManager():
         ###--- Make sure that dc is not being updated
         while(dc.receiving_flag == 1):
             continue
+        
         dc.copy_flag = 1
         print("GLOBAAAAAL: " + str(dc.glob))
         self.dc = copy.deepcopy(dc)
         dc.copy_flag = 0
-        
+    
 
     def update_info(self, win):
         '''
