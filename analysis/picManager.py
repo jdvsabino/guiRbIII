@@ -1,5 +1,7 @@
 import numpy as np
 # import pylab as plb
+from scipy.optimize import curve_fit
+import matplotlib.pyplot as plt
 import sys
 
 ###---- Minimum value to avoid zeros while computing abs_pic
@@ -100,7 +102,7 @@ class AbsorptionPicture(PictureManager):
 
             # Value for I_sat from KRbTools
             I_sat = 16.6933
-            abs_pic = -np.log(abs_pic) + (atom-no_atom)/I_sat
+            abs_pic = -np.log(abs_pic) + (no_atom - atom)/I_sat
 
             return abs_pic
         
@@ -131,9 +133,19 @@ class AbsorptionPicture(PictureManager):
         length = len(data)
         x_data = np.linspace(1,length, length)
         mean = np.sum(data)/length
-        sigma = np.sqrt((data - mean)**2)
-        popt, pcov = curve_fit(gaussian_func, x_data, data, p0=[1, mean, sigma])
+        sigma = np.sum(np.sqrt((data - mean)**2))
+        print(mean)
+        print(sigma)
+        popt, pcov = curve_fit(self.gaussian_func, x_data, data, p0=[1, mean, sigma])
 
+        print(popt)
+
+        if plot:
+            plt.plot(x_data, self.gaussian_func(x_data, popt[0],popt[1],popt[2]),"r")
+            plt.plot(x_data, data, "b")
+            plt.show()
+            plt.close()
+        
         return popt, pcov
         
 
@@ -145,17 +157,30 @@ class AbsorptionPicture(PictureManager):
         and returns the data of the fit. It alsor returns the plot if 
         plot == 1
         '''
-        data = self.integrate_x()
+        data = self.integrate_y()
         length = len(data)
         x_data = np.linspace(1,length, length)
         mean = np.sum(data)/length
-        sigma = np.sqrt((data - mean)**2)
-        popt, pcov = curve_fit(gaussian_func, x_data, data, p0=[1, mean, sigma])
+        sigma = np.sum(np.sqrt((data - mean)**2))
+        popt, pcov = curve_fit(self.gaussian_func, x_data, data, p0=[1, mean, sigma])
 
+        print(popt)
+
+        if plot:
+            plt.plot(x_data, self.gaussian_func(x_data, popt[0],popt[1],popt[2]),"r")
+            plt.plot(x_data, data, "b")
+            plt.show()
+            plt.close()
+        
         return popt, pcov
 
     def background_correction(self):
         return NotImplementedError
+
+    def gaussian_func(self, x, a, b, c):
+
+        gauss = a*np.exp(np.power((x - b)/(2*c*c),2))
+        return gauss
         
     
 class Camera():

@@ -111,7 +111,7 @@ class InfoManager():
         
         pic_atoms_name = camera.label + "_" + str(self.dc.last_pic[0]) + "atompic.tif"#"-withoutatoms.tif" ### name given by default
         pic_no_atoms_name = camera.label + "_" + str(self.dc.last_pic[0]) + "backpic.tif"#"-atomcloud.tif" ### 
-        num = int(self.dc.file[-7:-1]) - 4
+        # num = int(self.dc.file[-7:-1]) - 4
         ###--- Paths from phantom
         # path_atom_pic = PIC_SRC + self.dc.file[:-7] + str(num) + pic_atoms_name
         # path_no_atom_pic = PIC_SRC + self.dc.file[:-7] + str(num) + pic_no_atoms_name
@@ -135,8 +135,18 @@ class InfoManager():
         self.atom_num = self.abs_pic.get_atom_number()
 
         # TESTING BLOCK
-        plt.imshow(self.abs_pic.pic)
-        plt.savefig("G:\\Codes\\MatLab\\Adwin_programs\\krb_acquisition_program_v10_Joao\\GUI_RbIII\\Test_GUI_atompic", dpi=100)
+        # plt.imshow(self.abs_pic.pic)
+        # plt.colorbar()
+        # plt.savefig("G:\\Codes\\MatLab\\Adwin_programs\\krb_acquisition_program_v10_Joao\\GUI_RbIII\\Test_GUI_atompic", dpi=100)
+        # plt.close()
+
+        win.set_picNoAtoms(self.no_atom_pic)
+        win.set_picBkg(self.atom_pic)
+        win.set_picOriginal(self.abs_pic)
+
+        self.abs_pic.fit_integrated_y()
+
+        
 
         self.update_status()
         self.update_history()
