@@ -153,11 +153,11 @@ class mainWindow(Gtk.Window):
             self.winControl = 0
         
 
-    def set_picZoomed(self, filename):
+    def set_picZoomed(self, image):
 
-        img1 = mpimg.imread(filename)
-        img2 = mpimg.imread("./atoms.tif")
-        img3 = mpimg.imread("./noatoms.tif") 
+        img1 = image # mpimg.imread(filename)
+        img2 = image # mpimg.imread("./atoms.tif")
+        img3 = image # mpimg.imread("./noatoms.tif") 
         self.canvasZoom = gen_canvas_zoomed(img1,img2,img3, 15,15, cbar=1)
         self.canvasZoom.set_size_request(600, 500)
         #self.canvasZoom.figure.axes[0].callbacks.connect("xlim_changed", self.updateRegion)
@@ -172,11 +172,11 @@ class mainWindow(Gtk.Window):
         
         self.toolbarBox.pack_start(toolbar, False,False, 0)
         
-    def set_picAtoms(self, filename):
+    def set_picAtoms(self, image):
         # self.picAtoms = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename, self.picSize, self.picSize, False)
         # self.picAtoms = Gtk.Image.new_from_pixbuf(self.picAtoms)
         # self.picGrid.attach(self.picAtoms, 0, 0, 1, 1)
-        img = mpimg.imread(filename)
+        img = image # mpimg.imread(filename)
         canvas = gen_canvas(img, title="With atoms",font=8)
         canvas.set_size_request(self.picSize[0], self.picSize[1])
         self.picGrid.attach(canvas, 0, 0, 1, 1)
@@ -193,17 +193,17 @@ class mainWindow(Gtk.Window):
         self.picGrid.attach(canvas, 1, 0, 1, 1)
 
         
-    def set_picBkg(self, filename):
+    def set_picBkg(self, image):
         # self.picBkg = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename, self.picSize, self.picSize, False)
         # self.picBkg = Gtk.Image.new_from_pixbuf(self.picBkg)
         # self.picGrid.attach(self.picBkg, 0, 1, 1, 1)
-        img = mpimg.imread(filename)
+        img = image # mpimg.imread(filename)
         canvas = gen_canvas(img, title="Background", font=8)
         canvas.set_size_request(self.picSize[0], self.picSize[1])
         self.picGrid.attach(canvas, 0, 1, 1, 1)
 
-    def set_picOriginal(self, filename):
-        img = mpimg.imread(filename)
+    def set_picOriginal(self, image):
+        img = image # mpimg.imread(filename)
         self.canvasOriginal = gen_canvas(img, title="Absorption picture",font=8)
         self.canvasOriginal.set_size_request(self.picSize[0], self.picSize[1])        
         # print(self.canvasOriginal.get_size_request())
@@ -324,7 +324,7 @@ class mainWindow(Gtk.Window):
 
             # self.canvasOriginal.figure.axes[0].patches = []
             # self.canvasOriginal.draw_idle()
-            #print("Coordinates:" + " x= " + str(round( self.rectangleROI.x_end,3)) + "  y= " + str(round( self.rectangleROI.y_end,3)))
+            #print("Coordzoominates:" + " x= " + str(round( self.rectangleROI.x_end,3)) + "  y= " + str(round( self.rectangleROI.y_end,3)))
         
             # print("Left:  " + str(self.rectangleROI.x_start))
             # print("Up:    " + str(self.rectangleROI.y_start))
@@ -497,17 +497,17 @@ class mainWindow(Gtk.Window):
 
 
         
-win = mainWindow()
+#win = mainWindow()
 
 #print(dir(win.infoLabel))
 
-win.connect("destroy", Gtk.main_quit)
+# win.connect("destroy", Gtk.main_quit)
 
-win.set_picZoomed("/home/colin/Dropbox/GUI_RbIII/manos_na_neve.png")
-win.set_picAtoms("./atoms.tif")
-win.set_picNoAtoms("./noatoms.tif")
-win.set_picBkg("./atoms.tif")
-win.set_picOriginal("./noatoms.tif")
+# win.set_picZoomed("/home/colin/Dropbox/GUI_RbIII/manos_na_neve.png")
+# win.set_picAtoms("./atoms.tif")
+# win.set_picNoAtoms("./noatoms.tif")
+# win.set_picBkg("./atoms.tif")
+# win.set_picOriginal("./noatoms.tif")
 
 
 # picpic = win.picGrid.get_child_at(1,1)
@@ -548,6 +548,6 @@ win.set_picOriginal("./noatoms.tif")
 # toolbar = NavigationToolbar(win.plotWin.canvas, win.plotWin)
 # win.plotWin.plotBox.pack_start(toolbar, False, False, 0)
 
-win.show_all()
-Gtk.main()
+#win.show_all()
+#Gtk.main()
 
