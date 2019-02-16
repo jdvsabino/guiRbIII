@@ -63,7 +63,7 @@ def gen_canvas_zoomed(fig1, fig2, fig3, width = 5, height = 5, x_min=0, x_max=0,
     
     gs = gridspec.GridSpec(4, 4, hspace=0.2, wspace=0.2)#gridspec.GridSpec(3,3) #width_ratios=[3, 1], height_ratios=[3, 1])
     #img = mpimg.imread(filename)
-    fig = Figure(figsize = (width, height), dpi = 100)
+    fig = Figure()#Figure(figsize = (width, height), dpi = 100)
     colormap = "RdYlBu_r"
 
     #--- Absorption picture
@@ -82,7 +82,7 @@ def gen_canvas_zoomed(fig1, fig2, fig3, width = 5, height = 5, x_min=0, x_max=0,
     ax2.tick_params(labelsize = font)
 
     #--- Bottom fit
-    ax3 =fig.add_subplot(gs[-1, 0:-1], yticklabels=[], sharex=ax1) # fig.add_subplot(gs[0:2,2])
+    ax3 =fig.add_subplot(gs[-1, :-1], yticklabels=[], sharex=ax1) # fig.add_subplot(gs[0:2,2])
     ax3.tick_params(labelsize = font)
 
     
@@ -91,9 +91,9 @@ def gen_canvas_zoomed(fig1, fig2, fig3, width = 5, height = 5, x_min=0, x_max=0,
         ax2.set_ylabel([y_min,y_max])    
 
     #--- Drawing the pictures    
-    im1 = ax1.imshow(fig1, cmap=colormap)
-    im2 = ax2.imshow(fig2.T, cmap=colormap)
-    im3 = ax3.imshow(fig3, cmap=colormap)
+    im1 = ax1.imshow(fig1, cmap=colormap, aspect="auto")
+    im2 = ax2.imshow(fig2.T, cmap=colormap, aspect="auto")
+    im3 = ax3.imshow(fig3, cmap=colormap,  aspect="auto")
 
     #--- Setting colorbar
     if cbar == 1:
