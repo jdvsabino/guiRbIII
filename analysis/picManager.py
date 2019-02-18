@@ -42,7 +42,10 @@ class AbsorptionPicture(PictureManager):
         PictureManager.__init__(self, atom_pic) # Doesnt make much sense, think about this...
         self.path = ""
         self.ID = 1 ### DECIDE ABOUT THIS _ CAREFUL!!! 
-        
+
+        self.atom_pic = atom_pic
+        self.no_atom_pic = no_atom_pic
+        self.bkg_pic = None # TODO
         self.pic = self.get_absorption_picture(atom_pic, no_atom_pic)
         self.cam = cam
 
@@ -64,7 +67,7 @@ class AbsorptionPicture(PictureManager):
     def set_ROI(self, rectangle = None, up = None, down = None, left = None, right = None):
 
         
-        if rectangle == None or up == None:
+        if rectangle == None and up == None:
             print("Please use either a rectangle or coordinates as arguments.")
             return -1
         
@@ -85,7 +88,7 @@ class AbsorptionPicture(PictureManager):
     def set_RBC(self, rectangle = None, up = None, down = None, left = None, right = None):
 
         
-        if rectangle == None or up == None:
+        if rectangle == None and up == None:
             print("Please use either a rectangle or coordinates as arguments.")
             return -1
         
