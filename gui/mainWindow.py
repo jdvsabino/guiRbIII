@@ -2,18 +2,19 @@ import gi
 import sys, os
 gi.require_version('Gtk', '3.0')
 sys.path.append('../')
+sys.path.append('./')
 sys.path.append('./classes')
-from gi.repository import Gtk, Gdk, GdkPixbuf
-from setRangeWindow import SetRangeWindow
+from gi.repository import Gtk, Gdk, GdkPixbuf, GLib
+from gui.setRangeWindow import SetRangeWindow
 import matplotlib.image as mpimg
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_gtk3cairo import FigureCanvasGTK3Cairo as FigureCanvas
 from matplotlib.backends.backend_gtk3 import NavigationToolbar2GTK3 as NavigationToolbar
 from numpy import sin, cos, pi, linspace, sqrt
-from plotWindow import *
+from gui.plotWindow import *
 from picture_generator import gen_canvas, gen_canvas_zoomed
-from classes.drawRectangle import *
-from classes.helpFunctions import *
+from gui.classes.drawRectangle import *
+from gui.classes.helpFunctions import *
 
 class mainWindow(Gtk.Window):
 
@@ -117,24 +118,71 @@ class mainWindow(Gtk.Window):
 
 
         self.picSize = [250, 160]
+        self.first_time = 0
 
-        # Zoomed picture & Absorption picture  
-        # These pics are special becaus we need to zoom on it or select regions.
-        # Therefore we create a canvas object for each one to manipulate it more easily.
-        # It is only set when you call the function 'set_picZoomed' or 'set_picOriginal'.
-        self.canvasZoom = None
-        self.canvasOriginal = None
+
+
+        ###---- Axes objects
+        self.axes_abs       = []
+        self.axes_abs_small = None
+        self.axes_atoms     = None
+        self.axes_no_atoms  = None
+        self.axes_bkg       = None
+
         
-        
+        self.fig_abs       = Figure()
+        self.fig_abs_small = Figure()
+        self.fig_atoms     = Figure()
+        self.fig_no_atoms  = Figure()        
+        self.fig_bkg       = Figure()
+
+
+        ###---- Canvas Objects
+        self.canvasZoom      = FigureCanvas(self.fig_abs)
+        self.canvasOriginal  = FigureCanvas(self.fig_abs_small)
+        self.canvas_atoms    = FigureCanvas(self.fig_atoms)
+        self.canvas_no_atoms = FigureCanvas(self.fig_no_atoms)
+        self.canvas_bkg      = FigureCanvas(self.fig_bkg)
+
+
+        ###--- Pack Canvas objects
+        # Abs Pic
+        self.canvasZoom.set_size_request(600, 500)
+        self.picZoomedBox.attach(self.canvasZoom, 0,0,1,1)
+        print(self.canvasZoom.get_child_visible())
+        toolbar = NavigationToolbar(self.canvasZoom, self)            
+        self.toolbarBox.pack_start(toolbar, False,False, 0)
+
+        # Abs Pic small
+        self.canvasOriginal.set_size_request(self.picSize[0], self.picSize[1])
+        self.picGrid.attach(self.canvasOriginal, 1, 1, 1, 1)
+
+        # Atom pic
+        self.canvas_atoms.set_size_request(self.picSize[0], self.picSize[1])
+        self.picGrid.attach(self.canvas_atoms, 0, 0, 1, 1)
+
+        # No atom pic
+        self.canvas_no_atoms.set_size_request(self.picSize[0], self.picSize[1])
+        self.picGrid.attach(self.canvas_no_atoms, 1, 0, 1, 1)
+
+        # Bkg pic
+        self.canvas_bkg.set_size_request(self.picSize[0], self.picSize[1])
+        self.picGrid.attach(self.canvas_bkg, 0, 1, 1, 1)
 
         # Rectangle for ROI and RBC
         self.rectangleROI = roiRectangle(1,1,1,1)
         self.rectangleRBC = rbcRectangle(1,1,2,2)
         self.regionControl = -1
+
+        self.abs_pic = None
         
         # Plot Window
         self.plotWin = newPlotWindow()
         self.plotWin.show_all()
+
+
+        self.update_pics_controll = 0
+        GLib.timeout_add_seconds(0.5, self.update_pics)
         
         
         
@@ -153,61 +201,135 @@ class mainWindow(Gtk.Window):
             self.winControl = 0
         
 
-    def set_picZoomed(self, image):
+    def set_picZoomed(self, image = None, font=6, colormap="RdYlBu_r"):
+        import matplotlib.gridspec as gridspec
 
+    
+        gs = gridspec.GridSpec(4, 4, hspace=0.2, wspace=0.2)
         img1 = image # mpimg.imread(filename)
-        img2 = image # mpimg.imread("./atoms.tif")
-        img3 = image # mpimg.imread("./noatoms.tif") 
-        self.canvasZoom = gen_canvas_zoomed(img1,img2,img3, 15,15, cbar=1)
-        self.canvasZoom.set_size_request(600, 500)
-        #self.canvasZoom.figure.axes[0].callbacks.connect("xlim_changed", self.updateRegion)
-        #self.canvasZoom.figure.axes[0].callbacks.connect("ylim_changed", self.updateRegion)
-        # self.picZoomedBox.pack_start(canvasZoom, False, False, 0)
-        self.picZoomedBox.attach(self.canvasZoom, 0,0,1,1)
-        print(self.canvasZoom.get_child_visible())
-        toolbar = NavigationToolbar(self.canvasZoom, self)
+        img2 = image[0] # self.abs_pic.integrate_x() # mpimg.imread("./atoms.tif")
+        img3 = image[0] # self.abs_pic.integrate_y() # mpimg.imread("./noatoms.tif") 
+
+
+
+            
+        self.axes_abs = []
+        self.axes_abs.append(self.fig_abs.add_subplot(gs[:-1, :-1]))
+        self.axes_abs.append(self.fig_abs.add_subplot(gs[:-1, -1], xticklabels=[], sharey=self.axes_abs[0]))
+        self.axes_abs.append(self.fig_abs.add_subplot(gs[-1, :-1], yticklabels=[], sharex=self.axes_abs[0]))
+
+        self.axes_abs[0].imshow(img1, cmap=colormap, aspect="auto")
+        self.axes_abs[0].xaxis.set_alpha(0.)
+        self.axes_abs[0].xaxis.set_visible(False)
+        self.axes_abs[0].yaxis.set_visible(False)    
+        self.axes_abs[0].yaxis.set_alpha(0.)
+        self.axes_abs[0].yaxis.set_ticks_position('right')
+        self.axes_abs[0].tick_params(labelsize = font)
+
+        ###---- COLORBAR: TODO
+        # cbaxes = self.fig_abs.add_axes([0.02, 0.4, 0.02, 0.45])
+        # cbaxes.yaxis.set_ticks_position('left')
+        # cbar = self.fig_abs.colorbar(self.axes_abs[0], cax = cbaxes)
+        self.axes_abs[1].set_yticklabels([])
+        self.axes_abs[1].plot(img2)
+        self.axes_abs[1].yaxis.set_ticks_position('right')
+        self.axes_abs[1].xaxis.set_visible(False)
+        #self.axes_abs[1].update()
+
+        self.axes_abs[2].plot(img3)
+        self.axes_abs[2].yaxis.set_visible(False)
         
-        #toolbar.set_size_request(200, 40)
-        #toolbar.set_icon_size(toolbar.get_icon_size()/20)
+        self.fig_abs.canvas.draw()
+        self.canvasZoom.draw()
+
         
-        self.toolbarBox.pack_start(toolbar, False,False, 0)
         
-    def set_picAtoms(self, image):
+        
+    def set_picAtoms(self, image = None, font = 6, colormap="RdYlBu_r", title="With atoms"):
         # self.picAtoms = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename, self.picSize, self.picSize, False)
         # self.picAtoms = Gtk.Image.new_from_pixbuf(self.picAtoms)
         # self.picGrid.attach(self.picAtoms, 0, 0, 1, 1)
-        img = image # mpimg.imread(filename)
-        canvas = gen_canvas(img, title="With atoms",font=8)
-        canvas.set_size_request(self.picSize[0], self.picSize[1])
-        self.picGrid.attach(canvas, 0, 0, 1, 1)
+        #img = image # mpimg.imread(filename)
+        #canvas = gen_canvas(img, title="With atoms",font=8)
+        
+
+        try:
+            self.axes_atoms = self.fig_atoms.add_subplot(111)
+            self.axes_atoms.cla()
+            self.axes_atoms.imshow(self.abs_pic.atom_pic, cmap=colormap)
+            
+        except:
+            print("INFO: Used argument as image.")
+            self.axes_atoms = self.fig_atoms.add_subplot(111)
+            self.axes_atoms.cla()
+            self.axes_atoms.imshow(image, cmap=colormap)
+
+        self.axes_atoms.set_title(title, fontsize=font)
+        self.axes_atoms.tick_params(labelsize = font)
+        self.fig_atoms.canvas.draw()
+        self.canvas_atoms.draw()
 
 
 
-    def set_picNoAtoms(self, filename):
+    def set_picNoAtoms(self, image = None, font = 6, colormap="RdYlBu_r", title="Without atoms"):
         # self.picNoAtoms = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename, self.picSize, self.picSize, False)
         # self.picNoAtoms = Gtk.Image.new_from_pixbuf(self.picNoAtoms)
         # self.picGrid.attach(self.picNoAtoms, 1, 0, 1, 1)
-        img = mpimg.imread(filename)
-        canvas = gen_canvas(img, title="Without Atoms",font=8)
-        canvas.set_size_request(self.picSize[0], self.picSize[1])
-        self.picGrid.attach(canvas, 1, 0, 1, 1)
+        # img = image # mpimg.imread(filename)
+        # canvas = gen_canvas(img, title="Without Atoms",font=8)
+
+
+        try:
+            self.axes_no_atoms = self.fig_no_atoms.add_subplot(111)
+            self.axes_no_atoms.imshow(self.abs_pic.no_atom_pic, cmap=colormap)
+            
+        except:
+            print("INFO: Used argument as image.")
+            self.axes_no_atoms = self.fig_no_atoms.add_subplot(111)
+            self.axes_no_atoms.imshow(image, cmap=colormap)
+
+        self.axes_no_atoms.set_title(title, fontsize=font)
+        self.axes_no_atoms.tick_params(labelsize = font)
+        self.fig_no_atoms.canvas.draw()
+        self.canvas_no_atoms.draw()
 
         
-    def set_picBkg(self, image):
-        # self.picBkg = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename, self.picSize, self.picSize, False)
-        # self.picBkg = Gtk.Image.new_from_pixbuf(self.picBkg)
-        # self.picGrid.attach(self.picBkg, 0, 1, 1, 1)
-        img = image # mpimg.imread(filename)
-        canvas = gen_canvas(img, title="Background", font=8)
-        canvas.set_size_request(self.picSize[0], self.picSize[1])
-        self.picGrid.attach(canvas, 0, 1, 1, 1)
+    def set_picBkg(self, image = None, font = 6, colormap="RdYlBu_r", title = "Background"):
+        #img = image # mpimg.imread(filename)
+        #canvas = gen_canvas(img, title="Background", font=8)
+        try:
+            self.axes_bkg = self.fig_bkg.add_subplot(111)
+            self.axes_bkg.imshow(self.abs_pic.bkg_pic, cmap=colormap)
+            
+        except:
+            print("INFO: Used argument as image.")
+            self.axes_bkg = self.fig_bkg.add_subplot(111)
+            self.axes_bkg.imshow(image, cmap=colormap)
 
-    def set_picOriginal(self, image):
-        img = image # mpimg.imread(filename)
-        self.canvasOriginal = gen_canvas(img, title="Absorption picture",font=8)
-        self.canvasOriginal.set_size_request(self.picSize[0], self.picSize[1])        
-        # print(self.canvasOriginal.get_size_request())
-        self.picGrid.attach(self.canvasOriginal, 1, 1, 1, 1)
+        self.axes_bkg.set_title(title, fontsize=font)
+        self.axes_bkg.tick_params(labelsize = font)
+        self.fig_bkg.canvas.draw()
+        self.canvas_bkg.draw()
+
+        
+
+    def set_picOriginal(self, image = None, font = 6, colormap = "RdYlBu_r", title = "Abs. pic."):
+
+        try:
+            self.axes_abs_small = self.fig_abs_small.add_subplot(111)
+            self.axes_abs_small.imshow(self.abs_pic.pic, cmap=colormap)
+            
+        except:
+            print("INFO: Used argument as image.")
+            self.axes_abs_small = self.fig_abs_small.add_subplot(111)
+            self.axes_abs_small.imshow(image, cmap=colormap)
+
+        self.axes_abs_small.set_title(title, fontsize=font)
+        self.axes_abs_small.tick_params(labelsize = font)
+        self.fig_abs_small.canvas.draw()
+        self.canvasOriginal.draw()
+        # self.canvasOriginal = gen_canvas(image, title="Absorption picture",font=8)
+        
 
     def set_ROI(self, widget):
         # Here we make sure that the Toggle Buttons that set the ROI and RBC regions
@@ -419,6 +541,17 @@ class mainWindow(Gtk.Window):
             
             #self.canvasOriginal.draw()
             self.regionControl = 0
+
+            self.abs_pic.set_ROI(rectangle = self.rectangleROI)
+
+            ###--- plot the ROI
+            up = int(self.rectangleROI.y_start)
+            down = int(self.rectangleROI.y_end)
+            left = int(self.rectangleROI.x_start)
+            right = int(self.rectangleROI.x_end)
+            self.set_picZoomed(self.abs_pic.pic[up:down, left:right])
+
+            
             print("ROI recangle drawn!")
             self.chooseROI.set_active(False)
             
@@ -441,8 +574,10 @@ class mainWindow(Gtk.Window):
             #self.canvasOriginal.figure.axes[0] = axes_temp
             self.canvasOriginal.show_all()
             self.canvasOriginal.draw_idle()
-
             self.regionControl = 1
+
+            self.abs_pic.set_RBC(rectangle = self.rectangleRBC)
+
             print("RBC recangle drawn!")
             self.chooseRBC.set_active(False)
         else:
@@ -471,6 +606,19 @@ class mainWindow(Gtk.Window):
 
         self.canvasOriginal.figure.axes[0].patches = patches
         self.canvasOriginal.draw_idle()
+
+    def update_pics(self):
+        if self.update_pics_controll:
+            self.set_picOriginal()
+            self.set_picAtoms()
+            self.set_picNoAtoms()
+            self.set_picBkg()
+            self.update_pics_controll = 0
+            return True
+            
+        else:
+            return True
+            
 
         
 
