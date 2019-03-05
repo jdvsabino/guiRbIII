@@ -159,13 +159,13 @@ class AbsorptionPicture(PictureManager):
         '''
         Returns an array with the pixels summed over y
         '''
-        return np.sum(self.pic, axis=0) # Currently only works with tiff images or other format that is a 2D array
+        return np.sum(self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[3]], axis=0) # Currently only works with tiff images or other format that is a 2D array
 
     def integrate_y(self):
         '''
         Returns an array with the pixels summed over x
         '''
-        return np.sum(self.pic, axis=1) # Currently only works with tiff images or other format that is a 2D array
+        return np.sum(self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[3]], axis=1) # Currently only works with tiff images or other format that is a 2D array
     
 
     def fit_integrated_x(self, plot=0):
