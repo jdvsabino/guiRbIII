@@ -72,17 +72,17 @@ class AbsorptionPicture(PictureManager):
             return -1
         
         elif rectangle == None:
-            self.ROI[0] = up
-            self.ROI[1] = down
-            self.ROI[2] = left          
-            self.ROI[3] = up
+            self.ROI[0] = int(up)
+            self.ROI[1] = int(down)
+            self.ROI[2] = int(left)
+            self.ROI[3] = int(up)
             return 1
 
         else:
-            self.ROI[0] = rectangle.y_start
-            self.ROI[1] = rectangle.y_end
-            self.ROI[2] = rectangle.x_start
-            self.ROI[3] = rectangle.x_end
+            self.ROI[0] = int(rectangle.y_start)
+            self.ROI[1] = int(rectangle.y_end)
+            self.ROI[2] = int(rectangle.x_start)
+            self.ROI[3] = int(rectangle.x_end)
             return 1
 
     def set_RBC(self, rectangle = None, up = None, down = None, left = None, right = None):
@@ -93,17 +93,17 @@ class AbsorptionPicture(PictureManager):
             return -1
         
         elif rectangle == None:
-            self.RBC[0] = up
-            self.RBC[1] = down
-            self.RBC[2] = left          
-            self.RBC[3] = up
+            self.RBC[0] = int(up)
+            self.RBC[1] = int(down)
+            self.RBC[2] = int(left)
+            self.RBC[3] = int(up)
             return 1
 
         else:
-            self.RBC[0] = rectangle.y_start
-            self.RBC[1] = rectangle.y_end
-            self.RBC[2] = rectangle.x_start
-            self.RBC[3] = rectangle.x_end
+            self.RBC[0] = int(rectangle.y_start)
+            self.RBC[1] = int(rectangle.y_end)
+            self.RBC[2] = int(rectangle.x_start)
+            self.RBC[3] = int(rectangle.x_end)
             return 1
 
     
@@ -159,12 +159,14 @@ class AbsorptionPicture(PictureManager):
         '''
         Returns an array with the pixels summed over y
         '''
+        print("INT XXX - shape: " +str(self.pic.shape))        
         return np.sum(self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[3]], axis=0) # Currently only works with tiff images or other format that is a 2D array
 
     def integrate_y(self):
         '''
         Returns an array with the pixels summed over x
         '''
+        print("INT YYY - shape: " +str(self.pic.shape))
         return np.sum(self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[3]], axis=1) # Currently only works with tiff images or other format that is a 2D array
     
 
