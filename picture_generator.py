@@ -92,9 +92,10 @@ def gen_canvas_zoomed(fig1, fig2, fig3, width = 5, height = 5, x_min=0, x_max=0,
 
     #--- Drawing the pictures    
     im1 = ax1.imshow(fig1, cmap=colormap, aspect="auto")
-    im2 = ax2.imshow(fig2.T, cmap=colormap, aspect="auto")
-    im3 = ax3.imshow(fig3, cmap=colormap,  aspect="auto")
-
+    # im2 = ax2.imshow(fig2.T, cmap=colormap, aspect="auto")
+    # im3 = ax3.imshow(fig3, cmap=colormap,  aspect="auto")
+    im2 = ax2.plot(fig2)#, cmap=colormap, aspect="auto")
+    im3 = ax3.plot(fig3)#, cmap=colormap,  aspect="auto")
     #--- Setting colorbar
     if cbar == 1:
         cbaxes = fig.add_axes([0.02, 0.4, 0.02, 0.45])
@@ -106,9 +107,10 @@ def gen_canvas_zoomed(fig1, fig2, fig3, width = 5, height = 5, x_min=0, x_max=0,
         # cb_step = 100
         # cbar.ax.set_yticklabels(np.arange(int(cb_min), int(cb_max+cb_step), int(cb_step)), fontsize=8)
         
-    canvas = FigureCanvas(fig)
+    #canvas = FigureCanvas(fig)
     
-    return canvas
+    #return canvas
+    return fig
     
 def rescale_pic(pic, factor=1, title=""):
     '''

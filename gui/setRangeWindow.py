@@ -2,9 +2,8 @@ import gi
 import sys, os
 gi.require_version('Gtk', '3.0')
 sys.path.append('../')
-sys.path.append('./classes')
 from gi.repository import Gtk, Gdk, GdkPixbuf
-from classes.settingWindow import *
+from gui.classes.settingWindow import *
 
 
 class SetRangeWindow(SettingWindow):
