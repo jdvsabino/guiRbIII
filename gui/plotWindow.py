@@ -1,10 +1,9 @@
 import gi
 import sys, os
 gi.require_version('Gtk', '3.0')
-sys.path.append('..\')
-sys.path.append('.\classes\')
+sys.path.append('../')
 from gi.repository import Gtk, Gdk, GdkPixbuf
-from setRangeWindow import SetRangeWindow
+from gui.setRangeWindow import SetRangeWindow
 import matplotlib.image as mpimg
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_gtk3cairo import FigureCanvasGTK3Cairo as FigureCanvas
@@ -221,7 +220,7 @@ class newPlotWindow(Gtk.Window):
         # Values and variable boxes
         # Bottom Widgets and boxes
         self.varGrid = Gtk.Grid()
-        self.varGrid.set_column_spacing(3)
+        self.varGrid.set_column_spacing(20)
         self.varGrid.set_row_spacing(9)
         self.box.pack_start(self.varGrid, True, True, 0)
 
@@ -247,51 +246,102 @@ class newPlotWindow(Gtk.Window):
         # Var 1
         self.var1Label = Gtk.Label("Var1")
         self.leftVarBox.pack_start(self.var1Label, True, True, 0)
-        self.var1Entry = Gtk.Entry()
-        self.leftVarBox.pack_start(self.var1Entry, True, True, 0)
+        self.var1_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, spacing = 3)
+        self.leftVarBox.pack_start(self.var1_box, True, True, 0)        
+        self.chk_button_1 = Gtk.CheckButton()
+        self.var1_box.pack_start(self.chk_button_1, False, False, 0)
+        self.var1Entry = Gtk.Label("empty")
+        self.var1_box.pack_start(self.var1Entry, False, False, 0)
+
 
         # Var 2
         self.var2Label = Gtk.Label("Var2")
         self.leftVarBox.pack_start(self.var2Label, True, True, 0)
-        self.var2Entry = Gtk.Entry()
-        self.leftVarBox.pack_start(self.var2Entry, True, True, 0)
+        self.var2_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, spacing = 3)
+        self.leftVarBox.pack_start(self.var2_box, True, True, 0)        
+        self.chk_button_2 = Gtk.CheckButton()
+        self.var2_box.pack_start(self.chk_button_2, False, False, 0)
+        self.var2Entry = Gtk.Label("empty")
+        self.var2_box.pack_start(self.var2Entry, False, False, 0)
+        
 
         # Var 3
         self.var3Label = Gtk.Label("Var3")
         self.leftVarBox.pack_start(self.var3Label, True, True, 0)
-        self.var3Entry = Gtk.Entry()
-        self.leftVarBox.pack_start(self.var3Entry, True, True, 0)
+        self.var3_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, spacing = 3)
+        self.leftVarBox.pack_start(self.var3_box, True, True, 0)        
+        self.chk_button_3 = Gtk.CheckButton()
+        self.var3_box.pack_start(self.chk_button_3, False, False, 0)
+        self.var3Entry = Gtk.Label("empty")
+        self.var3_box.pack_start(self.var3Entry, False, False, 0)
+
 
         # Var 4
         self.var4Label = Gtk.Label("Var4")
         self.leftVarBox.pack_start(self.var4Label, True, True, 0)
-        self.var4Entry = Gtk.Entry()
-        self.leftVarBox.pack_start(self.var4Entry, True, True, 0)
+        self.var4_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, spacing = 3)
+        self.leftVarBox.pack_start(self.var4_box, True, True, 0)        
+        self.chk_button_4 = Gtk.CheckButton()
+        self.var4_box.pack_start(self.chk_button_4, False, False, 0)
+        self.var4Entry = Gtk.Label("empty")
+        self.var4_box.pack_start(self.var4Entry, False, False, 0)
+
 
         # Var 5
         self.var5Label = Gtk.Label("Var5")
         self.rightVarBox.pack_start(self.var5Label, True, True, 0)
-        self.var5Entry = Gtk.Entry()
-        self.rightVarBox.pack_start(self.var5Entry, True, True, 0)
+        self.var5_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, spacing = 3)
+        self.rightVarBox.pack_start(self.var5_box, True, True, 0)        
+        self.chk_button_5 = Gtk.CheckButton()
+        self.var5_box.pack_start(self.chk_button_5, False, False, 0)
+        self.var5Entry = Gtk.Label("empty")
+        self.var5_box.pack_start(self.var5Entry, False, False, 0)
 
+        
         # Var 6
         self.var6Label = Gtk.Label("Var6")
         self.rightVarBox.pack_start(self.var6Label, True, True, 0)
-        self.var6Entry = Gtk.Entry()
-        self.rightVarBox.pack_start(self.var6Entry, True, True, 0)
+        self.var6_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, spacing = 3)
+        self.rightVarBox.pack_start(self.var6_box, True, True, 0)        
+        self.chk_button_6 = Gtk.CheckButton()
+        self.var6_box.pack_start(self.chk_button_6, False, False, 0)
+        self.var6Entry = Gtk.Label("empty")
+        self.var6_box.pack_start(self.var6Entry, False, False, 0)
+
 
         # Var 7
         self.var7Label = Gtk.Label("Var7")
         self.rightVarBox.pack_start(self.var7Label, True, True, 0)
-        self.var7Entry = Gtk.Entry()
-        self.rightVarBox.pack_start(self.var7Entry, True, True, 0)
+        self.var7_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, spacing = 3)
+        self.rightVarBox.pack_start(self.var7_box, True, True, 0)        
+        self.chk_button_7 = Gtk.CheckButton()
+        self.var7_box.pack_start(self.chk_button_7, False, False, 0)
+        self.var7Entry = Gtk.Label("empty")
+        self.var7_box.pack_start(self.var7Entry, False, False, 0)
 
+        
         # Var 8
         self.var8Label = Gtk.Label("Var8")
         self.rightVarBox.pack_start(self.var8Label, True, True, 0)
-        self.var8Entry = Gtk.Entry()
-        self.rightVarBox.pack_start(self.var8Entry, True, True, 0)        
+        self.var8_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, spacing = 3)
+        self.rightVarBox.pack_start(self.var8_box, True, True, 0)        
+        self.chk_button_8 = Gtk.CheckButton()
+        self.var8_box.pack_start(self.chk_button_8, False, False, 0)
+        self.var8Entry = Gtk.Label("empty")
+        self.var8_box.pack_start(self.var8Entry, False, False, 0)
 
+
+        ### Plot objects
+        self.axes   = None
+        self.fig    = Figure()
+        self.canvas = FigureCanvas(self.fig)
+
+        #self.axes = self.fig.add_subplot(111)
+        
+        self.pbox.pack_start(self.canvas, True, True, 0)
+        self.toolbar = NavigationToolbar(self.canvas, self)
+        self.pbox.pack_start(self.toolbar, False, True, 0)        
+        
         self.gen_plot()
 
     ### CALL BACK FUNCTIONS ###
@@ -307,39 +357,42 @@ class newPlotWindow(Gtk.Window):
             self.winControl = 0
         
 
-    def gen_plot(self):
+    def gen_plot(self, x=[1,2,3], y = [4,5,6]):
 
-        self.fig = Figure(figsize=(5,5), dpi=80)
-        self.ax = self.fig.add_subplot(111)
+        
+        try:
+            self.axes.remove()
+        except:
+            print("Couldn't remove axis!")
 
-        n = 1000
-        xsin = linspace(-pi, pi, n, endpoint=True)
-        xcos = linspace(-pi, pi, n, endpoint=True)
-        ysin = sin(xsin)
-        ycos = cos(xcos)
-        inwave = self.ax.plot(xsin, ysin, color='black', label='sin(x)')
-        coswave = self.ax.plot(xcos, ycos, color='black', label='cos(x)', linestyle='--')
-        self.ax.set_xlim(0,pi)
-        self.ax.set_ylim(0,1.2)
-        self.ax.fill_between(xsin, 0, ysin, (ysin - 1) > -1, color='blue', alpha=.3)
-        self.ax.fill_between(xsin, 0, ysin, (ysin - 1) < -1, color='red',  alpha=.3)
-        self.ax.fill_between(xcos, 0, ycos, (ycos - 1) > -1, color='blue', alpha=.3)
-        self.ax.fill_between(xcos, 0, ycos, (ycos - 1) < -1, color='red',  alpha=.3)
-        self.ax.legend(loc='upper left')
-        self.ax = self.fig.gca()
-        self.ax.spines['right'].set_color('none')
-        self.ax.spines['top'].set_color('none')
-        self.ax.xaxis.set_ticks_position('bottom')
-        self.ax.spines['bottom'].set_position(('data',0))
-        self.ax.yaxis.set_ticks_position('left')
-        self.ax.spines['left'].set_position(('data',0))
+        self.axes = self.fig.add_subplot(111)
+        self.axes.plot(x, y)
+
+        # n = 1000
+        # xsin = linspace(-pi, pi, n, endpoint=True)
+        # xcos = linspace(-pi, pi, n, endpoint=True)
+        # ysin = sin(xsin)
+        # ycos = cos(xcos)
+        # inwave = self.axes.plot(xsin, ysin, color='black', label='sin(x)')
+        # coswave = self.axes.plot(xcos, ycos, color='black', label='cos(x)', linestyle='--')
+        # self.axes.set_xlim(0,pi)
+        # self.axes.set_ylim(0,1.2)
+        # self.axes.fill_between(xsin, 0, ysin, (ysin - 1) > -1, color='blue', alpha=.3)
+        # self.axes.fill_between(xsin, 0, ysin, (ysin - 1) < -1, color='red',  alpha=.3)
+        # self.axes.fill_between(xcos, 0, ycos, (ycos - 1) > -1, color='blue', alpha=.3)
+        # self.axes.fill_between(xcos, 0, ycos, (ycos - 1) < -1, color='red',  alpha=.3)
+        # self.axes.legend(loc='upper left')
+        # self.axes = self.fig.gca()
+        # self.axes.spines['right'].set_color('none')
+        # self.axes.spines['top'].set_color('none')
+        # self.axes.xaxesis.set_ticks_position('bottom')
+        # self.axes.spines['bottom'].set_position(('data',0))
+        # self.axes.yaxesis.set_ticks_position('left')
+        # self.axes.spines['left'].set_position(('data',0))
         self.fig.tight_layout()# canvas = FigureCanvas(fig)
-        self.canvas = FigureCanvas(self.fig)
-        self.pbox.pack_start(self.canvas, True, True, 0)
-
-
-        self.toolbar = NavigationToolbar(self.canvas, self)
-        self.pbox.pack_start(self.toolbar, False, True, 0)
+        #self.canvas = FigureCanvas(self.fig)
+        self.fig.canvas.draw()
+        self.canvas.draw()
 
 
         
@@ -359,7 +412,7 @@ class newPlotWindow(Gtk.Window):
 # myfirstwindow.add(box)
 
 # fig = Figure(figsize=(5,5), dpi=80)
-# ax = fig.add_subplot(111)
+# axes = fig.add_subplot(111)
 
 # n = 1000
 # xsin = linspace(-pi, pi, n, endpoint=True)
@@ -367,26 +420,26 @@ class newPlotWindow(Gtk.Window):
 # ysin = sin(xsin)
 # ycos = cos(xcos)
 
-# sinwave = ax.plot(xsin, ysin, color='black', label='sin(x)')
-# coswave = ax.plot(xcos, ycos, color='black', label='cos(x)', linestyle='--')
+# sinwave = axes.plot(xsin, ysin, color='black', label='sin(x)')
+# coswave = axes.plot(xcos, ycos, color='black', label='cos(x)', linestyle='--')
 
-# ax.set_xlim(0,pi)
-# ax.set_ylim(0,1.2)
+# axes.set_xlim(0,pi)
+# axes.set_ylim(0,1.2)
 
-# ax.fill_between(xsin, 0, ysin, (ysin - 1) > -1, color='blue', alpha=.3)
-# ax.fill_between(xsin, 0, ysin, (ysin - 1) < -1, color='red',  alpha=.3)
-# ax.fill_between(xcos, 0, ycos, (ycos - 1) > -1, color='blue', alpha=.3)
-# ax.fill_between(xcos, 0, ycos, (ycos - 1) < -1, color='red',  alpha=.3)
+# axes.fill_between(xsin, 0, ysin, (ysin - 1) > -1, color='blue', alpha=.3)
+# axes.fill_between(xsin, 0, ysin, (ysin - 1) < -1, color='red',  alpha=.3)
+# axes.fill_between(xcos, 0, ycos, (ycos - 1) > -1, color='blue', alpha=.3)
+# axes.fill_between(xcos, 0, ycos, (ycos - 1) < -1, color='red',  alpha=.3)
 
-# ax.legend(loc='upper left')
+# axes.legend(loc='upper left')
 
-# ax = fig.gca()
-# ax.spines['right'].set_color('none')
-# ax.spines['top'].set_color('none')
-# ax.xaxis.set_ticks_position('bottom')
-# ax.spines['bottom'].set_position(('data',0))
-# ax.yaxis.set_ticks_position('left')
-# ax.spines['left'].set_position(('data',0))
+# axes = fig.gca()
+# axes.spines['right'].set_color('none')
+# axes.spines['top'].set_color('none')
+# axes.xaxesis.set_ticks_position('bottom')
+# axes.spines['bottom'].set_position(('data',0))
+# axes.yaxesis.set_ticks_position('left')
+# axes.spines['left'].set_position(('data',0))
 
 # fig.tight_layout()
 

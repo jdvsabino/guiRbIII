@@ -7,15 +7,17 @@ from gi.repository import Gtk, Gdk, GdkPixbuf
 
 def replace_widget(old, new):
     parent = old.get_parent()
-
+    
     props = {}
     for key in Gtk.ContainerClass.list_child_properties(type(parent)):
         props[key.name] = parent.child_get_property(old, key.name)
 
-    parent.remove(old)
     parent.add(new)
+    parent.remove(old)
 
-    for name, value in props.iteritems():
+    
+    
+    for name, value in props.items():
         parent.child_set_property(new, name, value)
 
 
