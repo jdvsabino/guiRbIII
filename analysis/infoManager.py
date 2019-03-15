@@ -1,7 +1,7 @@
 import sys
 sys.path.append('../network')
 import os
-from picManager import PictureManager, AbsorptionPicture, Camera
+from analysis.picManager import PictureManager, AbsorptionPicture, Camera
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt # For teting purposes
 import copy
@@ -10,7 +10,7 @@ import numpy as np
 from network.data_collection import Data_Collection
 from network.data_collection import data_collector as dc
 from network.data_collection import PIC_SRC
-from function_vars import *
+from analysis.function_vars import *
 
 
 class InfoManager():
@@ -75,9 +75,12 @@ class InfoManager():
         dc  - global 'Data_Collection' object
         win - main window where the info is displayed to the user 
         '''
+
+        
         # update_data_buffer() ### INCLUDE THIS HERE??? Maybe in the end
         if self.cycle_num +1 == self.dc.loop:
             self.cycle_num +=1
+            
         else:
             self.cycle_num = self.dc.loop
             print("WARNING: Corrected loop number to " + str(self.cycle_num))
@@ -85,10 +88,16 @@ class InfoManager():
         
         if self.global_cycle_num +1 == self.dc.glob:
             self.global_cycle_num +=1
+            temp_label = win.label_global + str(self.global_cycle_num)
+            win.infoGlobalCounts.set_label(temp_label)
         else:
             self.global_cycle_num = self.dc.glob
+            temp_label = win.label_global + str(self.global_cycle_num)            
+            win.infoGlobalCounts.set_label(temp_label)
             print("WARNING: Corrected global loop number to " + str(self.cycle_num))        
-        
+
+        temp_label = win.label_scan + str(self.global_cycle_num)
+        win.infoScanNum.set_label(temp_label)
         self.scan_num = self.dc.scan
         
 
@@ -104,35 +113,48 @@ class InfoManager():
         if camera == -1:
             return -1
 
+        self.dc.last_pic = 1 # TESTING PURPOSES
         if self.dc.last_pic == -1:
             print(dc.last_pic)
             print("Dont know last pic...")
             return -1
+        ### TESING PURPOSES ###
+        ### UNCOMMENT TO RUN NORMALLY ###
+        # pic_atoms_name = camera.label + "_" + str(self.dc.last_pic[0]) + "atompic.tif"#"-withoutatoms.tif" ### name given by default
+        # pic_no_atoms_name = camera.label + "_" + str(self.dc.last_pic[0]) + "backpic.tif"#"-atomcloud.tif" ### 
+        # # num = int(self.dc.file[-7:-1]) - 4
+        # ###--- Paths from phantom
+        # # path_atom_pic = PIC_SRC + self.dc.file[:-7] + str(num) + pic_atoms_name
+        # # path_no_atom_pic = PIC_SRC + self.dc.file[:-7] + str(num) + pic_no_atoms_name
+
+        # ###--- Paths to network share
+        # print(pic_atoms_name)
+        # path_atom_pic = PIC_SRC + camera.label + "\\" + pic_atoms_name
+        # path_no_atom_pic = PIC_SRC + camera.label + "\\" + pic_no_atoms_name
+        # print("PATH my PATH: " + path_atom_pic)
+
+        # pic = mpimg.imread(path_atom_pic) ### TESING PURPOSES - UNCOMMENT
+        #self.atom_pic = PictureManager(pic, path=path_atom_pic, cam = camera)
+        #pic = self.atom_pic ### TESING PURPOSES
+        #self.atom_pic = PictureManager(pic, cam = camera)
+
         
-        pic_atoms_name = camera.label + "_" + str(self.dc.last_pic[0]) + "atompic.tif"#"-withoutatoms.tif" ### name given by default
-        pic_no_atoms_name = camera.label + "_" + str(self.dc.last_pic[0]) + "backpic.tif"#"-atomcloud.tif" ### 
-        # num = int(self.dc.file[-7:-1]) - 4
-        ###--- Paths from phantom
-        # path_atom_pic = PIC_SRC + self.dc.file[:-7] + str(num) + pic_atoms_name
-        # path_no_atom_pic = PIC_SRC + self.dc.file[:-7] + str(num) + pic_no_atoms_name
-
-        ###--- Paths to network share
-        print(pic_atoms_name)
-        path_atom_pic = PIC_SRC + camera.label + "\\" + pic_atoms_name
-        path_no_atom_pic = PIC_SRC + camera.label + "\\" + pic_no_atoms_name
-        print("PATH my PATH: " + path_atom_pic)
-
-        pic = mpimg.imread(path_atom_pic)
-        self.atom_pic = PictureManager(pic, path=path_atom_pic, cam = camera)
-
-        
-        pic = mpimg.imread(path_no_atom_pic)
-        self.no_atom_pic = PictureManager(pic, path=path_no_atom_pic, cam = camera)
+        # pic = mpimg.imread(path_no_atom_pic) ### TESING PURPOSES - UNCOMMENT
+        #self.no_atom_pic = PictureManager(pic, path=path_no_atom_pic, cam = camer)
+        #pic = self.no_atom_pic ### TESING PURPOSES
+        #self.no_atom_pic = PictureManager(pic, cam = camera)### TESING PURPOSES
         self.background_pic = None        
         
         
         self.abs_pic = AbsorptionPicture(self.atom_pic.pic, self.no_atom_pic.pic, cam = camera)
+
+        #win.update_abs_pic(self.abs_pic)
+        win.abs_pic = self.abs_pic
+        win.update_pics_controll = 1
+        # win.set_picOriginal(self.abs_pic.pic)
         self.atom_num = self.abs_pic.get_atom_number()
+
+        #print("CURRENT ROI: " + str(self.abs_pic.ROI))
 
         # TESTING BLOCK
         # plt.imshow(self.abs_pic.pic)
@@ -140,17 +162,17 @@ class InfoManager():
         # plt.savefig("G:\\Codes\\MatLab\\Adwin_programs\\krb_acquisition_program_v10_Joao\\GUI_RbIII\\Test_GUI_atompic", dpi=100)
         # plt.close()
 
-        win.set_picNoAtoms(self.no_atom_pic)
-        win.set_picBkg(self.atom_pic)
-        win.set_picOriginal(self.abs_pic)
+        # win.set_picNoAtoms(self.no_atom_pic)
+        # win.set_picBkg(self.atom_pic)
+        # win.set_picOriginal(self.abs_pic)
 
-        self.abs_pic.fit_integrated_y()
+        # self.abs_pic.fit_integrated_y()
 
         
 
         self.update_status()
         self.update_history()
-
+        win.plotWin.gen_plot(np.linspace(1,self.dc.glob,len(self.history[self.variables[0]])), self.history[self.variables[0]])
         # Saves a matlab file with the data for this run
         file_name = PIC_SRC + self.dc.path + str(self.dc.loop) + "-data.mat"
         file_name = "datazinha.mat" # FOR TESTING
@@ -245,5 +267,6 @@ class InfoManager():
             return Camera(3)
         
         else:
+            return Camera(0) # TESTING PURPOSES
             print("Bad camera flag!")
             return -1
