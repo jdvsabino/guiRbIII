@@ -12,7 +12,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk, GdkPixbuf
 from gui.mainWindow import mainWindow
 import threading, select
-from analysis.picManager import PictureManager
+from analysis.picManager import PictureManager, AbsorptionPicture
 
 
 
@@ -32,7 +32,7 @@ LOCAL_IP = "127.0.0.1"
 
 
 ###---- OBJECT TO MANAGE INFO
-info_man = InfoManager()
+#info_man = InfoManager()
 
 
 ###---- GRAPHIC OBJECTS - uncommented for testing purposes
@@ -42,8 +42,9 @@ im1 = mpimg.imread("./atoms.tif")
 im2 = mpimg.imread("./noatoms.tif")
 im3 = mpimg.imread("./manos_na_neve.png")
 
-info_man.atom_pic = PictureManager(im1)
-info_man.no_atom_pic = PictureManager(im2)
+win.im.atom_pic = PictureManager(im1)
+win.im.no_atom_pic = PictureManager(im2)
+win.im.abs_pic = AbsorptionPicture(win.im.atom_pic, win.im.no_atom_pic)
 
 # win.set_picAtoms(im1)
 # win.set_picNoAtoms(im2)
@@ -83,16 +84,16 @@ def cycle():
         print("Sleeping...")
         time.sleep(10)
         print("Awaken!")
-        #print("CURRENT GLOB: " + str(dc.glob))
-        read_data = dc.receiving_flag != 1 and dc.glob != info_man.dc.glob
-        if read_data:
+        # #print("CURRENT GLOB: " + str(dc.glob))
+        # read_data = dc.receiving_flag != 1 and dc.glob != info_man.dc.glob
+        # if read_data:
             
-            print("#####+++++#####")
-            info_man.update_data_buffer()
-            info_man.update_info(win) # Argument is none for testing purposes
-            print("STATUS: " + str(info_man.status))
-            print("HIST: " + str(info_man.history))
-            print("#####+++++#####")
+        #     print("#####+++++#####")
+        #     info_man.update_data_buffer()
+        #     info_man.update_info(win) # Argument is none for testing purposes
+        #     print("STATUS: " + str(info_man.status))
+        #     print("HIST: " + str(info_man.history))
+        #     print("#####+++++#####")
 
 ###---- Thread to start Gtk loop
 t_cycle = threading.Thread(target=cycle)

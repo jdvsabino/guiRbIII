@@ -2,6 +2,7 @@ import gi
 import sys, os
 gi.require_version('Gtk', '3.0')
 sys.path.append('../')
+sys.path.append('./classes/')
 from gi.repository import Gtk, Gdk, GdkPixbuf
 from gui.setRangeWindow import SetRangeWindow
 import matplotlib.image as mpimg
@@ -182,6 +183,7 @@ class newPlotWindow(Gtk.Window):
         self.box.add(self.middleBox)
 
         self.autoRangeButton = Gtk.Button(label = "Auto Range")
+        self.autoRangeButton.connect("clicked", self.set_range_auto)
         self.middleBox.pack_start(self.autoRangeButton, True, True, 0)
 
         self.setRangeButton = Gtk.Button(label = "Set Range")
@@ -336,7 +338,8 @@ class newPlotWindow(Gtk.Window):
         self.fig    = Figure()
         self.canvas = FigureCanvas(self.fig)
 
-        #self.axes = self.fig.add_subplot(111)
+        self.plot_min = 0
+        self.plot_max = 0
         
         self.pbox.pack_start(self.canvas, True, True, 0)
         self.toolbar = NavigationToolbar(self.canvas, self)
@@ -344,19 +347,73 @@ class newPlotWindow(Gtk.Window):
         
         self.gen_plot()
 
-    ### CALL BACK FUNCTIONS ###
-    def on_setRangeButton_clicked(self, widget):
-        from setRangeWindow import SetRangeWindow
-        
-        if self.winControl == 0:
-            self.winControl = 1
-            setWindow = SetRangeWindow()
-            setWindow.connect("destroy", lambda x: Gtk.main_quit())
-            setWindow.show_all()
-            Gtk.main()
-            self.winControl = 0
+
+        self.set_range_window = SetRangeWindow()
+        self.set_range_window.connect("delete-event", self.on_destroy_range_window)
+        self.set_range_window.hide()
+        self.set_range_window.setButton.connect("clicked", self.set_range)
         
 
+    ### CALL BACK FUNCTIONS ###
+    def on_setRangeButton_clicked(self, *data):
+        if not self.set_range_window.props.visible:
+            self.set_range_window.show_all()
+        return True
+    
+    def on_destroy_range_window(self, *data):
+        if self.set_range_window.props.visible:
+            self.set_range_window.hide()
+
+        return True
+
+    def set_range(self, *data):
+
+        min_value = 0
+        max = 0
+        
+        try:
+            min = float(self.set_range_window.minEntry.get_text())
+            max = float(self.set_range_window.maxEntry.get_text())
+
+            if min > max:
+                print("Swapped min and max values!")
+                temp = min
+                min = max
+                max = temp
+
+            print("Min: " +str(min))
+            print("Max: " +str(max))
+            self.plot_min = min
+            self.plot_max = max
+            self.axes.set_ylim([self.plot_min, self.plot_max])
+            self.fig.canvas.draw()
+            self.canvas.draw()
+            
+        except Exception as e:
+            print("Found the following exception after trying ro set min and max values for plot:")
+            print("EXCP: " + str(e) + "\n")
+            print("Leaving axes unchanged.")
+            return False
+
+        return True
+
+    def set_range_auto(self, *data):
+        self.axes.autoscale()
+        min, max = self.axes.get_ylim()
+
+        print("min: ", str(min))
+        print("max: ", str(max))
+        self.plot_min = min
+        self.plot_max = max
+
+        self.set_range_window.minEntry.set_text(str(min))
+        self.set_range_window.maxEntry.set_text(str(max))
+
+        self.fig.canvas.draw()
+        self.canvas.draw()
+        return True
+
+        
     def gen_plot(self, x=[1,2,3], y = [4,5,6]):
 
         
@@ -366,7 +423,11 @@ class newPlotWindow(Gtk.Window):
             print("Couldn't remove axis!")
 
         self.axes = self.fig.add_subplot(111)
-        self.axes.plot(x, y)
+
+        if not (self.plot_min == 0 and self.plot_max == 0):
+            self.axes.set_ylim([self.plot_min, self.plot_max])
+            
+        self.axes.plot(x, y, '--o')
 
         # n = 1000
         # xsin = linspace(-pi, pi, n, endpoint=True)

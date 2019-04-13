@@ -6,7 +6,6 @@ sys.path.append('../network')
 sys.path.append('./')
 sys.path.append('./classes')
 from gi.repository import Gtk, Gdk, GdkPixbuf, GLib
-from gui.setRangeWindow import SetRangeWindow
 import matplotlib.image as mpimg
 from matplotlib.figure import Figure
 from matplotlib.transforms import Bbox
@@ -14,11 +13,14 @@ from matplotlib.backends.backend_gtk3cairo import FigureCanvasGTK3Cairo as Figur
 from matplotlib.backends.backend_gtk3 import NavigationToolbar2GTK3 as NavigationToolbar
 from numpy import sin, cos, pi, linspace, sqrt, zeros, int32, array
 from gui.plotWindow import *
+from gui.setRangeWindow import SetRangeWindow
+from gui.setRegionWindow import SetRegionWindow
 from picture_generator import gen_canvas, gen_canvas_zoomed
 from gui.classes.drawRectangle import *
 from gui.classes.helpFunctions import *
 from gui.classes.ticker_locator import MyLocator
 from network.data_collection import data_collector as dc
+from analysis.infoManager import InfoManager
 import copy
 
 class mainWindow(Gtk.Window):
@@ -86,6 +88,11 @@ class mainWindow(Gtk.Window):
         self.regionsBox.pack_start(self.setManually, True, True, 0)
         self.setManually.connect("clicked", self.on_setRegionButton_clicked)
         self.winControl = 0
+
+        self.online_plot = Gtk.Button(label="Online Plot")
+        self.online_plot.connect("clicked", self.on_plot_window_clicked)
+        self.online_plot.set_size_request(80,80)
+        self.leftBox.pack_end(self.online_plot, False, False, 0)
 
         self.label_network = "Network v0.0"
         self.infoNetwork   = Gtk.Label(self.label_network)
@@ -185,31 +192,50 @@ class mainWindow(Gtk.Window):
         self.rectangleRBC = rbcRectangle(1,1,2,2)
         self.regionControl = -1
 
-        self.abs_pic = None
         
         # Plot Window
         self.plotWin = newPlotWindow()
+        self.plotWin.connect("delete-event", self.on_destroy_plot_window)
         self.plotWin.show_all()
 
+        
 
+        # Set Region Window
+        self.set_region_window = SetRegionWindow()
+        self.set_region_window.connect('delete-event', self.on_destroy_region_window)
+        self.set_region_window.setButton.connect('clicked', self.set_region_manual)
+        # self.set_region_window.show_all()
+        # self.set_region_window.hide()
+
+        self.im = InfoManager()
         self.update_pics_controll = 0
-        GLib.timeout_add_seconds(0.5, self.update_pics)
+        GLib.timeout_add_seconds(0.5, self.update_functions)
         
         
         
         
         
     ### CALL BACK FUNCTIONS ###
-    def on_setRegionButton_clicked(self, widget):
-        from setRegionWindow import SetRegionWindow
+    def on_destroy_region_window(self, *data):
+        if self.set_region_window.props.visible:        
+            self.set_region_window.hide()
+        return True
 
-        if self.winControl == 0:
-            self.winControl = 1
-            setWindow = SetRegionWindow()
-            setWindow.connect("destroy", lambda x: Gtk.main_quit())
-            setWindow.show_all()
-            Gtk.main()
-            self.winControl = 0
+
+    def on_destroy_plot_window(self, *data):
+        if self.plotWin.props.visible:
+            self.plotWin.hide()
+        return True
+
+    def on_setRegionButton_clicked(self, *data):
+        if not self.set_region_window.props.visible:        
+            self.set_region_window.show_all()
+        return True
+        
+    def on_plot_window_clicked(self, *data):
+        if not self.plotWin.props.visible:
+            self.plotWin.show_all()
+        return True
         
 
     def set_picZoomed(self, image = None, font=6, colormap="RdYlBu_r"):
@@ -221,17 +247,21 @@ class mainWindow(Gtk.Window):
 
         try:
 
-            up    = int(self.abs_pic.ROI[0])
-            down  = int(self.abs_pic.ROI[1])
-            left  = int(self.abs_pic.ROI[2])
-            right = int(self.abs_pic.ROI[3])
+            up    = int(self.im.abs_pic.ROI[0])
+            down  = int(self.im.abs_pic.ROI[1])
+            left  = int(self.im.abs_pic.ROI[2])
+            right = int(self.im.abs_pic.ROI[3])
+            
+            print("ROI: " + str(self.im.abs_pic.ROI))
+            print("Up: " + str(up))
+            print("Down: " + str(down))
+            print("Left: " + str(left))
+            print("Right: " + str(right))
             
             print("**** SETTING ZOOM PIC ****")
-            print("ROI: " + str(self.abs_pic.ROI))
-            
-            img1 = self.abs_pic.pic[up:down, left:right]
-            img2 = self.abs_pic.integrate_y()
-            img3 = self.abs_pic.integrate_x()
+            img1 = self.im.abs_pic.pic[up:down, left:right]
+            img2 = self.im.abs_pic.integrate_y()
+            img3 = self.im.abs_pic.integrate_x()
 
 
             ###---- Cleans axes
@@ -275,6 +305,7 @@ class mainWindow(Gtk.Window):
         self.cbaxes = self.fig_abs.add_axes([0.02, 0.4, 0.02, 0.45])
         self.cbaxes.yaxis.set_ticks_position('left')
         cbar = self.fig_abs.colorbar(cset, cax=self.cbaxes)
+        cbar.set_clim(0,1)
 
 
         ###---- AXES
@@ -322,13 +353,13 @@ class mainWindow(Gtk.Window):
         try:
             self.axes_atoms = self.fig_atoms.add_subplot(111)
             self.axes_atoms.cla()
-            self.axes_atoms.imshow(self.abs_pic.atom_pic, cmap=colormap)
+            self.axes_atoms.imshow(self.im.atom_pic.pic, cmap=colormap)
             
         except:
             print("INFO: Used argument as image.")
             self.axes_atoms = self.fig_atoms.add_subplot(111)
             self.axes_atoms.cla()
-            self.axes_atoms.imshow(image, cmap=colormap)
+            self.axes_atoms.imshow(zeros((256, 256)), cmap=colormap)
 
         self.axes_atoms.set_title(title, fontsize=font)
         self.axes_atoms.tick_params(labelsize = font)
@@ -341,12 +372,13 @@ class mainWindow(Gtk.Window):
 
         try:
             self.axes_no_atoms = self.fig_no_atoms.add_subplot(111)
-            self.axes_no_atoms.imshow(self.abs_pic.no_atom_pic, cmap=colormap)
+            self.axes_no_atoms.imshow(self.im.no_atom_pic.pic, cmap=colormap)
             
-        except:
+        except Exception as e:
+            print(e)
             print("INFO: Used argument as image.")
             self.axes_no_atoms = self.fig_no_atoms.add_subplot(111)
-            self.axes_no_atoms.imshow(image, cmap=colormap)
+            self.axes_no_atoms.imshow(zeros((256, 256)), cmap=colormap)
 
         self.axes_no_atoms.set_title(title, fontsize=font)
         self.axes_no_atoms.tick_params(labelsize = font)
@@ -358,13 +390,13 @@ class mainWindow(Gtk.Window):
 
         try:
             self.axes_bkg = self.fig_bkg.add_subplot(111)
-            self.axes_bkg.imshow(self.abs_pic.bkg_pic, cmap=colormap)
+            self.axes_bkg.imshow(self.im.abs_pic.bkg_pic, cmap=colormap)
             
         except:
             print("INFO: Used argument as image.")
             image = zeros((256, 256)) ### TESTING
             self.axes_bkg = self.fig_bkg.add_subplot(111)
-            self.axes_bkg.imshow(image, cmap=colormap)
+            self.axes_bkg.imshow(zeros((256, 256)), cmap=colormap)
 
         self.axes_bkg.set_title(title, fontsize=font)
         self.axes_bkg.tick_params(labelsize = font)
@@ -376,12 +408,12 @@ class mainWindow(Gtk.Window):
 
         try:
             self.axes_abs_small = self.fig_abs_small.add_subplot(111)
-            self.axes_abs_small.imshow(self.abs_pic.pic, cmap=colormap)
+            self.axes_abs_small.imshow(self.im.abs_pic.pic, cmap=colormap)
         
         except:
             print("INFO: Used argument as image.")
             self.axes_abs_small = self.fig_abs_small.add_subplot(111)
-            self.axes_abs_small.imshow(image, cmap=colormap)
+            self.axes_abs_small.imshow(zeros((256, 256)), cmap=colormap)
         
         self.axes_abs_small.set_title(title, fontsize=font)
         self.axes_abs_small.tick_params(labelsize = font)
@@ -459,6 +491,80 @@ class mainWindow(Gtk.Window):
                 self.canvasOriginal.mpl_disconnect(button_event_end_id)
     
 
+    def set_region_manual(self, *data):
+
+        if self.regionControl != -1:
+            try:
+                self.canvasOriginal.figure.axes[0].patches = []
+                self.canvasOriginal.figure.axes[1].patches = []
+            except:
+                print("Probably there's no roi area to clean!")
+        # self.clearRegion(0)
+        # self.clearRegion(1)
+
+        left_roi  = int(self.set_region_window.leftEntry_roi.get_text())
+        right_roi = int(self.set_region_window.rightEntry_roi.get_text())
+        up_roi    = int(self.set_region_window.upEntry_roi.get_text())
+        down_roi  = int(self.set_region_window.downEntry_roi.get_text())
+
+        left_rbc  = int(self.set_region_window.leftEntry_rbc.get_text())
+        right_rbc = int(self.set_region_window.rightEntry_rbc.get_text())
+        up_rbc    = int(self.set_region_window.upEntry_rbc.get_text())
+        down_rbc  = int(self.set_region_window.downEntry_rbc.get_text())
+        
+        ###---- Get data for ROI and RBC
+        self.rectangleROI.x_start = left_roi
+        self.rectangleROI.x_end   = right_roi
+        self.rectangleROI.y_start = up_roi
+        self.rectangleROI.y_end   = down_roi
+
+        self.rectangleRBC.x_start = left_rbc
+        self.rectangleRBC.x_end   = right_rbc
+        self.rectangleRBC.y_start = up_rbc
+        self.rectangleRBC.y_end   = down_rbc
+
+
+        self.rectangleROI.drawRectangle()
+        #print(self.canvasOriginal.figure.axes)
+        self.canvasOriginal.figure.axes[0].add_patch(self.rectangleROI.rectangle)
+        print(self.canvasOriginal.figure.axes[0].patches)
+        #self.canvasOriginal.draw_idle()
+        print("done! \n")
+            
+        #self.canvasOriginal.figure.axes[0] = axes_temp
+        self.canvasOriginal.show_all()
+        self.canvasOriginal.draw_idle()
+        
+        #self.canvasOriginal.draw()
+        self.regionControl = 0
+        self.im.abs_pic.set_ROI(rectangle = self.rectangleROI)
+
+
+
+        self.rectangleRBC.drawRectangle()
+
+        self.canvasOriginal.figure.axes[0].add_patch(self.rectangleRBC.rectangle)
+        print(self.canvasOriginal.figure.axes[0].patches)
+        
+        print("done! \n")
+            
+        #self.canvasOriginal.figure.axes[0] = axes_temp
+        self.canvasOriginal.show_all()
+        self.canvasOriginal.draw_idle()
+        self.regionControl = 1
+            
+        self.im.abs_pic.set_RBC(rectangle = self.rectangleRBC)
+        
+        ###--- plot the ROI
+        up    = int(self.rectangleROI.y_start)
+        down  = int(self.rectangleROI.y_end)
+        left  = int(self.rectangleROI.x_start)
+        right = int(self.rectangleROI.x_end)
+        self.set_picZoomed(self.im.abs_pic.pic[up:down, left:right])
+
+        # self.regionControl = -1
+        
+        
     def updateCursorPosition(self, event):
         '''
         When cursor inside plot, get position and print to statusbar
@@ -516,6 +622,9 @@ class mainWindow(Gtk.Window):
             print("Down:  " + str(self.rectangleROI.y_end))
             print("Right: " + str(self.rectangleROI.x_end))            
             print("ROI recangle drawn!")
+
+            self.set_region_window.leftEntry_roi.set_text(str(int(self.rectangleROI.x_start)))
+            self.set_region_window.upEntry_roi.set_text(str(int(self.rectangleROI.y_start)))
             
             
         elif self.chooseRBC.get_active():
@@ -527,6 +636,10 @@ class mainWindow(Gtk.Window):
             print("Down:  " + str(self.rectangleRBC.y_end))
             print("Right: " + str(self.rectangleRBC.x_end))
             print("RBC recangle drawn!")
+
+            self.set_region_window.leftEntry_rbc.set_text(str(int(self.rectangleRBC.x_start)))
+            self.set_region_window.upEntry_rbc.set_text(str(int(self.rectangleRBC.y_start)))
+
             
         else:
             return False
@@ -559,6 +672,9 @@ class mainWindow(Gtk.Window):
                 self.rectangleROI.y_start = self.rectangleROI.y_end
                 self.rectangleROI.y_end = temp            
 
+            self.set_region_window.rightEntry_roi.set_text(str(int(self.rectangleROI.x_end)))
+            self.set_region_window.downEntry_roi.set_text( str(int(self.rectangleROI.y_end)))
+
             
             
             self.rectangleROI.drawRectangle()
@@ -574,14 +690,14 @@ class mainWindow(Gtk.Window):
             
             #self.canvasOriginal.draw()
             self.regionControl = 0
-            self.abs_pic.set_ROI(rectangle = self.rectangleROI)
+            self.im.abs_pic.set_ROI(rectangle = self.rectangleROI)
 
             ###--- plot the ROI
             up    = int(self.rectangleROI.y_start)
             down  = int(self.rectangleROI.y_end)
             left  = int(self.rectangleROI.x_start)
             right = int(self.rectangleROI.x_end)
-            self.set_picZoomed(self.abs_pic.pic[up:down, left:right])
+            self.set_picZoomed(self.im.abs_pic.pic[up:down, left:right])
 
             
             print("ROI recangle drawn!")
@@ -596,6 +712,8 @@ class mainWindow(Gtk.Window):
             print("Down:  " + str(self.rectangleRBC.y_end))
             print("Right: " + str(self.rectangleRBC.x_end))
 
+            self.set_region_window.rightEntry_rbc.set_text(str(int(self.rectangleRBC.x_end)))
+            self.set_region_window.downEntry_rbc.set_text(str(int(self.rectangleRBC.y_end)))
 
             # Makes sure that the rectangle is set correctly
             if self.rectangleRBC.x_start > self.rectangleRBC.x_end:
@@ -622,12 +740,14 @@ class mainWindow(Gtk.Window):
             self.canvasOriginal.draw_idle()
             self.regionControl = 1
 
-            self.abs_pic.set_RBC(rectangle = self.rectangleRBC)
+            self.im.abs_pic.set_RBC(rectangle = self.rectangleRBC)
 
             print("RBC recangle drawn!")
             self.chooseRBC.set_active(False)
         else:
             return False
+        
+        
     
     def clearRegion(self, region):
         
@@ -679,9 +799,19 @@ class mainWindow(Gtk.Window):
         return True
 
     
+    def update_functions(self):
+        import numpy as np
+        read_data = dc.receiving_flag != 1 and dc.glob != self.im.dc.glob
 
+        if read_data:
+            self.im.update_data_buffer()
+            self.im.update_info(self)
+            self.plotWin.gen_plot(np.linspace(1,self.im.dc.glob,len(self.im.history[self.im.variables[0]])), self.im.history[self.im.variables[0]])
+        
+        self.update_pics()
+        self.update_status()
 
-
+        return True
 
 ##############################
 ###         Buttons        ###

@@ -6,15 +6,16 @@ class Data_Collection():
         self.copy_flag = 0
         self.cam_flag = -1
         
-        self.path = ""
-        self.file = ""
-        self.scan = ""
-        self.imsc = ""
-        self.loop = -1
-        self.glob = -1
-        self.T_cam = -1
-        self.L_cam = -1
-        self.V_cam = -1
+        self.path     = ""
+        self.file     = ""
+        self.scan     = ""
+        self.imsc     = ""
+        self.loop     = -1
+        self.glob     = -1
+        self.status   = "None"
+        self.T_cam    = -1
+        self.L_cam    = -1
+        self.V_cam    = -1
         self.last_pic = -1
         
         ###---- Chosses the starting point to read data from adwin
@@ -101,9 +102,11 @@ class Data_Collection():
     
     
     def stat_sending(self):
+        self.stat = "Sending"
         print("Receiving stuff!")
     
     def stat_waiting(self):
+        self.stat = "Waiting"        
         print("Waiting for stuff")
 
 data_collector = Data_Collection()

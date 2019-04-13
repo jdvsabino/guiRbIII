@@ -46,7 +46,7 @@ class AbsorptionPicture(PictureManager):
         self.atom_pic = atom_pic
         self.no_atom_pic = no_atom_pic
         self.bkg_pic = None # TODO
-        self.pic = self.get_absorption_picture(atom_pic, no_atom_pic)
+        self.pic = self.get_absorption_picture(atom_pic.pic, no_atom_pic.pic)
         self.cam = cam
 
         self.TOF = -1
@@ -72,6 +72,7 @@ class AbsorptionPicture(PictureManager):
             return -1
         
         elif rectangle == None:
+            print("Used coordinates!")
             self.ROI[0] = int(up)
             self.ROI[1] = int(down)
             self.ROI[2] = int(left)
@@ -83,6 +84,7 @@ class AbsorptionPicture(PictureManager):
             self.ROI[1] = int(rectangle.y_end)
             self.ROI[2] = int(rectangle.x_start)
             self.ROI[3] = int(rectangle.x_end)
+            print("Used rectangle!")
             return 1
 
     def set_RBC(self, rectangle = None, up = None, down = None, left = None, right = None):
@@ -115,8 +117,20 @@ class AbsorptionPicture(PictureManager):
         px_size = self.cam.pixel2um
         mag = self.cam.magnification
         abs_cross = self.cam.abs_cross
-        # FOR TESTING PURPOSES
-        final_pic = self.pic#self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[4]]
+
+        try:
+            print("ROIZINHO: " + str(self.ROI[0]))
+            print("ROIZINHO: " + str(self.ROI[1]))
+            print("ROIZINHO: " + str(self.ROI[2]))
+            print("ROIZINHO: " + str(self.ROI[3]))
+            print("SHAPEZINHA: " + str(self.pic.shape))
+            #final_pic = self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[4]]
+            final_pic = self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[3]]
+
+        except Exception as e:
+            print(e)
+            print("Couldnt compute atomnumber with ROI. Using whole picture!")
+            final_pic = self.pic
         atom_number = self.cam.pixel_size*self.cam.pixel_size/(self.cam.magnification*self.cam.magnification)/self.cam.abs_cross*np.sum(np.sum(final_pic))
 
         return atom_number
@@ -159,14 +173,14 @@ class AbsorptionPicture(PictureManager):
         '''
         Returns an array with the pixels summed over y
         '''
-        print("INT XXX - shape: " +str(self.pic.shape))        
+        print("INT XXX - shape: " +str(self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[3]].shape))        
         return np.sum(self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[3]], axis=0) # Currently only works with tiff images or other format that is a 2D array
 
     def integrate_y(self):
         '''
         Returns an array with the pixels summed over x
         '''
-        print("INT YYY - shape: " +str(self.pic.shape))
+        print("INT YYY - shape: " +str(self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[3]].shape))
         return np.sum(self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[3]], axis=1) # Currently only works with tiff images or other format that is a 2D array
     
 

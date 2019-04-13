@@ -112,7 +112,7 @@ class InfoManager():
         camera = self.gen_camera()
         if camera == -1:
             return -1
-
+        self.abs_pic.cam = camera
         self.dc.last_pic = 1 # TESTING PURPOSES
         if self.dc.last_pic == -1:
             print(dc.last_pic)
@@ -146,13 +146,22 @@ class InfoManager():
         self.background_pic = None        
         
         
-        self.abs_pic = AbsorptionPicture(self.atom_pic.pic, self.no_atom_pic.pic, cam = camera)
+        # try:
+        #     self.abs_pic = AbsorptionPicture(self.atom_pic.pic, self.no_atom_pic.pic, cam = camera)
+        # except:
+        #     print("No Abs pic set!!")
 
         #win.update_abs_pic(self.abs_pic)
         win.abs_pic = self.abs_pic
         win.update_pics_controll = 1
         # win.set_picOriginal(self.abs_pic.pic)
-        self.atom_num = self.abs_pic.get_atom_number()
+        print("ROIZINHO 2.0: " + str(self.abs_pic.ROI))
+        try:
+            self.atom_num = self.abs_pic.get_atom_number()
+            print(self.atom_num)
+        except Exception as e:
+            print(e)
+            print("Not possible to compute Atom number!")
 
         #print("CURRENT ROI: " + str(self.abs_pic.ROI))
 
@@ -172,7 +181,7 @@ class InfoManager():
 
         self.update_status()
         self.update_history()
-        win.plotWin.gen_plot(np.linspace(1,self.dc.glob,len(self.history[self.variables[0]])), self.history[self.variables[0]])
+        # win.plotWin.gen_plot(np.linspace(1,self.dc.glob,len(self.history[self.variables[0]])), self.history[self.variables[0]])
         # Saves a matlab file with the data for this run
         file_name = PIC_SRC + self.dc.path + str(self.dc.loop) + "-data.mat"
         file_name = "datazinha.mat" # FOR TESTING
