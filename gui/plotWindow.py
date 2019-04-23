@@ -253,11 +253,11 @@ class newPlotWindow(Gtk.Window):
         self.variables = {}
         self.var_boxes = []
         
+        self.index_label          = 0
+        self.index_label_val      = 1
+        self.index_chk_button     = 2
+        
         for i in range(0, self.var_num):
-
-            index_label          = 0
-            index_label_val      = 1
-            index_chk_button     = 2
             
             temp_name       = "Var" + str(i+1) 
             temp_label      = Gtk.Label(temp_name)
@@ -269,15 +269,15 @@ class newPlotWindow(Gtk.Window):
             
 
             if i < 4:
-                self.leftVarBox.pack_start(self.variables[temp_name][index_label], True, True, 0)
+                self.leftVarBox.pack_start(self.variables[temp_name][self.index_label], True, True, 0)
                 self.leftVarBox.pack_start(self.var_boxes[i], True, True, 0)
-                self.var_boxes[i].pack_start(self.variables[temp_name][index_chk_button], False, False, 0)
-                self.var_boxes[i].pack_start(self.variables[temp_name][index_label_val], False, False, 0)
+                self.var_boxes[i].pack_start(self.variables[temp_name][self.index_chk_button], False, False, 0)
+                self.var_boxes[i].pack_start(self.variables[temp_name][self.index_label_val], False, False, 0)
             else:
-                self.rightVarBox.pack_start(self.variables[temp_name][index_label], True, True, 0)
+                self.rightVarBox.pack_start(self.variables[temp_name][self.index_label], True, True, 0)
                 self.rightVarBox.pack_start(self.var_boxes[i], True, True, 0)
-                self.var_boxes[i].pack_start(self.variables[temp_name][index_chk_button], False, False, 0)
-                self.var_boxes[i].pack_start(self.variables[temp_name][index_label_val], False, False, 0)
+                self.var_boxes[i].pack_start(self.variables[temp_name][self.index_chk_button], False, False, 0)
+                self.var_boxes[i].pack_start(self.variables[temp_name][self.index_label_val], False, False, 0)
         # # Var 1
         # self.var1Label = Gtk.Label("Var1")
         # self.leftVarBox.pack_start(self.var1Label, True, True, 0)
@@ -447,7 +447,29 @@ class newPlotWindow(Gtk.Window):
         return True
 
         
-    def gen_plot(self, x=[1,2,3], y = [4,5,6]):
+    # def gen_plot(self, x=[1,2,3], y = [4,5,6]):
+
+        
+    #     try:
+    #         self.axes.remove()
+    #     except:
+    #         print("Couldn't remove axis!")
+
+    #     self.axes = self.fig.add_subplot(111)
+
+    #     if not (self.plot_min == 0 and self.plot_max == 0):
+    #         self.axes.set_ylim([self.plot_min, self.plot_max])
+            
+    #     self.axes.plot(x, y, '--o')
+
+
+    #     self.fig.tight_layout()# canvas = FigureCanvas(fig)
+    #     #self.canvas = FigureCanvas(self.fig)
+    #     self.fig.canvas.draw()
+    #     self.canvas.draw()
+
+
+    def gen_plot(self, data=dict()):
 
         
         try:
@@ -460,7 +482,12 @@ class newPlotWindow(Gtk.Window):
         if not (self.plot_min == 0 and self.plot_max == 0):
             self.axes.set_ylim([self.plot_min, self.plot_max])
             
-        self.axes.plot(x, y, '--o')
+        try:
+            for key in list(self.variables.keys()):
+                if self.variables[key][self.index_chk_button].get_active():
+                    self.axes.plot(data[key], '--o')
+        except Exception as e:
+            print("Failed plot generation with Error: " + str(e))
 
 
         self.fig.tight_layout()# canvas = FigureCanvas(fig)
