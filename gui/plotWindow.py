@@ -10,6 +10,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_gtk3cairo import FigureCanvasGTK3Cairo as FigureCanvas
 from matplotlib.backends.backend_gtk3 import NavigationToolbar2GTK3 as NavigationToolbar
 from numpy import sin, cos, pi, linspace
+import datetime
 
 class plotWindow(Gtk.Window):
 
@@ -195,6 +196,7 @@ class newPlotWindow(Gtk.Window):
         self.saveDataButton = Gtk.Button(label = "Save Data")
         self.middleBox.pack_start(self.saveDataButton, True, True, 0)
 
+
         # Top Widgets and boxes
         self.plotSettingsBox = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, spacing = 12)
         self.box.add(self.plotSettingsBox)
@@ -244,93 +246,124 @@ class newPlotWindow(Gtk.Window):
         # Info labels
         self.label1 = Gtk.Label("System Info")
         self.infoLabelBox.add(self.label1)
+
+
+        # Set environment for variables
+        self.var_num   = 8
+        self.variables = {}
+        self.var_boxes = []
         
-        # Var 1
-        self.var1Label = Gtk.Label("Var1")
-        self.leftVarBox.pack_start(self.var1Label, True, True, 0)
-        self.var1_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, spacing = 3)
-        self.leftVarBox.pack_start(self.var1_box, True, True, 0)        
-        self.chk_button_1 = Gtk.CheckButton()
-        self.var1_box.pack_start(self.chk_button_1, False, False, 0)
-        self.var1Entry = Gtk.Label("empty")
-        self.var1_box.pack_start(self.var1Entry, False, False, 0)
+        for i in range(0, self.var_num):
+
+            index_label          = 0
+            index_label_val      = 1
+            index_chk_button     = 2
+            
+            temp_name       = "Var" + str(i+1) 
+            temp_label      = Gtk.Label(temp_name)
+            temp_label_val  = Gtk.Label("empty")
+            temp_chk_button = Gtk.CheckButton()
+
+            self.variables[temp_name] = [temp_label, temp_label_val, temp_chk_button]
+            self.var_boxes.append(Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, spacing = 3))
+            
+
+            if i < 4:
+                self.leftVarBox.pack_start(self.variables[temp_name][index_label], True, True, 0)
+                self.leftVarBox.pack_start(self.var_boxes[i], True, True, 0)
+                self.var_boxes[i].pack_start(self.variables[temp_name][index_chk_button], False, False, 0)
+                self.var_boxes[i].pack_start(self.variables[temp_name][index_label_val], False, False, 0)
+            else:
+                self.rightVarBox.pack_start(self.variables[temp_name][index_label], True, True, 0)
+                self.rightVarBox.pack_start(self.var_boxes[i], True, True, 0)
+                self.var_boxes[i].pack_start(self.variables[temp_name][index_chk_button], False, False, 0)
+                self.var_boxes[i].pack_start(self.variables[temp_name][index_label_val], False, False, 0)
+        # # Var 1
+        # self.var1Label = Gtk.Label("Var1")
+        # self.leftVarBox.pack_start(self.var1Label, True, True, 0)
+        # self.var1_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, spacing = 3)
+        # self.leftVarBox.pack_start(self.var1_box, True, True, 0)        
+        # self.chk_button_1 = Gtk.CheckButton()
+        # self.var1_box.pack_start(self.chk_button_1, False, False, 0)
+        # self.var1Entry = Gtk.Label("empty")
+        # self.var1_box.pack_start(self.var1Entry, False, False, 0)
 
 
-        # Var 2
-        self.var2Label = Gtk.Label("Var2")
-        self.leftVarBox.pack_start(self.var2Label, True, True, 0)
-        self.var2_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, spacing = 3)
-        self.leftVarBox.pack_start(self.var2_box, True, True, 0)        
-        self.chk_button_2 = Gtk.CheckButton()
-        self.var2_box.pack_start(self.chk_button_2, False, False, 0)
-        self.var2Entry = Gtk.Label("empty")
-        self.var2_box.pack_start(self.var2Entry, False, False, 0)
+        # # Var 2
+        # self.var2Label = Gtk.Label("Var2")
+        # self.leftVarBox.pack_start(self.var2Label, True, True, 0)
+        # self.var2_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, spacing = 3)
+        # self.leftVarBox.pack_start(self.var2_box, True, True, 0)        
+        # self.chk_button_2 = Gtk.CheckButton()
+        # self.var2_box.pack_start(self.chk_button_2, False, False, 0)
+        # self.var2Entry = Gtk.Label("empty")
+        # self.var2_box.pack_start(self.var2Entry, False, False, 0)
         
 
-        # Var 3
-        self.var3Label = Gtk.Label("Var3")
-        self.leftVarBox.pack_start(self.var3Label, True, True, 0)
-        self.var3_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, spacing = 3)
-        self.leftVarBox.pack_start(self.var3_box, True, True, 0)        
-        self.chk_button_3 = Gtk.CheckButton()
-        self.var3_box.pack_start(self.chk_button_3, False, False, 0)
-        self.var3Entry = Gtk.Label("empty")
-        self.var3_box.pack_start(self.var3Entry, False, False, 0)
+        # # Var 3
+        # self.var3Label = Gtk.Label("Var3")
+        # self.leftVarBox.pack_start(self.var3Label, True, True, 0)
+        # self.var3_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, spacing = 3)
+        # self.leftVarBox.pack_start(self.var3_box, True, True, 0)        
+        # self.chk_button_3 = Gtk.CheckButton()
+        # self.var3_box.pack_start(self.chk_button_3, False, False, 0)
+        # self.var3Entry = Gtk.Label("empty")
+        # self.var3_box.pack_start(self.var3Entry, False, False, 0)
 
 
-        # Var 4
-        self.var4Label = Gtk.Label("Var4")
-        self.leftVarBox.pack_start(self.var4Label, True, True, 0)
-        self.var4_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, spacing = 3)
-        self.leftVarBox.pack_start(self.var4_box, True, True, 0)        
-        self.chk_button_4 = Gtk.CheckButton()
-        self.var4_box.pack_start(self.chk_button_4, False, False, 0)
-        self.var4Entry = Gtk.Label("empty")
-        self.var4_box.pack_start(self.var4Entry, False, False, 0)
+        # # Var 4
+        # self.var4Label = Gtk.Label("Var4")
+        # self.leftVarBox.pack_start(self.var4Label, True, True, 0)
+        # self.var4_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, spacing = 3)
+        # self.leftVarBox.pack_start(self.var4_box, True, True, 0)        
+        # self.chk_button_4 = Gtk.CheckButton()
+        # self.var4_box.pack_start(self.chk_button_4, False, False, 0)
+        # self.var4Entry = Gtk.Label("empty")
+        # self.var4_box.pack_start(self.var4Entry, False, False, 0)
 
 
-        # Var 5
-        self.var5Label = Gtk.Label("Var5")
-        self.rightVarBox.pack_start(self.var5Label, True, True, 0)
-        self.var5_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, spacing = 3)
-        self.rightVarBox.pack_start(self.var5_box, True, True, 0)        
-        self.chk_button_5 = Gtk.CheckButton()
-        self.var5_box.pack_start(self.chk_button_5, False, False, 0)
-        self.var5Entry = Gtk.Label("empty")
-        self.var5_box.pack_start(self.var5Entry, False, False, 0)
-
-        
-        # Var 6
-        self.var6Label = Gtk.Label("Var6")
-        self.rightVarBox.pack_start(self.var6Label, True, True, 0)
-        self.var6_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, spacing = 3)
-        self.rightVarBox.pack_start(self.var6_box, True, True, 0)        
-        self.chk_button_6 = Gtk.CheckButton()
-        self.var6_box.pack_start(self.chk_button_6, False, False, 0)
-        self.var6Entry = Gtk.Label("empty")
-        self.var6_box.pack_start(self.var6Entry, False, False, 0)
-
-
-        # Var 7
-        self.var7Label = Gtk.Label("Var7")
-        self.rightVarBox.pack_start(self.var7Label, True, True, 0)
-        self.var7_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, spacing = 3)
-        self.rightVarBox.pack_start(self.var7_box, True, True, 0)        
-        self.chk_button_7 = Gtk.CheckButton()
-        self.var7_box.pack_start(self.chk_button_7, False, False, 0)
-        self.var7Entry = Gtk.Label("empty")
-        self.var7_box.pack_start(self.var7Entry, False, False, 0)
+        # # Var 5
+        # self.var5Label = Gtk.Label("Var5")
+        # self.rightVarBox.pack_start(self.var5Label, True, True, 0)
+        # self.var5_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, spacing = 3)
+        # self.rightVarBox.pack_start(self.var5_box, True, True, 0)        
+        # self.chk_button_5 = Gtk.CheckButton()
+        # self.var5_box.pack_start(self.chk_button_5, False, False, 0)
+        # self.var5Entry = Gtk.Label("empty")
+        # self.var5_box.pack_start(self.var5Entry, False, False, 0)
 
         
-        # Var 8
-        self.var8Label = Gtk.Label("Var8")
-        self.rightVarBox.pack_start(self.var8Label, True, True, 0)
-        self.var8_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, spacing = 3)
-        self.rightVarBox.pack_start(self.var8_box, True, True, 0)        
-        self.chk_button_8 = Gtk.CheckButton()
-        self.var8_box.pack_start(self.chk_button_8, False, False, 0)
-        self.var8Entry = Gtk.Label("empty")
-        self.var8_box.pack_start(self.var8Entry, False, False, 0)
+        # # Var 6
+        # self.var6Label = Gtk.Label("Var6")
+        # self.rightVarBox.pack_start(self.var6Label, True, True, 0)
+        # self.var6_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, spacing = 3)
+        # self.rightVarBox.pack_start(self.var6_box, True, True, 0)        
+        # self.chk_button_6 = Gtk.CheckButton()
+        # self.var6_box.pack_start(self.chk_button_6, False, False, 0)
+        # self.var6Entry = Gtk.Label("empty")
+        # self.var6_box.pack_start(self.var6Entry, False, False, 0)
+
+
+        # # Var 7
+        # self.var7Label = Gtk.Label("Var7")
+        # self.rightVarBox.pack_start(self.var7Label, True, True, 0)
+        # self.var7_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, spacing = 3)
+        # self.rightVarBox.pack_start(self.var7_box, True, True, 0)        
+        # self.chk_button_7 = Gtk.CheckButton()
+        # self.var7_box.pack_start(self.chk_button_7, False, False, 0)
+        # self.var7Entry = Gtk.Label("empty")
+        # self.var7_box.pack_start(self.var7Entry, False, False, 0)
+
+        
+        # # Var 8
+        # self.var8Label = Gtk.Label("Var8")
+        # self.rightVarBox.pack_start(self.var8Label, True, True, 0)
+        # self.var8_box = Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, spacing = 3)
+        # self.rightVarBox.pack_start(self.var8_box, True, True, 0)        
+        # self.chk_button_8 = Gtk.CheckButton()
+        # self.var8_box.pack_start(self.chk_button_8, False, False, 0)
+        # self.var8Entry = Gtk.Label("empty")
+        # self.var8_box.pack_start(self.var8Entry, False, False, 0)
 
 
         ### Plot objects
@@ -429,87 +462,9 @@ class newPlotWindow(Gtk.Window):
             
         self.axes.plot(x, y, '--o')
 
-        # n = 1000
-        # xsin = linspace(-pi, pi, n, endpoint=True)
-        # xcos = linspace(-pi, pi, n, endpoint=True)
-        # ysin = sin(xsin)
-        # ycos = cos(xcos)
-        # inwave = self.axes.plot(xsin, ysin, color='black', label='sin(x)')
-        # coswave = self.axes.plot(xcos, ycos, color='black', label='cos(x)', linestyle='--')
-        # self.axes.set_xlim(0,pi)
-        # self.axes.set_ylim(0,1.2)
-        # self.axes.fill_between(xsin, 0, ysin, (ysin - 1) > -1, color='blue', alpha=.3)
-        # self.axes.fill_between(xsin, 0, ysin, (ysin - 1) < -1, color='red',  alpha=.3)
-        # self.axes.fill_between(xcos, 0, ycos, (ycos - 1) > -1, color='blue', alpha=.3)
-        # self.axes.fill_between(xcos, 0, ycos, (ycos - 1) < -1, color='red',  alpha=.3)
-        # self.axes.legend(loc='upper left')
-        # self.axes = self.fig.gca()
-        # self.axes.spines['right'].set_color('none')
-        # self.axes.spines['top'].set_color('none')
-        # self.axes.xaxesis.set_ticks_position('bottom')
-        # self.axes.spines['bottom'].set_position(('data',0))
-        # self.axes.yaxesis.set_ticks_position('left')
-        # self.axes.spines['left'].set_position(('data',0))
+
         self.fig.tight_layout()# canvas = FigureCanvas(fig)
         #self.canvas = FigureCanvas(self.fig)
         self.fig.canvas.draw()
         self.canvas.draw()
 
-
-        
-# plot = newPlotWindow()
-# plot.connect("destroy", Gtk.main_quit)
-# plot.show_all()
-# Gtk.main()
-
-
-# myfirstwindow = Gtk.Window()
-# myfirstwindow.connect("delete-event", Gtk.main_quit)
-# myfirstwindow.set_default_size(500, 500)
-# myfirstwindow.set_title('Matplotlib')
-# #myfirstwindow.set_icon_from_file('testicon.svg')
-
-# box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-# myfirstwindow.add(box)
-
-# fig = Figure(figsize=(5,5), dpi=80)
-# axes = fig.add_subplot(111)
-
-# n = 1000
-# xsin = linspace(-pi, pi, n, endpoint=True)
-# xcos = linspace(-pi, pi, n, endpoint=True)
-# ysin = sin(xsin)
-# ycos = cos(xcos)
-
-# sinwave = axes.plot(xsin, ysin, color='black', label='sin(x)')
-# coswave = axes.plot(xcos, ycos, color='black', label='cos(x)', linestyle='--')
-
-# axes.set_xlim(0,pi)
-# axes.set_ylim(0,1.2)
-
-# axes.fill_between(xsin, 0, ysin, (ysin - 1) > -1, color='blue', alpha=.3)
-# axes.fill_between(xsin, 0, ysin, (ysin - 1) < -1, color='red',  alpha=.3)
-# axes.fill_between(xcos, 0, ycos, (ycos - 1) > -1, color='blue', alpha=.3)
-# axes.fill_between(xcos, 0, ycos, (ycos - 1) < -1, color='red',  alpha=.3)
-
-# axes.legend(loc='upper left')
-
-# axes = fig.gca()
-# axes.spines['right'].set_color('none')
-# axes.spines['top'].set_color('none')
-# axes.xaxesis.set_ticks_position('bottom')
-# axes.spines['bottom'].set_position(('data',0))
-# axes.yaxesis.set_ticks_position('left')
-# axes.spines['left'].set_position(('data',0))
-
-# fig.tight_layout()
-
-# canvas = FigureCanvas(fig)
-# box.pack_start(canvas, True, True, 0)
-
-# toolbar = NavigationToolbar(canvas, myfirstwindow)
-# box.pack_start(toolbar, False, True, 0)
-# a = Gtk.Entry()
-# box.pack_start(a, True, True, 0)
-# myfirstwindow.show_all()
-# Gtk.main()
