@@ -22,6 +22,7 @@ from gui.classes.ticker_locator import MyLocator
 from network.data_collection import data_collector as dc
 from analysis.infoManager import InfoManager
 import copy
+import csv
 
 class mainWindow(Gtk.Window):
 
@@ -37,6 +38,10 @@ class mainWindow(Gtk.Window):
         self.set_border_width(self.border)
         self.set_resizable(False)
 
+        ###---- Parameters for data saving
+        self.save_path = "./info/"
+        self.save_file = "/data"
+        
         ### Main Box ###
         self.mainBoxSpacing = 20
         
@@ -192,14 +197,6 @@ class mainWindow(Gtk.Window):
         self.rectangleRBC = rbcRectangle(1,1,2,2)
         self.regionControl = -1
 
-        
-        # Plot Window
-        self.plotWin = newPlotWindow()
-        self.plotWin.connect("delete-event", self.on_destroy_plot_window)
-        self.plotWin.show_all()
-
-        
-
         # Set Region Window
         self.set_region_window = SetRegionWindow()
         self.set_region_window.connect('delete-event', self.on_destroy_region_window)
@@ -210,6 +207,27 @@ class mainWindow(Gtk.Window):
         self.im = InfoManager()
         self.update_pics_controll = 0
         GLib.timeout_add_seconds(0.5, self.update_functions)
+
+
+        # Plot Window
+        self.plotWin = newPlotWindow()
+        self.plotWin.connect("delete-event", self.on_destroy_plot_window)
+        self.plotWin.saveDataButton.connect("clicked", self.on_save_clicked)
+        self.plotWin.show_all()
+
+        try:
+            
+            for i in range(0, len(self.im.variables)):
+                index_name = 0
+                temp_name  = "Var" + str(i+1)
+               
+
+                self.plotWin.variables[temp_name][index_name].set_label(self.im.variables[i])
+                self.plotWin.variables[self.im.variables[i]] = self.plotWin.variables[temp_name] 
+                del self.plotWin.variables[temp_name]
+        except Exception as e:
+            print("Error: Assiging variables names to variables entries went wrong.")
+            print("Probably the number is not the same!")
         
         
         
@@ -313,7 +331,7 @@ class mainWindow(Gtk.Window):
         #      - Adjust size properly
         #
         pos_ref = self.axes_abs[0].get_position()
-        #aspect_ratio = self.picSize[0]/4/position.height
+
 
         self.axes_abs[1].set_yticklabels([])
         self.axes_abs[1].invert_xaxis()
@@ -798,6 +816,39 @@ class mainWindow(Gtk.Window):
         
         return True
 
+
+    def on_save_clicked(self, widget):
+        dialog = Gtk.FileChooserDialog("Please choose a folder", self,
+            Gtk.FileChooserAction.SELECT_FOLDER,
+            (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+             "Select", Gtk.ResponseType.OK))
+        dialog.set_default_size(800, 400)
+        dialog.set_filename(self.save_path)
+
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            now = str(datetime.datetime.now())
+            now = now[:-7]
+            now = now.replace(" ", "_")
+            now = now.replace(":", ".")
+            self.save_file = "/data_" + now + ".csv"
+            self.save_path = dialog.get_filename()
+            final = self.save_path + self.save_file
+
+            f = csv.writer(open(final, "w"))
+            for key, val in self.im.history.items():
+                    f.writerow([key, val])
+            
+
+            
+            print("Select clicked")
+            print("Folder selected: " + dialog.get_filename())
+            print("FINAL RESULT: " + final)
+        elif response == Gtk.ResponseType.CANCEL:
+            print("Cancel clicked")
+
+        dialog.destroy()
+
     
     def update_functions(self):
         import numpy as np
@@ -807,6 +858,13 @@ class mainWindow(Gtk.Window):
             self.im.update_data_buffer()
             self.im.update_info(self)
             self.plotWin.gen_plot(np.linspace(1,self.im.dc.glob,len(self.im.history[self.im.variables[0]])), self.im.history[self.im.variables[0]])
+
+            print("KEYS")
+            print(list(self.plotWin.variables.keys()))
+            for var in self.im.variables:
+                index_label_val = 1
+                self.plotWin.variables[var][index_label_val].set_label(str(round(self.im.status[var], 2)))
+            
         
         self.update_pics()
         self.update_status()
