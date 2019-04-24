@@ -850,7 +850,9 @@ class mainWindow(Gtk.Window):
             import numpy as np
 
             if dc.glob == self.im.dc.glob:
+
                 return True
+
             read_data = dc.receiving_flag != 1 and dc.glob != self.im.dc.glob
             
             if read_data:
@@ -859,14 +861,14 @@ class mainWindow(Gtk.Window):
                 # self.plotWin.gen_plot(np.linspace(1,self.im.dc.glob,len(self.im.history[self.im.variables[0]])), self.im.history[self.im.variables[0]])
                 self.plotWin.gen_plot(self.im.history)
                 print("KEYS")
-                plotWin.variables.keys()))
-                for var in self.im.variables:
-                    index_label_val = 1
-                    print("TO LABEL: " + str(self.im.status[var]))
-                    try:    
-                        self.plotWin.variables[var][index_label_val].set_label(str(round(self.im.status[var], 2)))
-                    except:
-                        self.plotWin.variables[var][index_label_val].set_label(str(self.im.status[var]))
+                #plotWin.variables.keys()
+                # for var in self.im.variables:
+                #     index_label_val = 1
+                #     print("TO LABEL: " + str(self.im.status[var]))
+                #     try:    
+                #         self.plotWin.variables[var][index_label_val].set_label(str(round(self.im.status[var], 2)))
+                #     except:
+                #         self.plotWin.variables[var][index_label_val].set_label(str(self.im.status[var]))
             
         
                 self.update_pics()

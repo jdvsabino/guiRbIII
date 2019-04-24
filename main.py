@@ -82,7 +82,7 @@ def cycle():
             continue
         dc.glob += 1
         print("Sleeping...")
-        time.sleep(10)
+        time.sleep(5)
         print("Awaken!")
         # #print("CURRENT GLOB: " + str(dc.glob))
         # read_data = dc.receiving_flag != 1 and dc.glob != info_man.dc.glob

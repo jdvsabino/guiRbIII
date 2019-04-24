@@ -55,8 +55,6 @@ class InfoManager():
 
     def update_data_buffer(self):
 
-        if dc.glob == self.dc.glob:
-            return False
         ###--- Make sure that dc is not being updated
         while(dc.receiving_flag == 1):
             continue
@@ -78,8 +76,7 @@ class InfoManager():
         win - main window where the info is displayed to the user 
         '''
 
-        if dc.glob == self.dc.glob:
-            return False
+        
         # update_data_buffer() ### INCLUDE THIS HERE??? Maybe in the end
         if self.cycle_num +1 == self.dc.loop:
             self.cycle_num +=1
