@@ -5,14 +5,18 @@ def atom_number(im):
 
 def sigma_H(im):
 
-    print("This is sigma_H! :D")
-    return 1
+    if len(im.abs_pic.fit_pars["x"])  == 0:
+        return -1
+    
+    return im.abs_pic.fit_pars["x"][2]
 
 
 def sigma_V(im):
-
-    print("This is sigma_V! :D")
-    return 0
+    
+    if len(im.abs_pic.fit_pars["y"])  == 0:
+        return -1
+    
+    return im.abs_pic.fit_pars["y"][2]
 
 
 def gen_func_dict(var, func):
@@ -24,7 +28,7 @@ def gen_func_dict(var, func):
 
     return func_dict
 
-var_list = ["Atom Number", "Sigma H", "Sigma V"]
+var_list  = ["Atom Number", "Sigma H", "Sigma V"]
 func_list = [atom_number, sigma_H, sigma_V]
 
 func_dict = gen_func_dict(var_list, func_list)
