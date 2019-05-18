@@ -78,8 +78,8 @@ class InfoManager():
         win - main window where the info is displayed to the user 
         '''
 
-        if dc.glob == self.dc.glob:
-            return False
+        # if dc.glob == self.dc.glob:
+        #     return False
         # update_data_buffer() ### INCLUDE THIS HERE??? Maybe in the end
         if self.cycle_num +1 == self.dc.loop:
             self.cycle_num +=1
@@ -155,6 +155,7 @@ class InfoManager():
         #     print("No Abs pic set!!")
 
         #win.update_abs_pic(self.abs_pic)
+        print("Paraaaaaaaa")
         win.abs_pic = self.abs_pic
         win.update_pics_controll = 1
         # win.set_picOriginal(self.abs_pic.pic)
@@ -235,7 +236,7 @@ class InfoManager():
         '''
 
         if self.variables == []:
-            self.variables = var_list
+            self.variables = list(var_list)
         
         self.var_computer= copy.deepcopy(func_dict)
         

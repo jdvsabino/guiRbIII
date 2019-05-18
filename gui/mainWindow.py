@@ -11,7 +11,7 @@ from matplotlib.figure import Figure
 from matplotlib.transforms import Bbox
 from matplotlib.backends.backend_gtk3cairo import FigureCanvasGTK3Cairo as FigureCanvas
 from matplotlib.backends.backend_gtk3 import NavigationToolbar2GTK3 as NavigationToolbar
-from numpy import sin, cos, pi, linspace, sqrt, zeros, int32, array
+from numpy import sin, cos, pi, linspace, sqrt, zeros, int32, array, sum
 from gui.plotWindow import *
 from gui.setRangeWindow import SetRangeWindow
 from gui.setRegionWindow import SetRegionWindow
@@ -206,7 +206,8 @@ class mainWindow(Gtk.Window):
 
         self.im = InfoManager()
         self.update_pics_controll = 0
-        GLib.timeout_add_seconds(2, self.update_functions)
+
+        
 
 
         # Plot Window
@@ -230,6 +231,7 @@ class mainWindow(Gtk.Window):
             print("Probably the number is not the same!")
         
         
+        GLib.timeout_add_seconds(2, self.update_functions)
         
         
         
@@ -259,7 +261,7 @@ class mainWindow(Gtk.Window):
     def set_picZoomed(self, image = None, font=6, colormap="RdYlBu_r"):
         import matplotlib.gridspec as gridspec
 
-    
+        
         gs = gridspec.GridSpec(4, 4, hspace=0.2, wspace=0.2)
 
 
@@ -338,6 +340,8 @@ class mainWindow(Gtk.Window):
         self.axes_abs[1].plot(img2.T, linspace(0, len(img2)-1, len(img2), dtype=int32), 'r', linewidth=1.)
         self.axes_abs[1].set_aspect("equal")
 
+        
+
         # left   = self.axes_abs[1].get_position().bounds[0]
         # right  = self.axes_abs[1].get_position().bounds[1]
         # width  = self.axes_abs[0].get_position().height
@@ -358,6 +362,13 @@ class mainWindow(Gtk.Window):
         # height = self.axes_abs[2].get_position().height                
         # self.axes_abs[2].set_position(Bbox(array([[left, right], [width, height]])))
         self.axes_abs[2].yaxis.set_visible(False)
+        print("SHAPADA")
+        try:
+            print(img3.shape)
+            print(self.im.abs_pic.fit_x.shape)
+        except:
+            print("morreu")
+        self.axes_abs[2].plot(self.im.abs_pic.fit_x, '.-b', linewidth=.1)
 
 
         self.fig_abs.canvas.draw()
@@ -405,11 +416,11 @@ class mainWindow(Gtk.Window):
 
         
     def set_picBkg(self, image = None, font = 6, colormap="RdYlBu_r", title = "Background"):
-
         try:
             self.axes_bkg = self.fig_bkg.add_subplot(111)
             self.axes_bkg.imshow(self.im.abs_pic.bkg_pic, cmap=colormap)
             
+
         except:
             print("INFO: Used argument as image.")
             image = zeros((256, 256)) ### TESTING
@@ -717,6 +728,8 @@ class mainWindow(Gtk.Window):
             right = int(self.rectangleROI.x_end)
             self.set_picZoomed(self.im.abs_pic.pic[up:down, left:right])
 
+            self.im.abs_pic.fit_integrated_x(plot=1)
+            self.im.abs_pic.fit_integrated_y()
             
             print("ROI recangle drawn!")
             self.chooseROI.set_active(False)
@@ -816,6 +829,27 @@ class mainWindow(Gtk.Window):
         
         return True
 
+    def update_plot_window(self):
+        n_runs = 3
+        var    = "Atom Number" 
+        try:
+
+            n_runs = int(self.plotWin.entryN_Runs.get_text())
+            
+            if n_runs > len(self.im.history[var]):
+                n_runs = len(self.im.history[var])
+            
+            if not self.plotWin.averge_control:
+                n_runs = 3
+
+        except Exception as e:
+            print("FAILED WITH ERROR: " + str(e))
+
+        
+        mean = sum(self.im.history["Atom Number"][-n_runs:])/n_runs
+        self.plotWin.meanLabel.set_text("Mean: " + str('%.2f' % mean))
+        
+        self.plotWin.gen_plot(self.im.history)
 
     def on_save_clicked(self, widget):
         dialog = Gtk.FileChooserDialog("Please choose a folder", self,
@@ -846,33 +880,37 @@ class mainWindow(Gtk.Window):
 
     
     def update_functions(self):
+        print("Funny stuff")
         try:
             import numpy as np
 
-            if dc.glob == self.im.dc.glob:
-                return True
+            # if dc.glob == self.im.dc.glob:
+            #     return True
             read_data = dc.receiving_flag != 1 and dc.glob != self.im.dc.glob
-            
+            print("READ DATA: " +  str(read_data))
             if read_data:
                 self.im.update_data_buffer()
                 self.im.update_info(self)
                 # self.plotWin.gen_plot(np.linspace(1,self.im.dc.glob,len(self.im.history[self.im.variables[0]])), self.im.history[self.im.variables[0]])
-                self.plotWin.gen_plot(self.im.history)
-                print("KEYS")
-                plotWin.variables.keys()))
+                self.update_plot_window()
+                
+                
                 for var in self.im.variables:
                     index_label_val = 1
                     print("TO LABEL: " + str(self.im.status[var]))
                     try:    
                         self.plotWin.variables[var][index_label_val].set_label(str(round(self.im.status[var], 2)))
                     except:
+                        
                         self.plotWin.variables[var][index_label_val].set_label(str(self.im.status[var]))
             
-        
+                print("Badum")
                 self.update_pics()
+                print("Tss...")
                 self.update_status()
         except Exception as e:
-            print("FAILED WITH ERROR: " +str(e))            
+            print("FAILED WITH ERROR: " +str(e)) 
+            
 
         return True
 

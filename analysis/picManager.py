@@ -55,6 +55,10 @@ class AbsorptionPicture(PictureManager):
         self.RBC = [1, 1, 1, 1]#rbcRectangle(1,1,1,1)
         self.bkg_correction = correction
 
+        self.fit_x    = 0
+        self.fit_y    = 0
+        self.fit_pars = {"x":[], "y":[]}
+
 
         '''
         Add a self.pic_roi?
@@ -190,19 +194,19 @@ class AbsorptionPicture(PictureManager):
         and returns the data of the fit. It alsor returns the plot if 
         plot == 1
         '''
-        
-        data = self.integrate_x()
-        length = len(data)
-        x_data = np.linspace(1,length, length)
-        mean = np.sum(data)/length
-        sigma = np.sum(np.sqrt((data - mean)**2))
-        print(mean)
-        print(sigma)
+
+        data       = self.integrate_x()
+        length     = len(data)
+        x_data     = np.linspace(1,length, length, endpoint=True)
+        mean       = np.sum(data)/length
+        sigma      = np.sum(np.sqrt((data - mean)**2))
         popt, pcov = curve_fit(self.gaussian_func, x_data, data, p0=[1, mean, sigma])
 
-        print(popt)
+        self.fit_x         = popt[0]*np.exp((x_data-mean)*(x_data-mean)/(2*sigma))
+        self.fit_pars["x"] = popt
 
         if plot:
+            print(popt)
             plt.plot(x_data, self.gaussian_func(x_data, popt[0],popt[1],popt[2]),"r")
             plt.plot(x_data, data, "b")
             plt.show()
@@ -219,14 +223,17 @@ class AbsorptionPicture(PictureManager):
         and returns the data of the fit. It alsor returns the plot if 
         plot == 1
         '''
-        data = self.integrate_y()
-        length = len(data)
-        x_data = np.linspace(1,length, length)
-        mean = np.sum(data)/length
-        sigma = np.sum(np.sqrt((data - mean)**2))
+        
+        data       = self.integrate_y()
+        length     = len(data)
+        print("X DATA LENGTH: " + str(length))
+        x_data     = np.linspace(1,length, length, endpoint=True)
+        mean       = np.sum(data)/length
+        sigma      = np.sum(np.sqrt((data - mean)**2))
         popt, pcov = curve_fit(self.gaussian_func, x_data, data, p0=[1, mean, sigma])
 
-        print(popt)
+        self.fit_y         = popt[0]*np.exp((x_data-mean)*(x_data-mean)/(2*sigma))
+        self.fit_pars["y"] = popt
 
         if plot:
             plt.plot(x_data, self.gaussian_func(x_data, popt[0],popt[1],popt[2]),"r")
