@@ -203,15 +203,18 @@ class newPlotWindow(Gtk.Window):
         
         self.averageLabel = Gtk.Label("Average over")
         self.plotSettingsBox.pack_start(self.averageLabel, True, True, 0)
+        self.averge_control = 0
         
         self.av3_Button = Gtk.RadioButton.new_with_label_from_widget(None, "3 runs")
         self.plotSettingsBox.pack_start(self.av3_Button, True, True, 0)
+        self.av3_Button.connect("clicked", self.set_average)
 
         self.avN_Button = Gtk.RadioButton.new_from_widget(self.av3_Button)
         self.avN_Button.set_label("N runs")
         self.plotSettingsBox.pack_start(self.avN_Button, True, True, 0)
-
-        self.entryN_Runs = Gtk.Entry(text = "")
+        self.avN_Button.connect("clicked", self.set_average)
+        
+        self.entryN_Runs = Gtk.Entry(text = "Insert no. runs")
         self.plotSettingsBox.pack_start(self.entryN_Runs, True, True, 0)
 
         self.meanLabel = Gtk.Label("Mean: 0.0")
@@ -495,3 +498,12 @@ class newPlotWindow(Gtk.Window):
         self.fig.canvas.draw()
         self.canvas.draw()
 
+    def set_average(self, *data):
+
+        if self.av3_Button.get_active():
+            self.averge_control = 0
+            print("Avereging over 3 runs")
+
+        elif self.avN_Button.get_active():
+            self.averge_control = 1
+            print("Avereging over N runs")
