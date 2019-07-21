@@ -283,6 +283,8 @@ class mainWindow(Gtk.Window):
             img2 = self.im.abs_pic.integrate_y()
             img3 = self.im.abs_pic.integrate_x()
 
+            self.im.abs_pic.fit_integrated_x("x")#plot=1)
+            self.im.abs_pic.fit_integrated_x("y")
 
             ###---- Cleans axes
             for ax in self.axes_abs:
@@ -309,7 +311,7 @@ class mainWindow(Gtk.Window):
         self.axes_abs.append(self.fig_abs.add_subplot(gs[-1, :-1], yticklabels=[], sharex=self.axes_abs[0]))
 
 
-        cset = self.axes_abs[0].imshow(img1, cmap=colormap)#, aspect="auto")
+        cset = self.axes_abs[0].imshow(img1, cmap=colormap)
         self.axes_abs[0].xaxis.set_alpha(0.)
         self.axes_abs[0].xaxis.set_visible(False)
         self.axes_abs[0].yaxis.set_visible(False)    
@@ -338,6 +340,7 @@ class mainWindow(Gtk.Window):
         self.axes_abs[1].set_yticklabels([])
         self.axes_abs[1].invert_xaxis()
         self.axes_abs[1].plot(img2.T, linspace(0, len(img2)-1, len(img2), dtype=int32), 'r', linewidth=1.)
+        self.axes_abs[1].plot(self.im.abs_pic.fit_y.T, linspace(0, len(img2)-1, len(img2)), '--b', linewidth=0.5)
         self.axes_abs[1].set_aspect("equal")
 
         
@@ -349,26 +352,27 @@ class mainWindow(Gtk.Window):
         # self.axes_abs[1].set_position(Bbox(array([[left, right], [width, height]])))
         self.axes_abs[1].yaxis.set_ticks_position('right')
         self.axes_abs[1].xaxis.set_visible(False)
-        self.axes_abs[1].set_aspect("equal", adjustable="box", anchor="C")                
+        self.axes_abs[1].set_aspect("equal", adjustable="box", anchor="C")
 
         #self.axes_abs[2].set_major_locator(ML)
         #aspect_ratio = position.width/self.picSize[0]/4
 
         self.axes_abs[2].plot(img3,'r', linewidth=1.)
-        self.axes_abs[2].set_aspect("equal", adjustable="box", anchor="C")        
+#        self.axes_abs[2].set_aspect("equal", adjustable="box", anchor="C")        
         # left   = self.axes_abs[2].get_position().bounds[0]
         # right  = self.axes_abs[2].get_position().bounds[1]
         # width  = self.axes_abs[0].get_position().width
         # height = self.axes_abs[2].get_position().height                
         # self.axes_abs[2].set_position(Bbox(array([[left, right], [width, height]])))
-        self.axes_abs[2].yaxis.set_visible(False)
+#        self.axes_abs[2].yaxis.set_visible(True)
         print("SHAPADA")
         try:
             print(img3.shape)
             print(self.im.abs_pic.fit_x.shape)
-        except:
+        except:# e as Exception:
+            #print(e)
             print("morreu")
-        self.axes_abs[2].plot(self.im.abs_pic.fit_x, '.-b', linewidth=.1)
+        self.axes_abs[2].plot(self.im.abs_pic.fit_x, '--b', linewidth=0.5)
 
 
         self.fig_abs.canvas.draw()
@@ -728,8 +732,8 @@ class mainWindow(Gtk.Window):
             right = int(self.rectangleROI.x_end)
             self.set_picZoomed(self.im.abs_pic.pic[up:down, left:right])
 
-            self.im.abs_pic.fit_integrated_x(plot=1)
-            self.im.abs_pic.fit_integrated_y()
+            # self.im.abs_pic.fit_integrated_x()#plot=1)
+            # self.im.abs_pic.fit_integrated_y()
             
             print("ROI recangle drawn!")
             self.chooseROI.set_active(False)
