@@ -199,14 +199,30 @@ class AbsorptionPicture(PictureManager):
         return NotImplemented
         
 
-    def fit_integrated_x(self, x_min=0, x_max=0, tol=0.2, plot=0):
+    def fit_integrated_x(self, axis, x_min=0, x_max=0, tol=0.2, plot=0):
         ''' 
-        Fits a gaussian function to the picture summed over y
+        Fits a gaussian function to the picture summed over y (or x?)
         and returns the data of the fit. It also returns the plot if 
         plot == 1.
         '''
+        if  axis == "x":
+            axis = 0;
+            
+        elif axis == "y":
+            axis = 1;
 
-        data       = self.integrate_x()
+        elif type(axis) == str:
+            print("Check the axis you want to fit!")
+        
+        if axis == 0:
+            data = self.integrate_x()
+        elif axis ==1:
+            data = self.integrate_y()
+        else:
+            print("Please choos the axis correctly!")
+            return -1
+            
+        
         length     = len(data)
         x_data     = np.linspace(1,length, length, endpoint=True)
 
@@ -236,8 +252,12 @@ class AbsorptionPicture(PictureManager):
         
         popt, pcov = curve_fit(self.gaussian_func, x_data, data, p0=[np.max(data), mean, sigma])
 
-        self.fit_x         = popt[0]*np.exp((x_data-mean)*(x_data-mean)/(2*sigma))
-        self.fit_pars["x"] = popt
+        if axis == 0:
+            self.fit_x         = popt[0]*np.exp(-0.5*(x_data-popt[1])*(x_data-popt[1])/popt[2])
+            self.fit_pars["x"] = popt
+        else:
+            self.fit_y         = popt[0]*np.exp(-0.5*(x_data-popt[1])*(x_data-popt[1])/popt[2])
+            self.fit_pars["y"] = popt
 
         if plot:
             print(popt)
