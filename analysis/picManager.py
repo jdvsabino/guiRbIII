@@ -186,21 +186,55 @@ class AbsorptionPicture(PictureManager):
         '''
         print("INT YYY - shape: " +str(self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[3]].shape))
         return np.sum(self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[3]], axis=1) # Currently only works with tiff images or other format that is a 2D array
-    
 
-    def fit_integrated_x(self, plot=0):
+    def integrate_abs_pic(axis):
+        '''
+        Integrates the absorpption picture in the desired direction.
+        
+        axis = 0 - integrates over xx (cloud along y)
+        axis = 1 - integrates over yy (cloud along x)
+
+        TODO
+        '''
+        return NotImplemented
+        
+
+    def fit_integrated_x(self, x_min=0, x_max=0, tol=0.2, plot=0):
         ''' 
         Fits a gaussian function to the picture summed over y
-        and returns the data of the fit. It alsor returns the plot if 
-        plot == 1
+        and returns the data of the fit. It also returns the plot if 
+        plot == 1.
         '''
 
         data       = self.integrate_x()
         length     = len(data)
         x_data     = np.linspace(1,length, length, endpoint=True)
-        mean       = np.sum(data)/length
-        sigma      = np.sum(np.sqrt((data - mean)**2))
-        popt, pcov = curve_fit(self.gaussian_func, x_data, data, p0=[1, mean, sigma])
+
+
+        ### Parameter estimation to help the fit
+        sigma = 0
+        mean  = 0
+        
+        mean_temp  = np.sum(data)/length
+        temp       = np.array(data)
+        
+        temp[temp<mean_temp] = 0
+
+
+        for i in range(1, len(data)): # starts in 1 to be sure we have one index before
+            if temp[i] > 0 and temp[i-1] == 0:
+                sigma = x_data[i]
+
+            if  temp[i] > 0 and temp[i+1] == 0:
+                mean  = (sigma + x_data[i])/2
+                sigma = x_data[i] - sigma
+            
+        print("MEAN: " + str(mean))
+        print("SIGMA: " + str(sigma))
+        print("MAXIMUM:" + str(np.max(data)))
+        print(self.ROI)
+        
+        popt, pcov = curve_fit(self.gaussian_func, x_data, data, p0=[np.max(data), mean, sigma])
 
         self.fit_x         = popt[0]*np.exp((x_data-mean)*(x_data-mean)/(2*sigma))
         self.fit_pars["x"] = popt
@@ -230,7 +264,7 @@ class AbsorptionPicture(PictureManager):
         x_data     = np.linspace(1,length, length, endpoint=True)
         mean       = np.sum(data)/length
         sigma      = np.sum(np.sqrt((data - mean)**2))
-        popt, pcov = curve_fit(self.gaussian_func, x_data, data, p0=[1, mean, sigma])
+        popt, pcov = curve_fit(self.gaussian_func, x_data, data, p0=[np.max(data), mean, sigma])
 
         self.fit_y         = popt[0]*np.exp((x_data-mean)*(x_data-mean)/(2*sigma))
         self.fit_pars["y"] = popt
@@ -247,8 +281,8 @@ class AbsorptionPicture(PictureManager):
         return NotImplementedError
 
     def gaussian_func(self, x, a, b, c):
-
-        gauss = a*np.exp(np.power((x - b)/(2*c*c),2))
+        
+        gauss = a*np.exp(-0.5*(x-b)*(x-b)/c) 
         return gauss
         
     
