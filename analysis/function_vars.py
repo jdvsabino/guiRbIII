@@ -1,3 +1,4 @@
+import numpy as np
 def atom_number(im):
 
     return im.atom_num
@@ -8,7 +9,7 @@ def sigma_H(im):
     if len(im.abs_pic.fit_pars["x"])  == 0:
         return -1
     
-    return im.abs_pic.fit_pars["x"][2]
+    return np.sqrt(im.abs_pic.fit_pars["x"][2])
 
 
 def sigma_V(im):
@@ -16,7 +17,7 @@ def sigma_V(im):
     if len(im.abs_pic.fit_pars["y"])  == 0:
         return -1
     
-    return im.abs_pic.fit_pars["y"][2]
+    return np.sqrt(im.abs_pic.fit_pars["y"][2])
 
 
 def gen_func_dict(var, func):
