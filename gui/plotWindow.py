@@ -3,7 +3,7 @@ import sys, os
 gi.require_version('Gtk', '3.0')
 sys.path.append('../')
 sys.path.append('./classes/')
-from gi.repository import Gtk, Gdk, GdkPixbuf
+from gi.repository import Gtk, Gdk, GdkPixbuf, GLib
 from gui.setRangeWindow import SetRangeWindow
 import matplotlib.image as mpimg
 from matplotlib.figure import Figure
@@ -267,6 +267,9 @@ class newPlotWindow(Gtk.Window):
             temp_label_val  = Gtk.Label("empty")
             temp_chk_button = Gtk.CheckButton()
 
+            if i == 0:
+                temp_chk_button.set_active(True)
+
             self.variables[temp_name] = [temp_label, temp_label_val, temp_chk_button]
             self.var_boxes.append(Gtk.Box(orientation = Gtk.Orientation.HORIZONTAL, spacing = 3))
             
@@ -388,7 +391,12 @@ class newPlotWindow(Gtk.Window):
         self.set_range_window.connect("delete-event", self.on_destroy_range_window)
         self.set_range_window.hide()
         self.set_range_window.setButton.connect("clicked", self.set_range)
-        
+
+        ''' TODO
+        Make the plot in plotWindow run faster
+        '''
+        # self.info_from_main = None
+        # GLib.timeout_add_seconds(0.5, self.gen_plot, self.info_from_main)
 
     ### CALL BACK FUNCTIONS ###
     def on_setRangeButton_clicked(self, *data):
