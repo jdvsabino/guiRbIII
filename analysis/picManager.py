@@ -129,13 +129,16 @@ class AbsorptionPicture(PictureManager):
             print("ROIZINHO: " + str(self.ROI[3]))
             print("SHAPEZINHA: " + str(self.pic.shape))
             #final_pic = self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[4]]
-            final_pic = self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[3]]
+            final_pic  = self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[3]]
+            background = self.pic[self.RBC[0]:self.RBC[1], self.RBC[2]:self.RBC[3]]
 
         except Exception as e:
             print(e)
             print("Couldnt compute atomnumber with ROI. Using whole picture!")
             final_pic = self.pic
+
         atom_number = self.cam.pixel_size*self.cam.pixel_size/(self.cam.magnification*self.cam.magnification)/self.cam.abs_cross*np.sum(np.sum(final_pic))
+       # atom_number = self.cam.pixel_size*self.cam.pixel_size/(self.cam.magnification*self.cam.magnification)/self.cam.abs_cross*np.sum(np.sum(final_pic - background))  # Is this correct??   
 
         return atom_number
 
@@ -219,7 +222,7 @@ class AbsorptionPicture(PictureManager):
         elif axis ==1:
             data = self.integrate_y()
         else:
-            print("Please choos the axis correctly!")
+            print("Please choose the axis correctly!")
             return -1
             
         
@@ -251,6 +254,7 @@ class AbsorptionPicture(PictureManager):
         print(self.ROI)
         
         popt, pcov = curve_fit(self.gaussian_func, x_data, data, p0=[np.max(data), mean, sigma])
+        print("FIT PARS: " + str(popt))
 
         if axis == 0:
             self.fit_x         = popt[0]*np.exp(-0.5*(x_data-popt[1])*(x_data-popt[1])/popt[2])
