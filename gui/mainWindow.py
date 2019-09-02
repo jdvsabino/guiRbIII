@@ -79,6 +79,7 @@ class mainWindow(Gtk.Window):
         self.camSelect.append_text("LAndor")
         self.camSelect.append_text("VAndor")
         self.camSelect.append_text("Auto")
+        self.camSelect.set_active(3)
         self.camSelectBox.pack_start(self.camSelect, True, True, 0)
 
         self.chooseROI = Gtk.ToggleButton(label="Choose ROI")
@@ -204,6 +205,35 @@ class mainWindow(Gtk.Window):
         # self.set_region_window.show_all()
         # self.set_region_window.hide()
 
+        # Regions for cameras
+        # Index order:
+        #      0 - TAndor
+        #      1 - LAndor
+        #      2 - Vandor
+        self.cam_regions = [dict(), dict(), dict()]
+        
+        with open("./gui/regions_info.txt") as f:
+            print("HERE WE GO!!!!!!")
+            for line in f.readlines():
+
+                if line[0] == "#" or line[0] == "\n":
+                    pass
+                else:
+                    line_temp = line.split(":")
+                    print(line[0])
+                    if   line_temp[0] == "TANDOR":
+                        self.cam_regions[0]["ROI"] = [int(s) for s in line[1].split(" ")]
+                        self.cam_regions[0]["RBC"] = [int(s) for s in line[2].split(" ")]                        
+
+                    elif line_temp[0] == "LANDOR":
+                        self.cam_regions[1]["ROI"] = [int(s) for s in line[1].split(" ")]
+                        self.cam_regions[1]["RBC"] = [int(s) for s in line[2].split(" ")]                                                
+
+                    elif line_temp[0] == "VANDOR":
+                        self.cam_regions[2]["ROI"] = [int(s) for s in line[1].split(" ")]
+                        self.cam_regions[2]["RBC"] = [int(s) for s in line[2].split(" ")]                                
+
+            print(self.cam_regions)
         self.im = InfoManager()
         self.update_pics_controll = 0
 
@@ -231,7 +261,7 @@ class mainWindow(Gtk.Window):
             print("Probably the number is not the same!")
         
         
-        GLib.timeout_add_seconds(2, self.update_functions)
+        GLib.timeout_add_seconds(2., self.update_functions)
         
         
         
@@ -307,18 +337,19 @@ class mainWindow(Gtk.Window):
         
         self.axes_abs = []
         self.axes_abs.append(self.fig_abs.add_subplot(gs[:-1, :-1]))
-        self.axes_abs.append(self.fig_abs.add_subplot(gs[:-1, -1], xticklabels=[], sharey=self.axes_abs[0]))
-        self.axes_abs.append(self.fig_abs.add_subplot(gs[-1, :-1], yticklabels=[], sharex=self.axes_abs[0]))
+        self.axes_abs.append(self.fig_abs.add_subplot(gs[:-1, -1], xticklabels=[]))#, sharey=self.axes_abs[0]))
+        self.axes_abs.append(self.fig_abs.add_subplot(gs[-1, :-1], yticklabels=[]))#, sharex=self.axes_abs[0]))
 
 
         cset = self.axes_abs[0].imshow(img1, cmap=colormap)
         self.axes_abs[0].xaxis.set_alpha(0.)
+        self.axes_abs[0].yaxis.set_alpha(0.)
         self.axes_abs[0].xaxis.set_visible(False)
         self.axes_abs[0].yaxis.set_visible(False)    
-        self.axes_abs[0].yaxis.set_alpha(0.)
         self.axes_abs[0].yaxis.set_ticks_position('right')
         self.axes_abs[0].tick_params(labelsize = font)
-
+        self.axes_abs[0].set_aspect(aspect="equal", adjustable="box", anchor="C", share=True)
+        aspect_ratio = self.axes_abs[0].get_data_ratio()
 
         ###---- COLORBAR
         # TODO:
@@ -334,45 +365,59 @@ class mainWindow(Gtk.Window):
         # TODO:
         #      - Adjust size properly
         #
-        pos_ref = self.axes_abs[0].get_position()
-
-
-        self.axes_abs[1].set_yticklabels([])
-        self.axes_abs[1].invert_xaxis()
-        self.axes_abs[1].plot(img2.T, linspace(0, len(img2)-1, len(img2), dtype=int32), 'r', linewidth=1.)
-        self.axes_abs[1].plot(self.im.abs_pic.fit_y.T, linspace(0, len(img2)-1, len(img2)), '--b', linewidth=0.5)
-        self.axes_abs[1].set_aspect("equal")
+        #pos_ref = self.axes_abs[0].get_position()
+        #asp = np.diff(self.axes_abs[].get_xlim())[0] / np.diff(ax2.get_ylim())[0]
+        try:
+            # self.axes_abs[1].set_yticklabels([])
+            print("Dims pic:"  + str(img2.shape))
+            print("Dims axis:" + str(img2.shape))
+            
+            self.axes_abs[1].invert_xaxis()
+            self.axes_abs[1].plot(img2[::-1].T, linspace(0, len(img2)-1, len(img2), dtype=int32), 'b', linewidth=1.2)
+            self.axes_abs[1].plot(self.im.abs_pic.fit_y[::-1].T, linspace(0, len(img2)-1, len(img2)), '--r', linewidth=0.7)
+            # self.axes_abs[1].selfet_aspect("equal")
 
         
 
-        # left   = self.axes_abs[1].get_position().bounds[0]
-        # right  = self.axes_abs[1].get_position().bounds[1]
-        # width  = self.axes_abs[0].get_position().height
-        # height = self.axes_abs[1].get_position().height        
-        # self.axes_abs[1].set_position(Bbox(array([[left, right], [width, height]])))
-        self.axes_abs[1].yaxis.set_ticks_position('right')
-        self.axes_abs[1].xaxis.set_visible(False)
-        self.axes_abs[1].set_aspect("equal", adjustable="box", anchor="C")
+            # left   = self.axes_abs[1].get_position().bounds[0]
+            # right  = self.axes_abs[1].get_position().bounds[1]
+            # width  = self.axes_abs[0].get_position().height
+            # height = self.axes_abs[1].get_position().height        
+            # self.axes_abs[1].set_position(Bbox(array([[left, right], [width, height]])))
+            self.axes_abs[1].yaxis.set_ticks_position('right')
+            self.axes_abs[1].xaxis.set_visible(False)
+            self.axes_abs[1].set_aspect(aspect=aspect_ratio, adjustable="box", anchor="C")
+            
+            #self.axes_abs[2].set_major_locator(ML)
+            #aspect_ratio = position.width/self.picSize[0]/4
+        except Exception as e:
+            print("ERROR:" + str(e))
+            print("Setting right plot failed!")
 
-        #self.axes_abs[2].set_major_locator(ML)
-        #aspect_ratio = position.width/self.picSize[0]/4
-
-        self.axes_abs[2].plot(img3,'r', linewidth=1.)
-#        self.axes_abs[2].set_aspect("equal", adjustable="box", anchor="C")        
-        # left   = self.axes_abs[2].get_position().bounds[0]
-        # right  = self.axes_abs[2].get_position().bounds[1]
-        # width  = self.axes_abs[0].get_position().width
-        # height = self.axes_abs[2].get_position().height                
-        # self.axes_abs[2].set_position(Bbox(array([[left, right], [width, height]])))
-#        self.axes_abs[2].yaxis.set_visible(True)
-        print("SHAPADA")
+        
         try:
-            print(img3.shape)
-            print(self.im.abs_pic.fit_x.shape)
-        except:# e as Exception:
-            #print(e)
-            print("morreu")
-        self.axes_abs[2].plot(self.im.abs_pic.fit_x, '--b', linewidth=0.5)
+            
+            self.axes_abs[2].plot(img3,'b', linewidth=1.2)
+            #        self.axes_abs[2].set_aspect("equal", adjustable="box", anchor="C")        
+            # left   = self.axes_abs[2].get_position().bounds[0]
+            # right  = self.axes_abs[2].get_position().bounds[1]
+            # width  = self.axes_abs[0]self.get_position().width
+            # height = self.axes_abs[2].get_position().height                
+            # self.axes_abs[2].set_position(Bbox(array([[left, right], [width, height]])))
+            #        self.axes_abs[2].yaxis.set_visible(True)
+            print("SHAPADA")
+            try:
+                print(img3.shape)
+                print(self.im.abs_pic.fit_x.shape)
+            except:# e as Exception:
+                #print(e)
+                print("morreu")
+            self.axes_abs[2].plot(self.im.abs_pic.fit_x, '--r', linewidth=0.7)
+            self.axes_abs[2].set_aspect(aspect=aspect_ratio, adjustable="box", anchor="C")
+
+        except Exception as e:
+            print("ERROR: " + str(e))
+            print("Setting bottom plot failed")
 
 
         self.fig_abs.canvas.draw()
@@ -852,7 +897,8 @@ class mainWindow(Gtk.Window):
         
         mean = sum(self.im.history["Atom Number"][-n_runs:])/n_runs
         self.plotWin.meanLabel.set_text("Mean: " + str('%.2f' % mean))
-        
+
+        # self.plotWin.info_from_main = self.im.history
         self.plotWin.gen_plot(self.im.history)
 
     def on_save_clicked(self, widget):
