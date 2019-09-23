@@ -225,9 +225,10 @@ class AbsorptionPicture(PictureManager):
             print("Please choose the axis correctly!")
             return -1
             
-        
         length     = len(data)
         x_data     = np.linspace(1,length, length, endpoint=True)
+        print("DATA LEN X: " + str(x_data.shape))
+        print("DATA LEN Y: " + str(length))
 
 
         ### Parameter estimation to help the fit
@@ -248,6 +249,8 @@ class AbsorptionPicture(PictureManager):
                 mean  = (sigma + x_data[i])/2
                 sigma = x_data[i] - sigma
             
+        print("Até aqui, tudo bem...")
+        
         print("MEAN: " + str(mean))
         print("SIGMA: " + str(sigma))
         print("MAXIMUM:" + str(np.max(data)))
@@ -259,9 +262,11 @@ class AbsorptionPicture(PictureManager):
         if axis == 0:
             self.fit_x         = popt[0]*np.exp(-0.5*(x_data-popt[1])*(x_data-popt[1])/popt[2])
             self.fit_pars["x"] = popt
-        else:
+        elif axis == 1:
             self.fit_y         = popt[0]*np.exp(-0.5*(x_data-popt[1])*(x_data-popt[1])/popt[2])
             self.fit_pars["y"] = popt
+        else:
+            print("Wrong selections of axis...")
 
         if plot:
             print(popt)
