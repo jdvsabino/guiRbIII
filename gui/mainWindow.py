@@ -216,22 +216,23 @@ class mainWindow(Gtk.Window):
             print("HERE WE GO!!!!!!")
             for line in f.readlines():
 
+                print(line)
                 if line[0] == "#" or line[0] == "\n":
                     pass
                 else:
                     line_temp = line.split(":")
-                    print(line[0])
+                    separator = " "
                     if   line_temp[0] == "TANDOR":
-                        self.cam_regions[0]["ROI"] = [int(s) for s in line[1].split(" ")]
-                        self.cam_regions[0]["RBC"] = [int(s) for s in line[2].split(" ")]                        
+                        self.cam_regions[0]["ROI"] = [int(s) for s in line_temp[1].split(separator)]
+                        self.cam_regions[0]["RBC"] = [int(s) for s in line_temp[2].split(separator)]                        
 
                     elif line_temp[0] == "LANDOR":
-                        self.cam_regions[1]["ROI"] = [int(s) for s in line[1].split(" ")]
-                        self.cam_regions[1]["RBC"] = [int(s) for s in line[2].split(" ")]                                                
+                        self.cam_regions[1]["ROI"] = [int(s) for s in line_temp[1].split(separator)]
+                        self.cam_regions[1]["RBC"] = [int(s) for s in line_temp[2].split(separator)]                                                
 
                     elif line_temp[0] == "VANDOR":
-                        self.cam_regions[2]["ROI"] = [int(s) for s in line[1].split(" ")]
-                        self.cam_regions[2]["RBC"] = [int(s) for s in line[2].split(" ")]                                
+                        self.cam_regions[2]["ROI"] = [int(s) for s in line_temp[1].split(separator)]
+                        self.cam_regions[2]["RBC"] = [int(s) for s in line_temp[2].split(separator)]                                
 
             print(self.cam_regions)
         self.im = InfoManager()
@@ -302,10 +303,10 @@ class mainWindow(Gtk.Window):
             left  = int(self.im.abs_pic.ROI[2])
             right = int(self.im.abs_pic.ROI[3])
             
-            print("ROI: " + str(self.im.abs_pic.ROI))
-            print("Up: " + str(up))
-            print("Down: " + str(down))
-            print("Left: " + str(left))
+            print("ROI: "   + str(self.im.abs_pic.ROI))
+            print("Up: "    + str(up))
+            print("Down: "  + str(down))
+            print("Left: "  + str(left))
             print("Right: " + str(right))
             
             print("**** SETTING ZOOM PIC ****")
@@ -314,8 +315,9 @@ class mainWindow(Gtk.Window):
             img3 = self.im.abs_pic.integrate_x()
 
             self.im.abs_pic.fit_integrated_x("x")#plot=1)
+            print("Passou!")
             self.im.abs_pic.fit_integrated_x("y")
-
+            print("Passou!")
             ###---- Cleans axes
             for ax in self.axes_abs:
                 ax.remove()
