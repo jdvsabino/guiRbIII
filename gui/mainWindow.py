@@ -139,8 +139,9 @@ class mainWindow(Gtk.Window):
         #self.rightBox.set_center_widget(self.picGrid)
 
 
-        self.picSize = [250, 160]
+        self.picSize    = [250, 160]
         self.first_time = 0
+
 
 
 
@@ -339,8 +340,8 @@ class mainWindow(Gtk.Window):
         
         self.axes_abs = []
         self.axes_abs.append(self.fig_abs.add_subplot(gs[:-1, :-1]))
-        self.axes_abs.append(self.fig_abs.add_subplot(gs[:-1, -1], xticklabels=[]))#, sharey=self.axes_abs[0]))
-        self.axes_abs.append(self.fig_abs.add_subplot(gs[-1, :-1], yticklabels=[]))#, sharex=self.axes_abs[0]))
+        self.axes_abs.append(self.fig_abs.add_subplot(gs[:-1, -1]))#, xticklabels=[]))#, sharey=self.axes_abs[0]))
+        self.axes_abs.append(self.fig_abs.add_subplot(gs[-1, :-1]))#, yticklabels=[]))#, sharex=self.axes_abs[0]))
 
 
         cset = self.axes_abs[0].imshow(img1, cmap=colormap)
@@ -373,10 +374,15 @@ class mainWindow(Gtk.Window):
             # self.axes_abs[1].set_yticklabels([])
             print("Dims pic:"  + str(img2.shape))
             print("Dims axis:" + str(img2.shape))
-            
+            tick_axis = linspace(0, img2.shape[0], img2.shape[0], dtype=int32)*self.im.abs_pic.cam.pixel2um
+            print("\n\n\n\n\n x_axis:")
+            print(tick_axis)
+            print("\n\n\n\n\n")
             self.axes_abs[1].invert_xaxis()
-            self.axes_abs[1].plot(img2[::-1].T, linspace(0, len(img2)-1, len(img2), dtype=int32), 'b', linewidth=1.2)
-            self.axes_abs[1].plot(self.im.abs_pic.fit_y[::-1].T, linspace(0, len(img2)-1, len(img2)), '--r', linewidth=0.7)
+            self.axes_abs[1].plot(img2[::-1].T, tick_axis, 'b', linewidth=1.2)
+            self.axes_abs[1].plot(self.im.abs_pic.fit_y[::-1].T, tick_axis, '--r', linewidth=0.7)
+            #self.axes_abs[1].yticks(ticks=x_axis)
+            #self.axes_abs[1].yaxis.set_ticks_position('right')
             # self.axes_abs[1].selfet_aspect("equal")
 
         
@@ -387,7 +393,7 @@ class mainWindow(Gtk.Window):
             # height = self.axes_abs[1].get_position().height        
             # self.axes_abs[1].set_position(Bbox(array([[left, right], [width, height]])))
             self.axes_abs[1].yaxis.set_ticks_position('right')
-            self.axes_abs[1].xaxis.set_visible(False)
+            #self.axes_abs[1].xaxis.set_visible(False)
             self.axes_abs[1].set_aspect(aspect=aspect_ratio, adjustable="box", anchor="C")
             
             #self.axes_abs[2].set_major_locator(ML)
@@ -398,8 +404,9 @@ class mainWindow(Gtk.Window):
 
         
         try:
-            
-            self.axes_abs[2].plot(img3,'b', linewidth=1.2)
+
+            tick_axis = linspace(0, img3.shape[0], img3.shape[0], dtype=int32)*self.im.abs_pic.cam.pixel2um*3
+            self.axes_abs[2].plot(tick_axis, img3,'b', linewidth=1.2)
             #        self.axes_abs[2].set_aspect("equal", adjustable="box", anchor="C")        
             # left   = self.axes_abs[2].get_position().bounds[0]
             # right  = self.axes_abs[2].get_position().bounds[1]
@@ -414,7 +421,7 @@ class mainWindow(Gtk.Window):
             except:# e as Exception:
                 #print(e)
                 print("morreu")
-            self.axes_abs[2].plot(self.im.abs_pic.fit_x, '--r', linewidth=0.7)
+            self.axes_abs[2].plot(tick_axis, self.im.abs_pic.fit_x, '--r', linewidth=0.7)
             self.axes_abs[2].set_aspect(aspect=aspect_ratio, adjustable="box", anchor="C")
 
         except Exception as e:
@@ -983,5 +990,13 @@ class mainWindow(Gtk.Window):
 
         if widget.get_active_text is "Auto":
             print("Camera will be selected automatically.")
-        else:
-            print(widget.get_active_text() + " is active!")
+            
+        elif widget.get_active_text() == "TAndor":
+            raise NotImplemented
+
+        elif widget.get_active_text() == "LAndor":
+            raise NotImplemented
+        elif widget.get_active_text() == "VAndor":
+            raise NotImplemented
+        
+        print(widget.get_active_text() + " is active!")

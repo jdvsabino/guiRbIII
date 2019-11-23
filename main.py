@@ -40,7 +40,7 @@ win = mainWindow()
 win.connect("destroy", Gtk.main_quit)
 im1 = mpimg.imread("./atoms.tif")
 im2 = mpimg.imread("./noatoms.tif")
-im3 = mpimg.imread("./manos_na_neve.png")
+im3 = mpimg.imread("./bicla.jpg")
 
 win.im.atom_pic = PictureManager(im1)
 win.im.no_atom_pic = PictureManager(im2)
