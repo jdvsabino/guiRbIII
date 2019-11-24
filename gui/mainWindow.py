@@ -577,6 +577,76 @@ class mainWindow(Gtk.Window):
             if button_event_end_id != None:
                 self.canvasOriginal.mpl_disconnect(button_event_end_id)
     
+    def set_region_cam(self, cam_id, *data):
+        if self.regionControl != -1:
+            try:
+                self.canvasOriginal.figure.axes[0].patches = []
+                self.canvasOriginal.figure.axes[1].patches = []
+            except:
+                print("Probably there's no roi area to clean!")
+
+        up_roi    = self.cam_regions[cam_id]["ROI"][0]
+        down_roi  = self.cam_regions[cam_id]["ROI"][1]
+        left_roi  = self.cam_regions[cam_id]["ROI"][2]
+        right_roi = self.cam_regions[cam_id]["ROI"][3]
+
+        up_rbc    = self.cam_regions[cam_id]["RBC"][0]
+        down_rbc  = self.cam_regions[cam_id]["RBC"][1]
+        left_rbc  = self.cam_regions[cam_id]["RBC"][2]
+        right_rbc = self.cam_regions[cam_id]["RBC"][3]
+
+        ###---- Get data for ROI and RBC
+        self.rectangleROI.x_start = left_roi
+        self.rectangleROI.x_end   = right_roi
+        self.rectangleROI.y_start = up_roi
+        self.rectangleROI.y_end   = down_roi
+
+        self.rectangleRBC.x_start = left_rbc
+        self.rectangleRBC.x_end   = right_rbc
+        self.rectangleRBC.y_start = up_rbc
+        self.rectangleRBC.y_end   = down_rbc
+
+
+        self.rectangleROI.drawRectangle()
+        #print(self.canvasOriginal.figure.axes)
+        self.canvasOriginal.figure.axes[0].add_patch(self.rectangleROI.rectangle)
+        print(self.canvasOriginal.figure.axes[0].patches)
+        #self.canvasOriginal.draw_idle()
+        print("done! \n")
+            
+        #self.canvasOriginal.figure.axes[0] = axes_temp
+        self.canvasOriginal.show_all()
+        self.canvasOriginal.draw_idle()
+        
+        #self.canvasOriginal.draw()
+        self.regionControl = 0
+        self.im.abs_pic.set_ROI(rectangle = self.rectangleROI)
+
+
+
+        self.rectangleRBC.drawRectangle()
+
+        self.canvasOriginal.figure.axes[0].add_patch(self.rectangleRBC.rectangle)
+        print(self.canvasOriginal.figure.axes[0].patches)
+        
+        print("done! \n")
+            
+        #self.canvasOriginal.figure.axes[0] = axes_temp
+        self.canvasOriginal.show_all()
+        self.canvasOriginal.draw_idle()
+        self.regionControl = 1
+            
+        self.im.abs_pic.set_RBC(rectangle = self.rectangleRBC)
+        
+        ###--- plot the ROI
+        up    = int(self.rectangleROI.y_start)
+        down  = int(self.rectangleROI.y_end)
+        left  = int(self.rectangleROI.x_start)
+        right = int(self.rectangleROI.x_end)
+        self.set_picZoomed(self.im.abs_pic.pic[up:down, left:right])
+
+        # self.regionControl = -1
+
 
     def set_region_manual(self, *data):
 
@@ -992,11 +1062,12 @@ class mainWindow(Gtk.Window):
             print("Camera will be selected automatically.")
             
         elif widget.get_active_text() == "TAndor":
-            raise NotImplemented
+            self.set_region_cam(0)
 
         elif widget.get_active_text() == "LAndor":
-            raise NotImplemented
+            self.set_region_cam(1)
+            
         elif widget.get_active_text() == "VAndor":
-            raise NotImplemented
+            self.set_region_cam(2)
         
         print(widget.get_active_text() + " is active!")
