@@ -312,9 +312,10 @@ class mainWindow(Gtk.Window):
             
             print("**** SETTING ZOOM PIC ****")
             img1 = self.im.abs_pic.pic[up:down, left:right]
+            print("Passou!")            
             img2 = self.im.abs_pic.integrate_y()
             img3 = self.im.abs_pic.integrate_x()
-
+            print("Passou!")            
             self.im.abs_pic.fit_integrated_x("x")#plot=1)
             print("Passou!")
             self.im.abs_pic.fit_integrated_x("y")

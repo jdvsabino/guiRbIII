@@ -59,3 +59,12 @@ class SetRegionWindow(SettingWindow):
         self.mainGrid.attach(self.downEntry_rbc, posUpLabel_col + 2, posUpLabel_row + 1, 1 ,1)
         self.mainGrid.attach(self.leftEntry_rbc, posUpLabel_col + 2, posUpLabel_row + 2, 1 ,1)
         self.mainGrid.attach(self.rightEntry_rbc, posUpLabel_col + 2, posUpLabel_row + 3, 1 ,1)
+
+        # Save regions for a specific camera
+        self.save_tandor = Gtk.Button(label = "Save for TAndor")
+        self.save_landor = Gtk.Button(label = "Save for LAndor")
+        self.save_vandor = Gtk.Button(label = "Save for VAndor")
+
+        self.mainBox.pack_start(self.save_tandor, True, True, 0)
+        self.mainBox.pack_start(self.save_landor, True, True, 0)
+        self.mainBox.pack_start(self.save_vandor, True, True, 0)

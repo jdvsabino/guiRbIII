@@ -239,9 +239,9 @@ class AbsorptionPicture(PictureManager):
         temp       = np.array(data)
         
         temp[temp<mean_temp] = 0
-
-
-        for i in range(1, len(data)): # starts in 1 to be sure we have one index before
+        
+        print("Quase no for loop...")
+        for i in range(1, len(data)-1): # starts in 1 to be sure we have one index before
             if temp[i] > 0 and temp[i-1] == 0:
                 sigma = x_data[i]
 
