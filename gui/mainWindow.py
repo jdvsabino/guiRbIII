@@ -11,7 +11,7 @@ from matplotlib.figure import Figure
 from matplotlib.transforms import Bbox
 from matplotlib.backends.backend_gtk3cairo import FigureCanvasGTK3Cairo as FigureCanvas
 from matplotlib.backends.backend_gtk3 import NavigationToolbar2GTK3 as NavigationToolbar
-from numpy import sin, cos, pi, linspace, sqrt, zeros, int32, array, sum
+from numpy import sin, cos, pi, linspace, sqrt, zeros, int32, array, sum, meshgrid
 from gui.plotWindow import *
 from gui.setRangeWindow import SetRangeWindow
 from gui.setRegionWindow import SetRegionWindow
@@ -344,8 +344,10 @@ class mainWindow(Gtk.Window):
         self.axes_abs.append(self.fig_abs.add_subplot(gs[:-1, -1]))#, xticklabels=[]))#, sharey=self.axes_abs[0]))
         self.axes_abs.append(self.fig_abs.add_subplot(gs[-1, :-1]))#, yticklabels=[]))#, sharex=self.axes_abs[0]))
 
-
-        cset = self.axes_abs[0].imshow(img1, cmap=colormap)
+        tick_axis_x = linspace(0, img3.shape[0], img3.shape[0], dtype=int32)*self.im.abs_pic.cam.pixel2um
+        tick_axis_y = linspace(0, img2.shape[0], img2.shape[0], dtype=int32)*self.im.abs_pic.cam.pixel2um
+        # [X, Y] = meshgrid(tick_axis_x, tick_axis_y)
+        cset = self.axes_abs[0].imshow(img1, cmap=colormap, extent=(tick_axis_x[0], tick_axis_x[-1], tick_axis_y[0], tick_axis_y[-1]))
         self.axes_abs[0].xaxis.set_alpha(0.)
         self.axes_abs[0].yaxis.set_alpha(0.)
         self.axes_abs[0].xaxis.set_visible(False)
@@ -375,13 +377,13 @@ class mainWindow(Gtk.Window):
             # self.axes_abs[1].set_yticklabels([])
             print("Dims pic:"  + str(img2.shape))
             print("Dims axis:" + str(img2.shape))
-            tick_axis = linspace(0, img2.shape[0], img2.shape[0], dtype=int32)*self.im.abs_pic.cam.pixel2um
+
             print("\n\n\n\n\n x_axis:")
-            print(tick_axis)
+            print(tick_axis_x)
             print("\n\n\n\n\n")
             self.axes_abs[1].invert_xaxis()
-            self.axes_abs[1].plot(img2[::-1].T, tick_axis, 'b', linewidth=1.2)
-            self.axes_abs[1].plot(self.im.abs_pic.fit_y[::-1].T, tick_axis, '--r', linewidth=0.7)
+            self.axes_abs[1].plot(img2[::-1].T, tick_axis_y, 'b', linewidth=1.2)
+            self.axes_abs[1].plot(self.im.abs_pic.fit_y[::-1].T, tick_axis_y, '--r', linewidth=0.7)
             #self.axes_abs[1].yticks(ticks=x_axis)
             #self.axes_abs[1].yaxis.set_ticks_position('right')
             # self.axes_abs[1].selfet_aspect("equal")
@@ -406,8 +408,8 @@ class mainWindow(Gtk.Window):
         
         try:
 
-            tick_axis = linspace(0, img3.shape[0], img3.shape[0], dtype=int32)*self.im.abs_pic.cam.pixel2um*3
-            self.axes_abs[2].plot(tick_axis, img3,'b', linewidth=1.2)
+
+            self.axes_abs[2].plot(tick_axis_x, img3,'b', linewidth=1.2)
             #        self.axes_abs[2].set_aspect("equal", adjustable="box", anchor="C")        
             # left   = self.axes_abs[2].get_position().bounds[0]
             # right  = self.axes_abs[2].get_position().bounds[1]
@@ -422,7 +424,7 @@ class mainWindow(Gtk.Window):
             except:# e as Exception:
                 #print(e)
                 print("morreu")
-            self.axes_abs[2].plot(tick_axis, self.im.abs_pic.fit_x, '--r', linewidth=0.7)
+            self.axes_abs[2].plot(tick_axis_x, self.im.abs_pic.fit_x, '--r', linewidth=0.7)
             self.axes_abs[2].set_aspect(aspect=aspect_ratio, adjustable="box", anchor="C")
 
         except Exception as e:

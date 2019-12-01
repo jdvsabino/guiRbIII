@@ -45,6 +45,7 @@ class Data_Collection():
     set_data_c*(data)
     status_sending()
     status_waiting()
+
     """
     def __init__(self):
         ###--- Flags

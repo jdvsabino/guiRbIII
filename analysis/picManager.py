@@ -9,7 +9,7 @@ MIN = sys.float_info.min
 
 
 class PictureManager():
-    '''
+    """
     Stores a picture with all the information related to it (see notes
     for more details).
     
@@ -32,13 +32,13 @@ class PictureManager():
     - Path
     - Camera
     - ID: specifies the type of picture // OR PIC NUMBER???
-          1 - Absorption Picture
-          2 - Picture with atoms 
-          3 - Picture without atoms
-          4 - Background picture
+    1 - Absorption Picture
+    2 - Picture with atoms 
+    3 - Picture without atoms
+    4 - Background picture
 
     
-    '''
+    """
     def __init__(self,pic, cam = None, path=""):
         
         self.path = ""
@@ -55,7 +55,7 @@ class PictureManager():
             
 
 class AbsorptionPicture(PictureManager):
-    '''
+    """
     Attributes
     ----------
     atom_pic : numpy.array
@@ -69,8 +69,8 @@ class AbsorptionPicture(PictureManager):
 
     Methods
     -------
-    set_ROI(rectangle = None, up = None, down = None, left = None, right = None)
-    set_RBC(rectangle = None, up = None, down = None, left = None, right = None)
+    set_ROI(rectangle=None, up=None, down=None, left=None, right=None)
+    set_RBC(rectangle=None, up=None, down=None, left=None, right=None)
     get_atom_number()
     get_absorption_picture(atom, no_atom, full=False)
     integrate_x()
@@ -79,9 +79,7 @@ class AbsorptionPicture(PictureManager):
     fit_integrated_x(axis, x_min=0, x_max=0, tol=0.2, plot=0)
     fit_integrated_y
     
-
-
-    '''
+    """
     def __init__(self, atom_pic, no_atom_pic, cam = None, correction=True):
 
         PictureManager.__init__(self, atom_pic) # Doesnt make much sense, think about this...
@@ -243,7 +241,7 @@ class AbsorptionPicture(PictureManager):
         return atom_number
 
     def get_absorption_picture(self, atom, no_atom, full=False):
-        '''
+        """
         Computes the absorption picture.
 
         Parameters
@@ -263,14 +261,14 @@ class AbsorptionPicture(PictureManager):
         - Check formula - use gain?
                         - what the hell is eps? (in fringe analysis file)
         - We shouls set all negative elements to zero
-        '''
+        """
         # abs_pic = np.divide(atom, no_atom, out=np.ones_like(atom), where=no_atom!=0) # test these arguments
         abs_pic = np.divide(atom, no_atom + MIN) # test if this works
         if full:
-            '''
+            """
             For details on these values check Thomas Schweigler thesis, chapter 3.
             Discuss these formulas, is sig0 really necessary? Apparently not.
-            '''
+            """
             # More versatile way of writing  I_sat
             # hbar = 1.0546*1e-34 # m^2.Kg/s
             # alpha = 1.83
@@ -292,21 +290,21 @@ class AbsorptionPicture(PictureManager):
         return abs_pic
     
     def integrate_x(self):
-        '''
+        """
         Returns an array with the pixels summed over y
-        '''
+        """
         print("INT XXX - shape: " +str(self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[3]].shape))        
         return np.sum(self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[3]], axis=0) # Currently only works with tiff images or other format that is a 2D array
 
     def integrate_y(self):
-        '''
+        """
         Returns an array with the pixels summed over x
-        '''
+        """
         print("INT YYY - shape: " +str(self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[3]].shape))
         return np.sum(self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[3]], axis=1) # Currently only works with tiff images or other format that is a 2D array
 
     def integrate_abs_pic(axis):
-        '''
+        """
         Integrates the absorpption picture in the desired direction.
         
 
@@ -322,7 +320,7 @@ class AbsorptionPicture(PictureManager):
 
         TODO 
         - implement the fucking function and get rid of the integrated_x/y
-        '''
+        """
 
         if axis == 0:
             return np.sum(self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[3]], axis=0) # Currently only works with tiff images or other format that is a 2D array
@@ -334,11 +332,11 @@ class AbsorptionPicture(PictureManager):
         
 
     def fit_integrated_x(self, axis, x_min=0, x_max=0, tol=0.2, plot=0):
-        ''' 
+        """ 
         Fits a gaussian function to the picture summed over y (or x?)
         and returns the data of the fit. It also returns the plot if 
         plot == 1.
-        '''
+        """
         if  axis == "x":
             axis = 0;
             
@@ -412,11 +410,11 @@ class AbsorptionPicture(PictureManager):
         
 
     def fit_integrated_y(self, plot=0):
-        ''' 
+        """ 
         Fits a gaussian function to the picture summed over x
         and returns the data of the fit. It alsor returns the plot if 
         plot == 1
-        '''
+        """
         
         data       = self.integrate_y()
         length     = len(data)
