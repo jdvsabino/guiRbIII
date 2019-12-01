@@ -10,8 +10,25 @@ MIN = sys.float_info.min
 
 class PictureManager():
     '''
-    Stores a picture with all the information 
-    related to it, namely:
+    Stores a picture with all the information related to it (see notes
+    for more details).
+    
+    Attributes
+    ----------
+    path : str
+    ID : int
+    num : int
+    pic : numpy.array
+    cam : Camera
+    TOF : double
+    gain : fouble
+    ROI : int[]
+    RBC : int[]
+   
+
+    Notes
+    -----
+    Detailed information which is saved for the picture:
     - Path
     - Camera
     - ID: specifies the type of picture // OR PIC NUMBER???
@@ -19,6 +36,8 @@ class PictureManager():
           2 - Picture with atoms 
           3 - Picture without atoms
           4 - Background picture
+
+    
     '''
     def __init__(self,pic, cam = None, path=""):
         
@@ -36,40 +55,86 @@ class PictureManager():
             
 
 class AbsorptionPicture(PictureManager):
+    '''
+    Attributes
+    ----------
+    atom_pic : numpy.array
+    no_atom_pic : numpy.array
+    bkg_pic : numpy.array
+    bkg_correction : ??
+    fit_x : int
+    fit_y : int 
+    fit_pars : dict
+    
 
+    Methods
+    -------
+    set_ROI(rectangle = None, up = None, down = None, left = None, right = None)
+    set_RBC(rectangle = None, up = None, down = None, left = None, right = None)
+    get_atom_number()
+    get_absorption_picture(atom, no_atom, full=False)
+    integrate_x()
+    integrate_y()
+    integrate_abs_pic(axis)
+    fit_integrated_x(axis, x_min=0, x_max=0, tol=0.2, plot=0)
+    fit_integrated_y
+    
+
+
+    '''
     def __init__(self, atom_pic, no_atom_pic, cam = None, correction=True):
 
         PictureManager.__init__(self, atom_pic) # Doesnt make much sense, think about this...
         self.path = ""
         self.ID = 1 ### DECIDE ABOUT THIS _ CAREFUL!!! 
-
-        self.atom_pic = atom_pic
-        self.no_atom_pic = no_atom_pic
-        self.bkg_pic = None # TODO
         self.pic = self.get_absorption_picture(atom_pic.pic, no_atom_pic.pic)
         self.cam = cam
-
         self.TOF = -1
         self.gain = -1
         self.ROI = [1, 1, 1, 1]#roiRectangle(1,1,1,1)
         self.RBC = [1, 1, 1, 1]#rbcRectangle(1,1,1,1)
+
+        self.atom_pic = atom_pic
+        self.no_atom_pic = no_atom_pic
+        self.bkg_pic = None # TODO
+
         self.bkg_correction = correction
 
         self.fit_x    = 0
         self.fit_y    = 0
         self.fit_pars = {"x":[], "y":[]}
 
-
-        '''
-        Add a self.pic_roi?
-        back_pics?
-        '''
-
     
     ### Useful functions are defined
 
     def set_ROI(self, rectangle = None, up = None, down = None, left = None, right = None):
+        """
+        Sets the region of backround for the absorption picture.
 
+        Parameters
+        ----------
+        rectangle : Rectangle
+            Rectangle object to be drawn in the plot
+        up : int
+            Upper pixel row of the Region of Interest
+        down : int
+            Lower pixel row of the Region of Interest
+        left : int
+            Left pixel column of the Region of Interest
+        right : int
+             Right pixel row of the Region of Interest
+
+        Returns
+        -------
+        int
+           1 if region is set successfully, -1 otherwise.
+
+        Notes
+        -----
+        The Region of Interest can be set by giving the function
+        four integer numbers or a Rectangle object. If both are
+        provided the priority goes to the Rectangle object.
+        """
         
         if rectangle == None and up == None:
             print("Please use either a rectangle or coordinates as arguments.")
@@ -92,7 +157,33 @@ class AbsorptionPicture(PictureManager):
             return 1
 
     def set_RBC(self, rectangle = None, up = None, down = None, left = None, right = None):
+        """
+        Sets the region of backround for the absorption picture.
 
+        Parameters
+        ----------
+        rectangle : Rectangle
+            Rectangle object to be drawn in the plot
+        up : int
+            Upper pixel row of the Region of Background
+        down : int
+            Lower pixel row of the Region of Background
+        left : int
+            Left pixel column of the Region of Background
+        right : int
+             Right pixel row of the Region of Background
+
+        Returns
+        -------
+        int
+           1 if region is set successfully, -1 otherwise.
+
+        Notes
+        -----
+        The Region of Background can be set by giving the function
+        four integer numbers or a Rectangle object. If both are
+        provided the priority goes to the Rectangle object.
+        """
         
         if rectangle == None and up == None:
             print("Please use either a rectangle or coordinates as arguments.")
@@ -114,10 +205,19 @@ class AbsorptionPicture(PictureManager):
 
     
     def get_atom_number(self):
-        '''
+        """
         Returns number of atoms in the picture.
-        Check if it is the complete formula!
-        '''
+        
+        Returns
+        -------
+        atom_number : double?
+            Number of atoms computed in the selected region of interest
+        
+
+        TODO
+        - Check if it is the complete formula!
+        And check if it is correct, it doesn't look like so
+        """
         px_size = self.cam.pixel2um
         mag = self.cam.magnification
         abs_cross = self.cam.abs_cross
@@ -145,6 +245,21 @@ class AbsorptionPicture(PictureManager):
     def get_absorption_picture(self, atom, no_atom, full=False):
         '''
         Computes the absorption picture.
+
+        Parameters
+        ----------
+        atom : numpy.array
+            Picture with atoms
+        no_atom : numpy.array
+            Picture with no atoms
+        full : Bool
+            Flag to use the full formula (uses full formula if True)
+        
+        Returns
+        -------
+        abs_pic : numpy.array
+            Absorption picture 
+        TODO
         - Check formula - use gain?
                         - what the hell is eps? (in fringe analysis file)
         - We shouls set all negative elements to zero
@@ -194,12 +309,28 @@ class AbsorptionPicture(PictureManager):
         '''
         Integrates the absorpption picture in the desired direction.
         
-        axis = 0 - integrates over xx (cloud along y)
-        axis = 1 - integrates over yy (cloud along x)
 
-        TODO
+        Parameters
+        ----------
+        axis : int
+            0 - integration over the x axis
+            1 - integration over the y axis
+
+        Returns
+        -------
+        Nothing so far
+
+        TODO 
+        - implement the fucking function and get rid of the integrated_x/y
         '''
-        return NotImplemented
+
+        if axis == 0:
+            return np.sum(self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[3]], axis=0) # Currently only works with tiff images or other format that is a 2D array
+        elif axis == 1:
+            return np.sum(self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[3]], axis=1) # Currently only works with tiff images or other format that is a 2D array
+        else:
+            print("ERROR: Index must be 1 or 0.")
+            return NotImplemented
         
 
     def fit_integrated_x(self, axis, x_min=0, x_max=0, tol=0.2, plot=0):
@@ -316,7 +447,18 @@ class AbsorptionPicture(PictureManager):
         
     
 class Camera():
+    """
+    Stores information about the camera used to take the picture.
 
+    Attributes
+    ----------
+    cam_type : int
+    label : str
+    pixel_size : double
+    magnification : double
+    correction : double
+    
+    """
     def __init__(self, cam_type):
 
         self.cam_type = int(cam_type)

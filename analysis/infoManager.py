@@ -14,23 +14,52 @@ from analysis.function_vars import *
 
 
 class InfoManager():
-    '''
+    """
     Deals with the current information from adwin.
     This class is aimed to store and process all 
     the information needed to get the new pictures, 
     update variable values, store the new information 
     and make it available in the future.   
-    '''
+
+    Attributes
+    ----------
+    dc : DataCollector
+        Local DataCollector
+    abs_pic : AbsorptionPicture
+        Absoprtion picture to be displayed to the user
+    atom_pic : Picture
+        Picture with atoms to be displayed to the user
+    no_atom_pic : Picture
+        Picture with no atoms to be displayed to the user
+    background_pic : Picture
+        Background picture to be displayed to the user
+    cycle_num : 
+    global_cycle_num : 
+    scan_num :
+    atom_num :
+    variables : 
+    var_computer : 
+    status : 
+    history : 
+
+    
+    Methods
+    -------
+
+    Notes
+    -----
+
+    """
     
     def __init__(self, data_collector=dc):
-        
+
         # Buffer for data collector? -- seems to make sense - How/When to update it?
         # Waits for dc to get some data before coping it the first time.
         self.dc = Data_Collection()
         if dc.glob != -1:
             self.update_data_buffer()
         
-        
+            
         ### Pictures are to be set only when we get the
         ### paths to where they are from Adwin.
         self.abs_pic        = None
@@ -54,7 +83,16 @@ class InfoManager():
         self.set_vars()
 
     def update_data_buffer(self):
+        """
+        Copies the information from the global Data Collector if it is
+        not being updated. The copy only happens if the information
+        was changed (a new picture was received).
 
+        Returns
+        -------
+        False
+            If the information in the local Data Collector is the same.
+        """
         if dc.glob == self.dc.glob:
             return False
         ###--- Make sure that dc is not being updated
@@ -68,15 +106,22 @@ class InfoManager():
     
 
     def update_info(self, win):
-        '''
+        """
         Receives information from Adwin through dc and 
         gets the pictures, calculates the absorption picture,
         updates the (global) cycle number as well as the other
         values to be calculated and stores them for future use.
+
+        Parameters
+        ----------
+        win : Window object
+            Window which shows the absorption picture
+
+        Stuff to remove later...
         
         dc  - global 'Data_Collection' object
         win - main window where the info is displayed to the user 
-        '''
+        """
 
         # if dc.glob == self.dc.glob:
         #     return False
@@ -196,10 +241,10 @@ class InfoManager():
 
 
     def set_vars(self):
-        '''
+        """
         Sets the variables shown in plot window.
         They are read from the variable 'self.vars'
-        '''
+        """
             
         for var in list(self.var_computer.keys()):
                 self.history[var] = []
@@ -207,10 +252,10 @@ class InfoManager():
                 
 
     def compute_vars(self, var):
-        '''
+        """
         Computes the variables shown in plot window.
         They are read from the variable 'self.variables'
-        '''
+        """
         
         if var in list(self.var_computer.keys()):
             return self.var_computer[var](self)
@@ -221,7 +266,7 @@ class InfoManager():
 
 
     def set_var_computer(self):
-        '''
+        """
         This function implements the dictionary that has
         the functions which compute the variables shown in the plot window.
         Each  key in 'self.var_computer' is a vaqriable to be computed
@@ -233,7 +278,7 @@ class InfoManager():
 
         var_computer["Mean"] = function_that_computes_the_mean
         
-        '''
+        """
 
         if self.variables == []:
             self.variables = list(var_list)
@@ -245,10 +290,10 @@ class InfoManager():
         
    
     def update_history(self):
-        ''' 
+        """ 
         Stores the values of the variables 
         and adds the new ones
-        '''
+        """
 
         for var in self.var_computer:
             self.history[var].append(self.status[var])
@@ -257,11 +302,11 @@ class InfoManager():
         
 
     def update_status(self):
-        ''' 
+        """ 
         Stores the values of the variables of the last cycle
         The information is lost when information of another cycle 
         comes.
-        '''
+        """
 
         for var in self.var_computer:
             self.status[var] = self.compute_vars(var)
@@ -269,7 +314,17 @@ class InfoManager():
         
 
     def gen_camera(self):
-        
+        """
+        Associates the correct camera to the last stored picture based
+        on the information given by Adwin. 
+
+        Returns
+        -------
+        Camera
+            Camera object if successfull
+        int
+            -1 if not successfull
+        """
         if self.dc.imsc == 0:
             return Camera(0)
         

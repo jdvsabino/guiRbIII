@@ -1,5 +1,51 @@
 class Data_Collection():
-
+    """
+    Object that receives and stores information from Adwin and provides it
+    to the rest of the program.
+    
+    Attributes
+    ----------
+    receiving_flag : int
+        1 if information is being read from Adwin, 0 otherwise.
+    copy_flag : int
+        1 if information is being copied to another 'Data_Collection' object, 0 otherwise.
+    cam_flag : int
+        Indicates which camera is used. 
+        0 - TAndor
+        1 - LAndor
+        3 - VAndor   
+    path     : str
+        Stores the path from adwin (where pictures are stored?)
+    file     : str
+        ???
+    scan     : str
+        Number of the current scan.
+    imsc     : str
+        Don't remember    
+    loop     : int
+        Don't remember
+    glob     : int
+        Global count number
+    status   : "None"
+        Was this implemented?
+    
+    T_cam    : int
+    L_cam    : int
+    V_cam    : int
+        Do we need these three?
+    last_pic : int
+        Number of the last stored picture.
+    adwin_data_start : 5
+        Chooses the starting point to read data from adwin
+    
+    Methods
+    -------
+    set_data_adwin(data)
+        Reads data from Adwin and stores it in the appropriate methods
+    set_data_c*(data)
+    status_sending()
+    status_waiting()
+    """
     def __init__(self):
         ###--- Flags
         self.receiving_flag = 0
@@ -17,15 +63,22 @@ class Data_Collection():
         self.L_cam    = -1
         self.V_cam    = -1
         self.last_pic = -1
-        
-        ###---- Chosses the starting point to read data from adwin
         self.adwin_data_start = 5
     
     def set_data_adwin(self, data):
         ''' 
-        Function called when info from adwin computer is recieved.
-        Chooses which field the info should be adssigned to.
-        field: a string representing the field (example: "PATH", "IMSC", etc.)
+        Function called when info from adwin computer is recieved;
+        Chooses which field the info should be adssigned to;
+        field: a string representing the field (example: "PATH",
+        "IMSC", etc.).
+
+        Parameters
+        ----------
+        data : str[]
+
+        Returns
+        -------
+        Nothing.
         '''
         
         ###--- Make sure that info is not being copied
@@ -71,6 +124,19 @@ class Data_Collection():
         
         
     def set_data_c1(self, data):
+        """
+        Sets LAndor as the current camera and stores the picture read
+        from Adwin as the last one being copied.
+        
+        Parameters
+        ----------
+        data: str[]
+
+        Returns
+        -------
+        int
+            1 if the camera was set successfully, 0 otherwise.
+        """
         if 'LCAM' in data:
             # self.L_cam = data[self.adwin_data_start:]
             self.last_pic = str(data[self.adwin_data_start:])
@@ -81,6 +147,19 @@ class Data_Collection():
         return 0
 
     def set_data_c2(self, data):
+        """
+        Sets TAndor as the current camera and stores the picture read
+        from Adwin as the last one being copied.
+        
+        Parameters
+        ----------
+        data: str[]
+
+        Returns
+        -------
+        int
+            1 if the camera was set successfully, 0 otherwise.
+        """
         if 'TCAM' in data:
             #self.T_cam = data[self.adwin_data_start:]
             self.last_pic = str(data[self.adwin_data_start:])
@@ -91,6 +170,19 @@ class Data_Collection():
         return 0
 
     def set_data_c3(self, data):
+        """
+        Sets VAndor as the current camera and stores the picture read
+        from Adwin as the last one being copied.
+        
+        Parameters
+        ----------
+        data: str[]
+
+        Returns
+        -------
+        int
+            1 if the camera was set successfully, 0 otherwise.
+        """        
         if 'VCAM' in data:
             #self.V_cam = data[self.adwin_data_start:]
             self.last_pic = str(data[self.adwin_data_start:])

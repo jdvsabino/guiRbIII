@@ -9,6 +9,21 @@ def get_data(local_ip, rec_port_adwin, rec_port_c1, rec_port_c2, rec_port_c3, in
     Gets all the data necessary
     for the program to work. It should be run in a new thread
     to make synching easier.
+
+    Parameters
+    ----------
+    local_ip : str
+        The ip of the local computer.
+    rec_port_adwin : str
+        The port which recieves info from adwin.
+    rec_port_c1 : str
+        The port which recieves info from computer 'Celcius I'
+    rec_port_c2 : str
+        The port which recieves info from computer 'Celcius II'
+    rec_port_c3 : str
+        The port which recieves info from computer 'Celcius III'
+    input_info : str
+        Doesn't seem to be needed.
     '''
     
     ###---- Opening sockets for communication
