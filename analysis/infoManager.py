@@ -200,11 +200,11 @@ class InfoManager():
         #     print("No Abs pic set!!")
 
         #win.update_abs_pic(self.abs_pic)
-        print("Paraaaaaaaa")
+
         win.abs_pic = self.abs_pic
         win.update_pics_controll = 1
         # win.set_picOriginal(self.abs_pic.pic)
-        print("ROIZINHO 2.0: " + str(self.abs_pic.ROI))
+
         try:
             self.atom_num = self.abs_pic.get_atom_number()
             print(self.atom_num)

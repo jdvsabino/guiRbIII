@@ -41,9 +41,9 @@ win = mainWindow()
 win.connect("destroy", Gtk.main_quit)
 
 dummy_img = np.zeros((256, 256))
-im1 = dummy_img #mpimg.imread("./atoms.tif")
-im2 = dummy_img #mpimg.imread("./noatoms.tif")
-im3 = dummy_img #mpimg.imread("./bicla.jpg")
+im1 = mpimg.imread("./atoms.tif")
+im2 = mpimg.imread("./noatoms.tif")
+im3 = mpimg.imread("./bicla.jpg")
 
 win.im.atom_pic = PictureManager(im1)
 win.im.no_atom_pic = PictureManager(im2)

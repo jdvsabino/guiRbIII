@@ -221,12 +221,6 @@ class AbsorptionPicture(PictureManager):
         abs_cross = self.cam.abs_cross
 
         try:
-            print("ROIZINHO: " + str(self.ROI[0]))
-            print("ROIZINHO: " + str(self.ROI[1]))
-            print("ROIZINHO: " + str(self.ROI[2]))
-            print("ROIZINHO: " + str(self.ROI[3]))
-            print("SHAPEZINHA: " + str(self.pic.shape))
-            #final_pic = self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[4]]
             final_pic  = self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[3]]
             background = self.pic[self.RBC[0]:self.RBC[1], self.RBC[2]:self.RBC[3]]
 
@@ -236,7 +230,6 @@ class AbsorptionPicture(PictureManager):
             final_pic = self.pic
 
         atom_number = self.cam.pixel_size*self.cam.pixel_size/(self.cam.magnification*self.cam.magnification)/self.cam.abs_cross*np.sum(np.sum(final_pic))
-       # atom_number = self.cam.pixel_size*self.cam.pixel_size/(self.cam.magnification*self.cam.magnification)/self.cam.abs_cross*np.sum(np.sum(final_pic - background))  # Is this correct??   
 
         return atom_number
 
@@ -262,8 +255,9 @@ class AbsorptionPicture(PictureManager):
                         - what the hell is eps? (in fringe analysis file)
         - We shouls set all negative elements to zero
         """
-        # abs_pic = np.divide(atom, no_atom, out=np.ones_like(atom), where=no_atom!=0) # test these arguments
+
         abs_pic = np.divide(atom, no_atom + MIN) # test if this works
+
         if full:
             """
             For details on these values check Thomas Schweigler thesis, chapter 3.
@@ -293,14 +287,14 @@ class AbsorptionPicture(PictureManager):
         """
         Returns an array with the pixels summed over y
         """
-        print("INT XXX - shape: " +str(self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[3]].shape))        
+        #print("INT XXX - shape: " +str(self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[3]].shape))        
         return np.sum(self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[3]], axis=0) # Currently only works with tiff images or other format that is a 2D array
 
     def integrate_y(self):
         """
         Returns an array with the pixels summed over x
         """
-        print("INT YYY - shape: " +str(self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[3]].shape))
+        # print("INT YYY - shape: " +str(self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[3]].shape))
         return np.sum(self.pic[self.ROI[0]:self.ROI[1], self.ROI[2]:self.ROI[3]], axis=1) # Currently only works with tiff images or other format that is a 2D array
 
     def integrate_abs_pic(axis):
@@ -356,8 +350,8 @@ class AbsorptionPicture(PictureManager):
             
         length     = len(data)
         x_data     = np.linspace(1,length, length, endpoint=True)
-        print("DATA LEN X: " + str(x_data.shape))
-        print("DATA LEN Y: " + str(length))
+        # print("DATA LEN X: " + str(x_data.shape))
+        # print("DATA LEN Y: " + str(length))
 
 
         ### Parameter estimation to help the fit
@@ -369,7 +363,7 @@ class AbsorptionPicture(PictureManager):
         
         temp[temp<mean_temp] = 0
         
-        print("Quase no for loop...")
+#        print("Quase no for loop...")
         for i in range(1, len(data)-1): # starts in 1 to be sure we have one index before
             if temp[i] > 0 and temp[i-1] == 0:
                 sigma = x_data[i]
@@ -380,13 +374,13 @@ class AbsorptionPicture(PictureManager):
             
 
         
-        print("MEAN: " + str(mean))
-        print("SIGMA: " + str(sigma))
-        print("MAXIMUM:" + str(np.max(data)))
-        print(self.ROI)
+        # print("MEAN: " + str(mean))
+        # print("SIGMA: " + str(sigma))
+        # print("MAXIMUM:" + str(np.max(data)))
+        # print(self.ROI)
         
         popt, pcov = curve_fit(self.gaussian_func, x_data, data, p0=[np.max(data), mean, sigma])
-        print("FIT PARS: " + str(popt))
+#        print("FIT PARS: " + str(popt))
 
         if axis == 0:
             self.fit_x         = popt[0]*np.exp(-0.5*(x_data-popt[1])*(x_data-popt[1])/popt[2])
@@ -404,7 +398,7 @@ class AbsorptionPicture(PictureManager):
             plt.show()
             plt.close()
         
-        return popt, pcov
+        return data # popt, pcov
         
 
         
@@ -418,7 +412,7 @@ class AbsorptionPicture(PictureManager):
         
         data       = self.integrate_y()
         length     = len(data)
-        print("X DATA LENGTH: " + str(length))
+#        print("X DATA LENGTH: " + str(length))  
         x_data     = np.linspace(1,length, length, endpoint=True)
         mean       = np.sum(data)/length
         sigma      = np.sum(np.sqrt((data - mean)**2))
