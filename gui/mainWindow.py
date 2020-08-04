@@ -261,6 +261,7 @@ class mainWindow(Gtk.Window):
         except Exception as e:
             print("Error: Assiging variables names to variables entries went wrong.")
             print("Probably the number is not the same!")
+            print("ERROR: " + str(e))
         
         
         GLib.timeout_add_seconds(2., self.update_functions)
@@ -482,7 +483,8 @@ class mainWindow(Gtk.Window):
             self.axes_bkg.imshow(self.im.abs_pic.bkg_pic, cmap=colormap)
             
 
-        except:
+        except Exception as e:
+            print(e)
             print("INFO: Used argument as image.")
             image = zeros((256, 256)) ### TESTING
             self.axes_bkg = self.fig_bkg.add_subplot(111)
@@ -500,7 +502,8 @@ class mainWindow(Gtk.Window):
             self.axes_abs_small = self.fig_abs_small.add_subplot(111)
             self.axes_abs_small.imshow(self.im.abs_pic.pic, cmap=colormap)
         
-        except:
+        except Exception as e:
+            print(e)
             print("INFO: Used argument as image.")
             self.axes_abs_small = self.fig_abs_small.add_subplot(111)
             self.axes_abs_small.imshow(zeros((256, 256)), cmap=colormap)

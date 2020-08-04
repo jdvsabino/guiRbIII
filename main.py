@@ -21,6 +21,7 @@ from network.data_collection import data_collector as  dc
 from analysis.infoManager import InfoManager
 import time # TESTING PURPOSES
 import matplotlib.image as mpimg # TESTING PURPOSES
+import numpy as np
 ###---- MAIN VARIABLES
 REC_PORT_AD = "8101" # Receiving port
 REC_PORT_C1 = "8103"
@@ -38,9 +39,11 @@ LOCAL_IP = "127.0.0.1"
 ###---- GRAPHIC OBJECTS - uncommented for testing purposes
 win = mainWindow()
 win.connect("destroy", Gtk.main_quit)
-im1 = mpimg.imread("./atoms.tif")
-im2 = mpimg.imread("./noatoms.tif")
-im3 = mpimg.imread("./bicla.jpg")
+
+dummy_img = np.zeros((256, 256))
+im1 = dummy_img #mpimg.imread("./atoms.tif")
+im2 = dummy_img #mpimg.imread("./noatoms.tif")
+im3 = dummy_img #mpimg.imread("./bicla.jpg")
 
 win.im.atom_pic = PictureManager(im1)
 win.im.no_atom_pic = PictureManager(im2)

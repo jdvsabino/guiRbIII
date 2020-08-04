@@ -378,7 +378,7 @@ class AbsorptionPicture(PictureManager):
                 mean  = (sigma + x_data[i])/2
                 sigma = x_data[i] - sigma
             
-        print("Até aqui, tudo bem...")
+
         
         print("MEAN: " + str(mean))
         print("SIGMA: " + str(sigma))
