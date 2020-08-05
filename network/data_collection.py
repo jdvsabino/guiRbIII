@@ -55,8 +55,8 @@ class Data_Collection():
         
         self.path     = ""
         self.file     = ""
-        self.scan     = ""
-        self.imsc     = ""
+        self.scan     = -1
+        self.imsc     = -1
         self.loop     = -1
         self.glob     = -1
         self.status   = "None"
@@ -109,15 +109,27 @@ class Data_Collection():
         
         elif "SCAN" in data:
             self.scan = int(data[self.adwin_data_start:])
+            print(self.scan)
             return 1
         
         elif "LOOP" in data:
             self.loop = int(data[self.adwin_data_start:])
+            print(self.loop)
             return 1
         
         elif "GLOB" in data:
             self.glob = int(data[self.adwin_data_start:])
+            print(self.glob)
             return 1
+
+        elif "LCAM" in data:
+            self.set_data_c1(data)
+        
+        elif "TCAM" in data:
+            self.set_data_c2(data)
+
+        elif "VCAM" in data:
+            self.set_data_c3(data)                    
         
         else:
             print("Field Not recognized. Check spelling!")

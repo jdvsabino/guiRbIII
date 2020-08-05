@@ -297,12 +297,7 @@ class mainWindow(Gtk.Window):
             down  = int(self.im.abs_pic.ROI[1])
             left  = int(self.im.abs_pic.ROI[2])
             right = int(self.im.abs_pic.ROI[3])
-            
-            print("ROI: "   + str(self.im.abs_pic.ROI))
-            print("Up: "    + str(up))
-            print("Down: "  + str(down))
-            print("Left: "  + str(left))
-            print("Right: " + str(right))
+
             
             print("**** SETTING ZOOM PIC ****")
             img1 = self.im.abs_pic.pic[up:down, left:right]
@@ -338,7 +333,7 @@ class mainWindow(Gtk.Window):
 
         tick_axis_x = linspace(0, img3.shape[0], img3.shape[0], dtype=int32)*self.im.abs_pic.cam.pixel2um
         tick_axis_y = linspace(0, img2.shape[0], img2.shape[0], dtype=int32)*self.im.abs_pic.cam.pixel2um
-        # [X, Y] = meshgrid(tick_axis_x, tick_axis_y)
+        
         cset = self.axes_abs[0].imshow(img1, cmap=colormap, extent=(tick_axis_x[0], tick_axis_x[-1], tick_axis_y[0], tick_axis_y[-1]))
         self.axes_abs[0].yaxis.set_ticks_position('right')
         self.axes_abs[0].xaxis.set_alpha(0.)
@@ -346,9 +341,8 @@ class mainWindow(Gtk.Window):
         self.axes_abs[0].xaxis.set_visible(False)
         self.axes_abs[0].yaxis.set_visible(False)
         self.axes_abs[0].tick_params(labelsize = font)
-        self.axes_abs[0].set_aspect(aspect="equal", adjustable="box", anchor="C")#, share=True)
-        #aspect_ratio = self.axes_abs[0].get_data_ratio()
-        #zoom_params = self.axes_abs[0].dataLim
+        self.axes_abs[0].sharex = self.axes_abs[1]
+        self.axes_abs[0].sharey = self.axes_abs[2]
 
         ###---- COLORBAR
         # TODO:
@@ -364,36 +358,16 @@ class mainWindow(Gtk.Window):
         # TODO:
         #      - Adjust size properly
         #
-        #pos_ref = self.axes_abs[0].get_position()
-        #asp = np.diff(self.axes_abs[].get_xlim())[0] / np.diff(ax2.get_ylim())[0]
+
         try:
-            # self.axes_abs[1].set_yticklabels([])
-            print("Dims pic:"  + str(img2.shape))
-            print("Dims axis:" + str(img2.shape))
 
-            print("\n\n\n\n\n x_axis:")
-            print(tick_axis_x)
-            print("\n\n\n\n\n")
-            self.axes_abs[1].invert_xaxis()
-            self.axes_abs[1].plot(img2.T, tick_axis_y, 'b', linewidth=1.2)
-            self.axes_abs[1].plot(self.im.abs_pic.fit_y.T, tick_axis_y, '--r', linewidth=0.7)
-            #self.axes_abs[1].yticks(ticks=x_axis)
-            #self.axes_abs[1].yaxis.set_ticks_position('right')
-            # self.axes_abs[1].selfet_aspect("equal")
-
-        
-
-            # left   = self.axes_abs[1].get_position().bounds[0]
-            # right  = self.axes_abs[1].get_position().bounds[1]
-            # width  = self.axes_abs[0].get_position().height
-            # height = self.axes_abs[1].get_position().height        
-            # self.axes_abs[1].set_position(Bbox(array([[left, right], [width, height]])))
-            self.axes_abs[1].yaxis.set_ticks_position('right')
-            #self.axes_abs[1].xaxis.set_visible(False)
-            self.axes_abs[1].set_aspect(aspect=aspect_ratio, adjustable="box", anchor="C")
             
-            #self.axes_abs[2].set_major_locator(ML)
-            #aspect_ratio = position.width/self.picSize[0]/4
+            self.axes_abs[1].plot(img2, tick_axis_y[::-1], 'b', linewidth=1.2)
+            self.axes_abs[1].plot(self.im.abs_pic.fit_y, tick_axis_y[::-1], '--r', linewidth=0.7)
+            self.axes_abs[1].invert_xaxis()
+
+            self.axes_abs[1].yaxis.set_ticks_position('right')
+
         except Exception as e:
             print("ERROR:" + str(e))
             print("Setting right plot failed!")
@@ -403,20 +377,13 @@ class mainWindow(Gtk.Window):
 
 
             self.axes_abs[2].plot(tick_axis_x, img3,'b', linewidth=1.2)
-            #        self.axes_abs[2].set_aspect("equal", adjustable="box", anchor="C")        
-            # left   = self.axes_abs[2].get_position().bounds[0]
-            # right  = self.axes_abs[2].get_position().bounds[1]
-            # width  = self.axes_abs[0]self.get_position().width
-            # height = self.axes_abs[2].get_position().height                
-            # self.axes_abs[2].set_position(Bbox(array([[left, right], [width, height]])))
-            #        self.axes_abs[2].yaxis.set_visible(True)
-            print("SHAPADA")
-            try:
-                print(img3.shape)
-                print(self.im.abs_pic.fit_x.shape)
-            except:# e as Exception:
-                #print(e)
-                print("morreu")
+
+
+            # try:
+            #     print(img3.shape)
+            #     print(self.im.abs_pic.fit_x.shape)
+            # except:
+
             self.axes_abs[2].plot(tick_axis_x, self.im.abs_pic.fit_x, '--r', linewidth=0.7)
             self.axes_abs[2].set_aspect(aspect=aspect_ratio, adjustable="box", anchor="C")
 
@@ -437,7 +404,7 @@ class mainWindow(Gtk.Window):
         try:
             self.axes_atoms = self.fig_atoms.add_subplot(111)
             self.axes_atoms.cla()
-            self.axes_atoms.imshow(self.im.atom_pic.pic[::-1,:], cmap=colormap)
+            self.axes_atoms.imshow(self.im.atom_pic.pic, cmap=colormap)
             
         except Exception as e:
             print("PicAtoms ERROR: " + str(e))
@@ -457,7 +424,7 @@ class mainWindow(Gtk.Window):
 
         try:
             self.axes_no_atoms = self.fig_no_atoms.add_subplot(111)
-            self.axes_no_atoms.imshow(self.im.no_atom_pic.pic[::-1,:], cmap=colormap)
+            self.axes_no_atoms.imshow(self.im.no_atom_pic.pic, cmap=colormap)
             
         except Exception as e:
             print(e)
@@ -494,10 +461,10 @@ class mainWindow(Gtk.Window):
 
         try:
             self.axes_abs_small = self.fig_abs_small.add_subplot(111)
-            self.axes_abs_small.imshow(self.im.abs_pic.pic[::-1,:], cmap=colormap)
+            self.axes_abs_small.imshow(self.im.abs_pic.pic, cmap=colormap)
         
         except Exception as e:
-            print(e)
+            print("PicAbs ERROR: " + str(e))
             print("INFO: Used argument as image.")
             self.axes_abs_small = self.fig_abs_small.add_subplot(111)
             self.axes_abs_small.imshow(zeros((256, 256)), cmap=colormap)
@@ -530,7 +497,7 @@ class mainWindow(Gtk.Window):
 
         if self.chooseROI.get_active():
             # Try to create a self.canvas
-            print("Draw the ROI!")
+            print("Please draw the ROI!")
             
         else:
             
@@ -566,7 +533,7 @@ class mainWindow(Gtk.Window):
 
         if self.chooseRBC.get_active():
             # Try to create a self.canvas
-            print("Draw the RBC!")
+            print("Please draw the RBC!")
             
         else:
             
@@ -608,17 +575,14 @@ class mainWindow(Gtk.Window):
 
 
         self.rectangleROI.drawRectangle()
-        #print(self.canvasOriginal.figure.axes)
         self.canvasOriginal.figure.axes[0].add_patch(self.rectangleROI.rectangle)
-        print(self.canvasOriginal.figure.axes[0].patches)
-        #self.canvasOriginal.draw_idle()
-        print("done! \n")
+
             
-        #self.canvasOriginal.figure.axes[0] = axes_temp
+
         self.canvasOriginal.show_all()
         self.canvasOriginal.draw_idle()
         
-        #self.canvasOriginal.draw()
+
         self.regionControl = 0
         self.im.abs_pic.set_ROI(rectangle = self.rectangleROI)
 
@@ -627,11 +591,10 @@ class mainWindow(Gtk.Window):
         self.rectangleRBC.drawRectangle()
 
         self.canvasOriginal.figure.axes[0].add_patch(self.rectangleRBC.rectangle)
-        print(self.canvasOriginal.figure.axes[0].patches)
         
-        print("done! \n")
+ 
             
-        #self.canvasOriginal.figure.axes[0] = axes_temp
+
         self.canvasOriginal.show_all()
         self.canvasOriginal.draw_idle()
         self.regionControl = 1
@@ -645,7 +608,7 @@ class mainWindow(Gtk.Window):
         right = int(self.rectangleROI.x_end)
         self.set_picZoomed(self.im.abs_pic.pic[up:down, left:right])
 
-        # self.regionControl = -1
+      
 
 
     def set_region_manual(self, *data):
@@ -733,7 +696,7 @@ class mainWindow(Gtk.Window):
                 patches = patches[-1:]
                 self.canvasOriginal.figure.axes[0].patches = patches
             
-            # print("Coordinates:" + " x= " + str(round( event.xdata, 3)) + "  y= " + str(round( event.ydata, 3)))
+
             dx = event.xdata - self.rectangleROI.x_start
             dy = event.ydata - self.rectangleROI.y_start
             dist = sqrt(dx*dx + dy*dy)
@@ -753,18 +716,13 @@ class mainWindow(Gtk.Window):
             self.rectangleROI.x_end = xlims[1]
             self.rectangleROI.y_end = ylims[0]
 
-            # print("Left:  " + str(self.rectangleROI.x_start))
-            # print("Up:    " + str(self.rectangleROI.y_start))
-            # print("Down:  " + str(self.rectangleROI.y_end))
-            # print("Right: " + str(self.rectangleROI.x_end))
         
         
-    def zoomStart(self, event):#, rectangle):
+    def zoomStart(self, event):
         '''When mouse is right-clicked on the canvas get the coordiantes and return them'''
         if event.button!=1: return
         if (event.xdata is None): return
-        #x,y = event.xdata, event.ydata
-        #self.canvasOriginal.fig.axes[0].clear()
+
         
         self.rectangleRBC.x_start = event.xdata
         self.rectangleRBC.y_start = event.ydata
@@ -1008,9 +966,8 @@ class mainWindow(Gtk.Window):
                         
                         self.plotWin.variables[var][index_label_val].set_label(str(self.im.status[var]))
             
-                print("Badum")
+
                 self.update_pics()
-                print("Tss...")
                 self.update_status()
         except Exception as e:
             print("FAILED WITH ERROR: " +str(e)) 

@@ -62,9 +62,10 @@ class InfoManager():
             
         ### Pictures are to be set only when we get the
         ### paths to where they are from Adwin.
-        self.abs_pic        = None
-        self.atom_pic       = None
-        self.no_atom_pic    = None
+        
+        self.atom_pic       = PictureManager(np.ones((256, 256)))
+        self.no_atom_pic    = PictureManager(np.ones((256, 256)))
+        self.abs_pic        = AbsorptionPicture(self.atom_pic, self.no_atom_pic)
         self.background_pic = None
         
         self.cycle_num = 0
@@ -76,8 +77,8 @@ class InfoManager():
         
         self.variables = []
         self.var_computer =  dict()
-        self.status = dict()   ### TODO - Think how to implement
-        self.history = dict()  ### TODO - Think how to implement
+        self.status = dict()   
+        self.history = dict()  
 
         self.set_var_computer()
         self.set_vars()
@@ -95,12 +96,12 @@ class InfoManager():
         """
         if dc.glob == self.dc.glob:
             return False
+
         ###--- Make sure that dc is not being updated
         while(dc.receiving_flag == 1):
             continue
         
         dc.copy_flag = 1
-        print("GLOBAAAAAL: " + str(dc.glob))
         self.dc = copy.deepcopy(dc)
         dc.copy_flag = 0
     
@@ -122,10 +123,6 @@ class InfoManager():
         dc  - global 'Data_Collection' object
         win - main window where the info is displayed to the user 
         """
-
-        # if dc.glob == self.dc.glob:
-        #     return False
-        # update_data_buffer() ### INCLUDE THIS HERE??? Maybe in the end
         if self.cycle_num +1 == self.dc.loop:
             self.cycle_num +=1
             
@@ -147,63 +144,55 @@ class InfoManager():
         temp_label = win.label_scan + str(self.global_cycle_num)
         win.infoScanNum.set_label(temp_label)
         self.scan_num = self.dc.scan
-        
 
-
-        #os.listdir(PIC_SRC + self.dc.file[:-7])
-        #a = str(input("WAIT..."))
-
-
-        # TESTING
-        #path_atom_pic = "G:\\Codes\\MatLab\\Adwin_programs\\krb_acquisition_program_v10_Joao\\GUI_RbIII\\manos_na_neve.png"
-        #path_no_atom_pic = "G:\\Codes\\MatLab\\Adwin_programs\\krb_acquisition_program_v10_Joao\\GUI_RbIII\\manos_na_neve.png"
         camera = self.gen_camera()
-        if camera == -1:
+
+        if camera == -1 or camera == None:
+            print("WARNING: Bad camera! Not updating.")
             return -1
-        self.abs_pic.cam = camera
-        self.dc.last_pic = 1 # TESTING PURPOSES
+
         if self.dc.last_pic == -1:
             print(dc.last_pic)
             print("Dont know last pic...")
             return -1
-        ### TESING PURPOSES ###
-        ### UNCOMMENT TO RUN NORMALLY ###
-        # pic_atoms_name = camera.label + "_" + str(self.dc.last_pic[0]) + "atompic.tif"#"-withoutatoms.tif" ### name given by default
-        # pic_no_atoms_name = camera.label + "_" + str(self.dc.last_pic[0]) + "backpic.tif"#"-atomcloud.tif" ### 
-        # # num = int(self.dc.file[-7:-1]) - 4
-        # ###--- Paths from phantom
-        # # path_atom_pic = PIC_SRC + self.dc.file[:-7] + str(num) + pic_atoms_name
-        # # path_no_atom_pic = PIC_SRC + self.dc.file[:-7] + str(num) + pic_no_atoms_name
+       
+        pic_atoms_name = camera.label + "_" + str(self.dc.last_pic[0]) + "atompic.tif"#"-withoutatoms.tif" ### name given by default
+        pic_no_atoms_name = camera.label + "_" + str(self.dc.last_pic[0]) + "backpic.tif"#"-atomcloud.tif" ### 
 
-        # ###--- Paths to network share
-        # print(pic_atoms_name)
-        # path_atom_pic = PIC_SRC + camera.label + "\\" + pic_atoms_name
-        # path_no_atom_pic = PIC_SRC + camera.label + "\\" + pic_no_atoms_name
-        # print("PATH my PATH: " + path_atom_pic)
+        temp_str = self.dc.file.strip("\\")
+        num = int(temp_str[-2]) - 4
 
-        # pic = mpimg.imread(path_atom_pic) ### TESING PURPOSES - UNCOMMENT
-        #self.atom_pic = PictureManager(pic, path=path_atom_pic, cam = camera)
-        #pic = self.atom_pic ### TESING PURPOSES
-        #self.atom_pic = PictureManager(pic, cam = camera)
+        ###--- Paths from phantom
+        path_atom_pic = PIC_SRC + self.dc.file[:-7] + str(num) + pic_atoms_name
+        path_no_atom_pic = PIC_SRC + self.dc.file[:-7] + str(num) + pic_no_atoms_name
+        print(pic_atoms_name)
+        print(pic_no_atoms_name)
+
+        ###--- Paths to network share
+        print(pic_atoms_name)
+        path_atom_pic = PIC_SRC + camera.label + "\\" + pic_atoms_name
+        path_no_atom_pic = PIC_SRC + camera.label + "\\" + pic_no_atoms_name
+        print("PATH my PATH: " + path_atom_pic)
+
+        pic = mpimg.imread(path_atom_pic)
+        self.atom_pic = PictureManager(pic, path=path_atom_pic, cam = camera)
 
         
-        # pic = mpimg.imread(path_no_atom_pic) ### TESING PURPOSES - UNCOMMENT
-        #self.no_atom_pic = PictureManager(pic, path=path_no_atom_pic, cam = camer)
-        #pic = self.no_atom_pic ### TESING PURPOSES
-        #self.no_atom_pic = PictureManager(pic, cam = camera)### TESING PURPOSES
-        self.background_pic = None        
+        pic = mpimg.imread(path_no_atom_pic) 
+        self.no_atom_pic = PictureManager(pic, path=path_no_atom_pic, cam = camera)
+        self.background_pic = PictureManager(np.zeros(pic.shape)) # Creates a pic of zeros with same size as the other pics    
         
         
-        # try:
-        #     self.abs_pic = AbsorptionPicture(self.atom_pic.pic, self.no_atom_pic.pic, cam = camera)
-        # except:
-        #     print("No Abs pic set!!")
+        try:
+            self.abs_pic = AbsorptionPicture(self.atom_pic, self.no_atom_pic, cam = camera)
+        except Exception as e:
+            print("ERROR: " + str(e))
+            print("No Abs pic set!!")
 
-        #win.update_abs_pic(self.abs_pic)
+        win.update_pics()
 
         win.abs_pic = self.abs_pic
         win.update_pics_controll = 1
-        # win.set_picOriginal(self.abs_pic.pic)
 
         try:
             self.atom_num = self.abs_pic.get_atom_number()
@@ -212,32 +201,12 @@ class InfoManager():
             print(e)
             print("Not possible to compute Atom number!")
 
-        #print("CURRENT ROI: " + str(self.abs_pic.ROI))
-
-        # TESTING BLOCK
-        # plt.imshow(self.abs_pic.pic)
-        # plt.colorbar()
-        # plt.savefig("G:\\Codes\\MatLab\\Adwin_programs\\krb_acquisition_program_v10_Joao\\GUI_RbIII\\Test_GUI_atompic", dpi=100)
-        # plt.close()
-
-        # win.set_picNoAtoms(self.no_atom_pic)
-        # win.set_picBkg(self.atom_pic)
-        # win.set_picOriginal(self.abs_pic)
-
-        # self.abs_pic.fit_integrated_y()
 
         
 
-        self.update_status()
+        
         self.update_history()
-        # win.plotWin.gen_plot(np.linspace(1,self.dc.glob,len(self.history[self.variables[0]])), self.history[self.variables[0]])
-        # Saves a matlab file with the data for this run
-        file_name = PIC_SRC + self.dc.path + str(self.dc.loop) + "-data.mat"
-        file_name = "datazinha.mat" # FOR TESTING
-        #sio.savemat(file_name, self.status)
-        
-        ###--- TODO: Update hist and status
-        # update_status() ### Really necessary?
+        self.update_status()
 
 
     def set_vars(self):
@@ -335,6 +304,5 @@ class InfoManager():
             return Camera(3)
         
         else:
-            return Camera(0) # TESTING PURPOSES
             print("Bad camera flag!")
             return -1
