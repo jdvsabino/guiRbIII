@@ -82,6 +82,18 @@ class mainWindow(Gtk.Window):
         self.camSelect.set_active(3)
         self.camSelectBox.pack_start(self.camSelect, True, True, 0)
 
+        self.pre_ROI = Gtk.ComboBoxText()
+        self.pre_ROI.set_entry_text_column(0)
+        self.pre_ROI.connect("changed", self.on_pre_roi_changed)
+        self.pre_ROI.append_text("T - in situ")
+        self.pre_ROI.append_text("T - TOF")
+        self.pre_ROI.append_text("L - bal")
+        self.pre_ROI.append_text("L - Z-trap")
+        self.pre_ROI.append_text("V - Fringes")
+        
+        self.pre_ROI.set_active(3)
+        self.camSelectBox.pack_start(self.camSelect, True, True, 0)
+
         self.chooseROI = Gtk.ToggleButton(label="Choose ROI")
         self.chooseROI.connect("toggled", self.set_ROI)
         self.regionsBox.pack_start(self.chooseROI, True, True, 0)
@@ -204,7 +216,7 @@ class mainWindow(Gtk.Window):
         #      0 - TAndor
         #      1 - LAndor
         #      2 - Vandor
-        self.cam_regions = [dict(), dict(), dict()]
+        self.cam_regions = [dict(), dict(), dict(), dict(), dict(), dict()]
         
         with open("./gui/regions_info.txt") as f:
             print("HERE WE GO!!!!!!")
@@ -226,7 +238,16 @@ class mainWindow(Gtk.Window):
 
                     elif line_temp[0] == "VANDOR":
                         self.cam_regions[2]["ROI"] = [int(s) for s in line_temp[1].split(separator)]
-                        self.cam_regions[2]["RBC"] = [int(s) for s in line_temp[2].split(separator)]                                
+                        self.cam_regions[2]["RBC"] = [int(s) for s in line_temp[2].split(separator)]
+
+                    elif line_temp[0] == "LANDOR":
+                        self.cam_regions[1]["ROI"] = [int(s) for s in line_temp[1].split(separator)]
+                        self.cam_regions[1]["RBC"] = [int(s) for s in line_temp[2].split(separator)]                                                
+
+                    elif line_temp[0] == "VANDOR":
+                        self.cam_regions[2]["ROI"] = [int(s) for s in line_temp[1].split(separator)]
+                        self.cam_regions[2]["RBC"] = [int(s) for s in line_temp[2].split(separator)]                                                    
+                    
 
             print(self.cam_regions)
         self.im = InfoManager()
@@ -968,6 +989,7 @@ class mainWindow(Gtk.Window):
             
 
                 self.update_pics()
+
                 self.update_status()
         except Exception as e:
             print("FAILED WITH ERROR: " +str(e)) 
@@ -1001,5 +1023,29 @@ class mainWindow(Gtk.Window):
             
         elif widget.get_active_text() == "VAndor":
             self.set_region_cam(2)
+        
+        print(widget.get_active_text() + " is active!")
+
+    def on_pre_roi_changed(self, widget):
+        if widget.get_active_text is "Auto":
+            print("ROI will be selected automatically.")
+            
+        elif widget.get_active_text() == "T - in situ":
+            ''' TODO'''
+
+        elif widget.get_active_text() == "T - TOF":
+            ''' TODO'''
+            
+        elif widget.get_active_text() == "L - bal":
+            ''' TODO'''
+
+        elif widget.get_active_text() == "L - Z-trap":
+            ''' TODO'''
+
+        elif widget.get_active_text() == "V - Fringes":
+            ''' TODO'''
+
+
+
         
         print(widget.get_active_text() + " is active!")
