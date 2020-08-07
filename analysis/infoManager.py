@@ -141,7 +141,7 @@ class InfoManager():
             win.infoGlobalCounts.set_label(temp_label)
             print("WARNING: Corrected global loop number to " + str(self.cycle_num))        
 
-        temp_label = win.label_scan + str(self.global_cycle_num)
+        temp_label = win.label_scan + str(self.dc.scan)
         win.infoScanNum.set_label(temp_label)
         self.scan_num = self.dc.scan
 
@@ -207,6 +207,7 @@ class InfoManager():
         
         self.update_history()
         self.update_status()
+        print("STILL UPDATING BITCH!")
 
 
     def set_vars(self):

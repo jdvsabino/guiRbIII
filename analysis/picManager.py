@@ -327,7 +327,7 @@ class AbsorptionPicture(PictureManager):
 
     def fit_integrated_x(self, axis, x_min=0, x_max=0, tol=0.2, plot=0):
         """ 
-        Fits a gaussian function to the picture summed over y (or x?)
+        Fits a gaussian function to the picture summed over x or y
         and returns the data of the fit. It also returns the plot if 
         plot == 1.
         """
@@ -371,16 +371,8 @@ class AbsorptionPicture(PictureManager):
             if  temp[i] > 0 and temp[i+1] == 0:
                 mean  = (sigma + x_data[i])/2
                 sigma = x_data[i] - sigma
-            
-
-        
-        # print("MEAN: " + str(mean))
-        # print("SIGMA: " + str(sigma))
-        # print("MAXIMUM:" + str(np.max(data)))
-        # print(self.ROI)
         
         popt, pcov = curve_fit(self.gaussian_func, x_data, data, p0=[np.max(data), mean, sigma])
-#        print("FIT PARS: " + str(popt))
 
         if axis == 0:
             self.fit_x         = popt[0]*np.exp(-0.5*(x_data-popt[1])*(x_data-popt[1])/popt[2])

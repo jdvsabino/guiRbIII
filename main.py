@@ -39,7 +39,7 @@ info_man = InfoManager()
 
 
 ###---- GRAPHIC OBJECTS - uncommented for testing purposes
-win = mainWindow()
+win = mainWindow(info_man)
 win.connect("destroy", Gtk.main_quit)
 
 dummy_img = np.zeros((256, 256))
@@ -87,10 +87,13 @@ def cycle():
         #     continue
         # dc.glob += 1
         # print("Sleeping...")
-        time.sleep(5)
-        print("DC GLOB: " + str(dc.glob))
+        time.sleep(1)
+        #print("DC GLOB: " + str(dc.glob))
         #print("CURRENT GLOB: " + str(dc.glob))
         read_data = dc.receiving_flag != 1 and dc.glob != info_man.dc.glob
+        print("PRINTING STATUS")
+        print(dc.receiving_flag)
+        print(dc.glob != info_man.dc.glob)
         if read_data:
             
             print("#####+++++#####")
@@ -106,6 +109,7 @@ t_cycle.daemon = True
 t_cycle.start()
 
 Gtk.main()
-    
+
+
 
 

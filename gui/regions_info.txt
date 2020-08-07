@@ -1,20 +1,26 @@
-# Convention for ROI/RBC
-# :TODO:
+# In this file you can pre define ROIs/RBCs 
+# for specific situations. The format is as follows- REGION_NAME:ROI:RBC
+# The Convention for ROI/RBC is
+# :up down left right:
+# The values are seperate by spaces
 
 #--- TANDOR DOMAIN
 ##----- TAndor in situ
-TANDORINS:100 200 300 400:10 20 30 40
+TANDORINS:370 560 265 325:600 660 730 950
 
 ##----- TAndor TOF
-TANDORTOF:300 500 750 950:10 20 30 40
+TANDORTOF:370 560 750 950:600 660 730 950
 
-# LANDOR DOMAIN
-### LAndor - Balance measurement
-LANDORBAL:100 200 100 500:300 400 100 500
+#--- LANDOR DOMAIN
+##----- LAndor - Balance measurement
+LANDORBAL:200 300 500 750:300 315 500
 
-### LAndor - Z-trap
-LANDORZTR:100 600 100 600:300 400 100 500
+##----- LAndor - Z-trap
+LANDORZTR:100 620 260 920:100 620 50 200
 
-# VANDOR
-VANDOR:30 531 284 871:532 632 284 871
+#--- VANDOR DOMAIN
+##----- VAndor - Fringes
+VANDOR1:370 450 325 405:370 450 730 325
+##----- VAndor - Other stuff
+VANDOR1:370 450 325 405:370 450 730 325
 

@@ -21,12 +21,13 @@ from gui.classes.helpFunctions import *
 from gui.classes.ticker_locator import MyLocator
 from network.data_collection import data_collector as dc
 from analysis.infoManager import InfoManager
+from time import sleep
 import copy
 import csv
 
 class mainWindow(Gtk.Window):
 
-    def __init__(self):
+    def __init__(self, info_man):
         Gtk.Window.__init__(self, title = "Main Window")
 
         # Size settings
@@ -91,8 +92,8 @@ class mainWindow(Gtk.Window):
         self.pre_ROI.append_text("L - Z-trap")
         self.pre_ROI.append_text("V - Fringes")
         
-        self.pre_ROI.set_active(3)
-        self.camSelectBox.pack_start(self.camSelect, True, True, 0)
+        self.pre_ROI.set_active(1)
+        self.camSelectBox.pack_start(self.pre_ROI, True, True, 0)
 
         self.chooseROI = Gtk.ToggleButton(label="Choose ROI")
         self.chooseROI.connect("toggled", self.set_ROI)
@@ -218,8 +219,8 @@ class mainWindow(Gtk.Window):
         #      2 - Vandor
         self.cam_regions = [dict(), dict(), dict(), dict(), dict(), dict()]
         
+        ###----- Reads the ROIs/RBCs from the 'regions_info.txt' file 
         with open("./gui/regions_info.txt") as f:
-            print("HERE WE GO!!!!!!")
             for line in f.readlines():
 
                 print(line)
@@ -228,29 +229,33 @@ class mainWindow(Gtk.Window):
                 else:
                     line_temp = line.split(":")
                     separator = " "
-                    if   line_temp[0] == "TANDOR":
+                    if   line_temp[0] == "TANDORINS":
                         self.cam_regions[0]["ROI"] = [int(s) for s in line_temp[1].split(separator)]
                         self.cam_regions[0]["RBC"] = [int(s) for s in line_temp[2].split(separator)]                        
 
-                    elif line_temp[0] == "LANDOR":
+                    elif line_temp[0] == "TANDORTOF":
                         self.cam_regions[1]["ROI"] = [int(s) for s in line_temp[1].split(separator)]
                         self.cam_regions[1]["RBC"] = [int(s) for s in line_temp[2].split(separator)]                                                
 
-                    elif line_temp[0] == "VANDOR":
+                    elif line_temp[0] == "LANDORBAL":
                         self.cam_regions[2]["ROI"] = [int(s) for s in line_temp[1].split(separator)]
                         self.cam_regions[2]["RBC"] = [int(s) for s in line_temp[2].split(separator)]
 
-                    elif line_temp[0] == "LANDOR":
-                        self.cam_regions[1]["ROI"] = [int(s) for s in line_temp[1].split(separator)]
-                        self.cam_regions[1]["RBC"] = [int(s) for s in line_temp[2].split(separator)]                                                
+                    elif line_temp[0] == "LANDORZTR":
+                        self.cam_regions[3]["ROI"] = [int(s) for s in line_temp[1].split(separator)]
+                        self.cam_regions[3]["RBC"] = [int(s) for s in line_temp[2].split(separator)]                                                
 
-                    elif line_temp[0] == "VANDOR":
-                        self.cam_regions[2]["ROI"] = [int(s) for s in line_temp[1].split(separator)]
-                        self.cam_regions[2]["RBC"] = [int(s) for s in line_temp[2].split(separator)]                                                    
-                    
+                    elif line_temp[0] == "VANDOR1":
+                        self.cam_regions[4]["ROI"] = [int(s) for s in line_temp[1].split(separator)]
+                        self.cam_regions[4]["RBC"] = [int(s) for s in line_temp[2].split(separator)]                                                    
 
-            print(self.cam_regions)
-        self.im = InfoManager()
+                    elif line_temp[0] == "VANDOR2":
+                        self.cam_regions[5]["ROI"] = [int(s) for s in line_temp[1].split(separator)]
+                        self.cam_regions[5]["RBC"] = [int(s) for s in line_temp[2].split(separator)]                    
+
+            print("Loaded info for ROI and RBC...")
+        # self.im = InfoManager()
+        self.im = info_man
         self.update_pics_controll = 0
 
         
@@ -260,6 +265,7 @@ class mainWindow(Gtk.Window):
         self.plotWin = newPlotWindow()
         self.plotWin.connect("delete-event", self.on_destroy_plot_window)
         self.plotWin.saveDataButton.connect("clicked", self.on_save_clicked)
+        self.plotWin.resetButton.connect("clicked", self.reset_plot)
         self.plotWin.show_all()
 
         try:
@@ -308,6 +314,12 @@ class mainWindow(Gtk.Window):
     def set_picZoomed(self, image = None, font=6, colormap="RdYlBu_r"):
         import matplotlib.gridspec as gridspec
 
+        try:
+            self.fig_abs.clf()
+        except Exception as e:
+            print("Probably there's no figure to clear (fig_abs).")
+            print("ERROR: " + str(e))
+            
         
         gs = gridspec.GridSpec(4, 4, hspace=0.2, wspace=0.2)
 
@@ -318,7 +330,7 @@ class mainWindow(Gtk.Window):
             down  = int(self.im.abs_pic.ROI[1])
             left  = int(self.im.abs_pic.ROI[2])
             right = int(self.im.abs_pic.ROI[3])
-
+ 
             
             print("**** SETTING ZOOM PIC ****")
             img1 = self.im.abs_pic.pic[up:down, left:right]
@@ -329,22 +341,23 @@ class mainWindow(Gtk.Window):
             img3 = self.im.abs_pic.fit_integrated_x("x")
             
             ###---- Cleans axes
-            for ax in self.axes_abs:
-                ax.remove()
+            # for ax in self.axes_abs:
+            #     ax.remove()
 
-            try:
-                self.cbaxes.remove()
-            except:
-                print("Non-existent colorbar!")
+            # try:
+            #     self.cbaxes.remove()
+            # except:
+            #     print("Non-existent colorbar!")
             
             print("**** DONE ****")
             
         except Exception as e:
             print("Didn't work:")
             print(e)
+            from numpy import zeros
             img1 = image 
-            img2 = image[0]
-            img3 = image[0]
+            img2 = zeros(256) #image[:, 0]
+            img3 = zeros(256) #image[0]
 
         
         self.axes_abs = []
@@ -354,7 +367,8 @@ class mainWindow(Gtk.Window):
 
         tick_axis_x = linspace(0, img3.shape[0], img3.shape[0], dtype=int32)*self.im.abs_pic.cam.pixel2um
         tick_axis_y = linspace(0, img2.shape[0], img2.shape[0], dtype=int32)*self.im.abs_pic.cam.pixel2um
-        
+
+
         cset = self.axes_abs[0].imshow(img1, cmap=colormap, extent=(tick_axis_x[0], tick_axis_x[-1], tick_axis_y[0], tick_axis_y[-1]))
         self.axes_abs[0].yaxis.set_ticks_position('right')
         self.axes_abs[0].xaxis.set_alpha(0.)
@@ -381,11 +395,10 @@ class mainWindow(Gtk.Window):
         #
 
         try:
-
-            
             self.axes_abs[1].plot(img2, tick_axis_y[::-1], 'b', linewidth=1.2)
             self.axes_abs[1].plot(self.im.abs_pic.fit_y, tick_axis_y[::-1], '--r', linewidth=0.7)
             self.axes_abs[1].invert_xaxis()
+
 
             self.axes_abs[1].yaxis.set_ticks_position('right')
 
@@ -406,7 +419,7 @@ class mainWindow(Gtk.Window):
             # except:
 
             self.axes_abs[2].plot(tick_axis_x, self.im.abs_pic.fit_x, '--r', linewidth=0.7)
-            self.axes_abs[2].set_aspect(aspect=aspect_ratio, adjustable="box", anchor="C")
+            #self.axes_abs[2].set_aspect(aspect=aspect_ratio, adjustable="box", anchor="C")
 
         except Exception as e:
             print("PicZoomed ERROR: " + str(e))
@@ -422,6 +435,11 @@ class mainWindow(Gtk.Window):
         
     def set_picAtoms(self, image = None, font = 6, colormap="RdYlBu_r", title="With atoms"):        
 
+        try:
+            self.fig_atoms.clf()
+        except Exception as e:
+            print("Probably there's no figure to clear (fig_atoms).")
+            print("ERROR: " + str(e))        
         try:
             self.axes_atoms = self.fig_atoms.add_subplot(111)
             self.axes_atoms.cla()
@@ -443,6 +461,13 @@ class mainWindow(Gtk.Window):
 
     def set_picNoAtoms(self, image = None, font = 6, colormap="RdYlBu_r", title="Without atoms"):
 
+
+        try:
+            self.fig_no_atoms.clf()
+        except Exception as e:
+            print("Probably there's no figure to clear (fig_no_atoms).")
+            print("ERROR: " + str(e))
+
         try:
             self.axes_no_atoms = self.fig_no_atoms.add_subplot(111)
             self.axes_no_atoms.imshow(self.im.no_atom_pic.pic, cmap=colormap)
@@ -460,6 +485,13 @@ class mainWindow(Gtk.Window):
 
         
     def set_picBkg(self, image = None, font = 6, colormap="RdYlBu_r", title = "Background"):
+ 
+        try:
+            self.fig_bkg.clf()
+        except Exception as e:
+            print("Probably there's no figure to clear (fig_bkg).")
+            print("ERROR: " + str(e))
+ 
         try:
             self.axes_bkg = self.fig_bkg.add_subplot(111)
             self.axes_bkg.imshow(self.im.abs_pic.bkg_pic, cmap=colormap)
@@ -481,6 +513,12 @@ class mainWindow(Gtk.Window):
     def set_picOriginal(self, image = None, font = 6, colormap = "RdYlBu_r", title = "Abs. pic."):
 
         try:
+            self.fig_abs_small.clf()
+        except Exception as e:
+            print("Probably there's no figure to clear (fig_abs_small).")
+            print("ERROR: " + str(e))
+
+        try:
             self.axes_abs_small = self.fig_abs_small.add_subplot(111)
             self.axes_abs_small.imshow(self.im.abs_pic.pic, cmap=colormap)
         
@@ -494,7 +532,13 @@ class mainWindow(Gtk.Window):
         self.axes_abs_small.tick_params(labelsize = font)
         self.fig_abs_small.canvas.draw()
         self.canvasOriginal.draw()
-    
+
+        # self.set_region_cam(self.on_pre_roi_changed(self.pre_ROI))
+        try: 
+            self.set_region()
+        except Exception as e:
+            print("Couldn't draw region...")
+            print("ERROR: " + str(e))
     
     def set_ROI(self, widget):
         # IS THIS FUNTION NECESSARY?
@@ -570,9 +614,14 @@ class mainWindow(Gtk.Window):
             try:
                 self.canvasOriginal.figure.axes[0].patches = []
                 self.canvasOriginal.figure.axes[1].patches = []
+                self.canvasOriginal.figure.clf()
             except:
                 print("Probably there's no roi area to clean!")
-
+        
+        if cam_id is None:
+            print("ERROR: Could not set region - 'cam_id' is 'None'")
+            return -1
+        
         up_roi    = self.cam_regions[cam_id]["ROI"][0]
         down_roi  = self.cam_regions[cam_id]["ROI"][1]
         left_roi  = self.cam_regions[cam_id]["ROI"][2]
@@ -594,40 +643,44 @@ class mainWindow(Gtk.Window):
         self.rectangleRBC.y_start = up_rbc
         self.rectangleRBC.y_end   = down_rbc
 
-
-        self.rectangleROI.drawRectangle()
-        self.canvasOriginal.figure.axes[0].add_patch(self.rectangleROI.rectangle)
-
+        self.set_region()
+        # try:
+        #     self.rectangleROI.drawRectangle()
+        #     self.canvasOriginal.figure.axes[0].add_patch(self.rectangleROI.rectangle)
+        # except Exception as e:
+        #     print("No Abs pic to draw region, wait for Abs. pic to be generated.")
+        #     print("ERROR: " + str(e))
+        #     return -1
             
 
-        self.canvasOriginal.show_all()
-        self.canvasOriginal.draw_idle()
+        # self.canvasOriginal.show_all()
+        # self.canvasOriginal.draw_idle()
         
 
-        self.regionControl = 0
-        self.im.abs_pic.set_ROI(rectangle = self.rectangleROI)
+        # self.regionControl = 0
+        # self.im.abs_pic.set_ROI(rectangle = self.rectangleROI)
 
 
 
-        self.rectangleRBC.drawRectangle()
+        # self.rectangleRBC.drawRectangle()
 
-        self.canvasOriginal.figure.axes[0].add_patch(self.rectangleRBC.rectangle)
+        # self.canvasOriginal.figure.axes[0].add_patch(self.rectangleRBC.rectangle)
         
  
             
 
-        self.canvasOriginal.show_all()
-        self.canvasOriginal.draw_idle()
-        self.regionControl = 1
+        # self.canvasOriginal.show_all()
+        # self.canvasOriginal.draw_idle()
+        # self.regionControl = 1
             
-        self.im.abs_pic.set_RBC(rectangle = self.rectangleRBC)
+        # self.im.abs_pic.set_RBC(rectangle = self.rectangleRBC)
         
-        ###--- plot the ROI
-        up    = int(self.rectangleROI.y_start)
-        down  = int(self.rectangleROI.y_end)
-        left  = int(self.rectangleROI.x_start)
-        right = int(self.rectangleROI.x_end)
-        self.set_picZoomed(self.im.abs_pic.pic[up:down, left:right])
+        # ###--- plot the ROI
+        # up    = int(self.rectangleROI.y_start)
+        # down  = int(self.rectangleROI.y_end)
+        # left  = int(self.rectangleROI.x_start)
+        # right = int(self.rectangleROI.x_end)
+        # self.set_picZoomed(self.im.abs_pic.pic[up:down, left:right])
 
       
 
@@ -664,19 +717,22 @@ class mainWindow(Gtk.Window):
         self.rectangleRBC.y_start = up_rbc
         self.rectangleRBC.y_end   = down_rbc
 
+        self.set_region()
 
-        self.rectangleROI.drawRectangle()
-        #print(self.canvasOriginal.figure.axes)
-        self.canvasOriginal.figure.axes[0].add_patch(self.rectangleROI.rectangle)
-        print(self.canvasOriginal.figure.axes[0].patches)
-        #self.canvasOriginal.draw_idle()
-
+    def set_region(self, *data):
+        try:
+            self.rectangleROI.drawRectangle()
+            self.canvasOriginal.figure.axes[0].add_patch(self.rectangleROI.rectangle)
+        except Exception as e:
+            print("No Abs pic to draw region, wait for Abs. pic to be generated.")
+            print("ERROR: " + str(e))
+            return -1
             
-        #self.canvasOriginal.figure.axes[0] = axes_temp
+
         self.canvasOriginal.show_all()
         self.canvasOriginal.draw_idle()
         
-        #self.canvasOriginal.draw()
+
         self.regionControl = 0
         self.im.abs_pic.set_ROI(rectangle = self.rectangleROI)
 
@@ -685,11 +741,10 @@ class mainWindow(Gtk.Window):
         self.rectangleRBC.drawRectangle()
 
         self.canvasOriginal.figure.axes[0].add_patch(self.rectangleRBC.rectangle)
-        print(self.canvasOriginal.figure.axes[0].patches)
         
-
+ 
             
-        #self.canvasOriginal.figure.axes[0] = axes_temp
+
         self.canvasOriginal.show_all()
         self.canvasOriginal.draw_idle()
         self.regionControl = 1
@@ -703,9 +758,7 @@ class mainWindow(Gtk.Window):
         right = int(self.rectangleROI.x_end)
         self.set_picZoomed(self.im.abs_pic.pic[up:down, left:right])
 
-        # self.regionControl = -1
-        
-        
+
     def updateCursorPosition(self, event):
         '''
         When cursor inside plot, get position and print to statusbar
@@ -1031,21 +1084,47 @@ class mainWindow(Gtk.Window):
             print("ROI will be selected automatically.")
             
         elif widget.get_active_text() == "T - in situ":
-            ''' TODO'''
+            self.set_region_cam(0)
+            return 0
 
         elif widget.get_active_text() == "T - TOF":
-            ''' TODO'''
-            
+            self.set_region_cam(1)
+            return 1
+
         elif widget.get_active_text() == "L - bal":
-            ''' TODO'''
+            self.set_region_cam(2)
+            return 2
 
         elif widget.get_active_text() == "L - Z-trap":
-            ''' TODO'''
-
+            self.set_region_cam(3)
+            return 3
+            
         elif widget.get_active_text() == "V - Fringes":
-            ''' TODO'''
-
+            self.set_region_cam(4)
+            return 4
+            
+        elif widget.get_active_text() == "V - Fringes":
+            self.set_region_cam(5)
+            return 5
+            
 
 
         
-        print(widget.get_active_text() + " is active!")
+        print(str(widget.get_active_text()) + " is active!")
+
+###-------------------- Functions for real time Plot Window
+    def reset_plot(self, *data):
+        waited = 0
+        while True:
+            if waited:
+                return -1
+
+            if dc.receiving_flag == 0:
+                self.im.history = dict()
+                self.im.set_vars()
+                print("Real time plot was reset...")
+                return 1
+            else:
+                sleep(1)
+                waited = 1
+                print("Could not reset real time plot. Try again later.")

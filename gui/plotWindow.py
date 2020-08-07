@@ -189,8 +189,12 @@ class newPlotWindow(Gtk.Window):
 
         self.setRangeButton = Gtk.Button(label = "Set Range")
         self.middleBox.pack_start(self.setRangeButton, True, True, 0)
-        #self.setRangeButton.connect("clicked", self.on_setRangeButton_clicked, self.setRangeWin)
         self.setRangeButton.connect("clicked", self.on_setRangeButton_clicked)
+
+        self.resetButton = Gtk.Button(label = "Reset Plot")
+        # self.resetButton.connect("clicked", self.reset_plot) # This has to be done in the mainWindow file to have access to the history dict
+        self.middleBox.pack_start(self.resetButton, True, True, 0)
+
         self.winControl = 0
 
         self.saveDataButton = Gtk.Button(label = "Save Data")
