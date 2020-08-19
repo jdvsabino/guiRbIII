@@ -91,9 +91,6 @@ def cycle():
         #print("DC GLOB: " + str(dc.glob))
         #print("CURRENT GLOB: " + str(dc.glob))
         read_data = dc.receiving_flag != 1 and dc.glob != info_man.dc.glob
-        print("PRINTING STATUS")
-        print(dc.receiving_flag)
-        print(dc.glob != info_man.dc.glob)
         if read_data:
             
             print("#####+++++#####")

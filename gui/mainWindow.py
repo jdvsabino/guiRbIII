@@ -92,7 +92,7 @@ class mainWindow(Gtk.Window):
         self.pre_ROI.append_text("L - Z-trap")
         self.pre_ROI.append_text("V - Fringes")
         
-        self.pre_ROI.set_active(1)
+        #self.pre_ROI.set_active(1)
         self.camSelectBox.pack_start(self.pre_ROI, True, True, 0)
 
         self.chooseROI = Gtk.ToggleButton(label="Choose ROI")
@@ -105,7 +105,7 @@ class mainWindow(Gtk.Window):
         
         self.setManually = Gtk.Button(label="Set Manually")
         self.regionsBox.pack_start(self.setManually, True, True, 0)
-        self.setManually.connect("clicked", self.on_setRegionButton_clicked)
+        self.setManually.connect("clicked", self.on_setRegionButton_clicked) # Doing this later to avoid using variables not created at this point. See line 208 ()
         self.winControl = 0
 
         self.online_plot = Gtk.Button(label="Online Plot")
@@ -284,7 +284,7 @@ class mainWindow(Gtk.Window):
             print("ERROR: " + str(e))
         
         
-        GLib.timeout_add_seconds(2., self.update_functions)
+        # GLib.timeout_add_seconds(2., self.update_functions)
         
         
         
@@ -980,7 +980,8 @@ class mainWindow(Gtk.Window):
                 n_runs = 3
 
         except Exception as e:
-            print("FAILED WITH ERROR: " + str(e))
+            print("Using standard number of runs ({0})to compute mean".format(n_runs))
+            print("ERROR: " + str(e))
 
         
         mean = sum(self.im.history["Atom Number"][-n_runs:])/n_runs
@@ -988,6 +989,19 @@ class mainWindow(Gtk.Window):
 
         # self.plotWin.info_from_main = self.im.history
         self.plotWin.gen_plot(self.im.history)
+        print("UPDATED THE FUCKING PLOT!!!")
+        for var in self.im.variables:
+            index_label_val = 1
+            try:    
+                print("UPDATING VAR!")
+                self.plotWin.variables[var][index_label_val].set_label(str(round(self.im.status[var], 2)))
+                print(self.im.status[var])
+            except:
+                print("DEU MERDA MAS...")
+                self.plotWin.variables[var][index_label_val].set_label(str(self.im.status[var]))
+                print(self.im.status[var]) 
+
+        print("(AND THE WINDOW TOO)")       
 
     def on_save_clicked(self, widget):
         dialog = Gtk.FileChooserDialog("Please choose a folder", self,
@@ -1032,18 +1046,21 @@ class mainWindow(Gtk.Window):
                 self.update_plot_window()
                 
                 
-                for var in self.im.variables:
-                    index_label_val = 1
-                    try:    
-                        self.plotWin.variables[var][index_label_val].set_label(str(round(self.im.status[var], 2)))
-                    except:
-                        
-                        self.plotWin.variables[var][index_label_val].set_label(str(self.im.status[var]))
+                # for var in self.im.variables:
+                #     index_label_val = 1
+                #     try:    
+                #         print("UPDATING VAR!")
+                #         self.plotWin.variables[var][index_label_val].set_label(str(round(self.im.status[var], 2)))
+                #         print(self.im.status[var])
+                #     except:
+                #         print("DEU MERDA MAS...")
+                #         self.plotWin.variables[var][index_label_val].set_label(str(self.im.status[var]))
+                #         print(self.im.status[var])
             
 
                 self.update_pics()
-
                 self.update_status()
+
         except Exception as e:
             print("FAILED WITH ERROR: " +str(e)) 
             

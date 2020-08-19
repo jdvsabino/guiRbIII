@@ -96,31 +96,31 @@ class Data_Collection():
         
         elif "PATH" in data:
             self.path = data[self.adwin_data_start:]
-            return 1
+            # return 1
         
         elif "FILE" in data:
             self.file = data[self.adwin_data_start:]
-            return 1
+            # return 1
         
         elif "IMSC" in data:
             self.imsc = int(data[self.adwin_data_start:])
-            self.receiving = 0
-            return 1
+            # self.receiving = 0
+            # return 1
         
         elif "SCAN" in data:
             self.scan = int(data[self.adwin_data_start:])
-            print(self.scan)
-            return 1
+            # print(self.scan)
+            # return 1
         
         elif "LOOP" in data:
             self.loop = int(data[self.adwin_data_start:])
-            print(self.loop)
-            return 1
+            # print(self.loop)
+            # return 1
         
         elif "GLOB" in data:
             self.glob = int(data[self.adwin_data_start:])
-            print(self.glob)
-            return 1
+            # print(self.glob)
+            # return 1
 
         elif "LCAM" in data:
             self.set_data_c1(data)
@@ -133,8 +133,10 @@ class Data_Collection():
         
         else:
             print("Field Not recognized. Check spelling!")
-            return 0
+            return -1
         
+        self.receiving = 0
+        return 0
         
     def set_data_c1(self, data):
         """
@@ -148,16 +150,20 @@ class Data_Collection():
         Returns
         -------
         int
-            1 if the camera was set successfully, 0 otherwise.
+            0 if the camera was set successfully, -1 otherwise.
         """
+        self.receiving = 1
+        
         if 'LCAM' in data:
             # self.L_cam = data[self.adwin_data_start:]
             self.last_pic = str(data[self.adwin_data_start:])
             self.cam_flag = 1
-            return 1
+            self.receiving = 0
+            return 0
         
         print("Signal from Celcius 1 recieved but no LCAM info.")
-        return 0
+        self.receiving = 0
+        return -1
 
     def set_data_c2(self, data):
         """
@@ -171,16 +177,20 @@ class Data_Collection():
         Returns
         -------
         int
-            1 if the camera was set successfully, 0 otherwise.
+            0 if the camera was set successfully, -1 otherwise.
         """
+        self.receiving = 1
+        
         if 'TCAM' in data:
             #self.T_cam = data[self.adwin_data_start:]
             self.last_pic = str(data[self.adwin_data_start:])
             self.cam_flag = 0
-            return 1
+            self.receiving = 0
+            return 0
         
         print("Signal from Celcius 2 recieved but no TCAM info.")
-        return 0
+        self.receiving = 0
+        return -1
 
     def set_data_c3(self, data):
         """
@@ -194,16 +204,19 @@ class Data_Collection():
         Returns
         -------
         int
-            1 if the camera was set successfully, 0 otherwise.
+            0 if the camera was set successfully, -1 otherwise.
         """        
+        self.receiving = 1
         if 'VCAM' in data:
             #self.V_cam = data[self.adwin_data_start:]
             self.last_pic = str(data[self.adwin_data_start:])
             self.cam_flag = 3
-            return 1
+            self.receiving = 0
+            return 0
         
         print("Signal from Celcius 3 recieved but no VCAM info.")
-        return 0
+        self.receiving = 0
+        return -1
     
     
     def stat_sending(self):

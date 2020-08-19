@@ -123,6 +123,12 @@ class InfoManager():
         dc  - global 'Data_Collection' object
         win - main window where the info is displayed to the user 
         """
+
+        ###----- Chack if an update is needed
+        if self.dc.last_pic == dc.last_pic and self.dc.imsc == dc.imsc:
+            print("WARNING: Not updating yet... waiting for new pic.")
+            return -1
+        
         if self.cycle_num +1 == self.dc.loop:
             self.cycle_num +=1
             
@@ -207,6 +213,8 @@ class InfoManager():
         
         self.update_history()
         self.update_status()
+
+        win.update_plot_window()
         print("STILL UPDATING BITCH!")
 
 
@@ -218,7 +226,7 @@ class InfoManager():
             
         for var in list(self.var_computer.keys()):
                 self.history[var] = []
-                self.status[var]  = ""
+                self.status[var]  = -1
                 
 
     def compute_vars(self, var):
