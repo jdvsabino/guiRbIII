@@ -90,7 +90,7 @@ def cycle():
         time.sleep(1)
         #print("DC GLOB: " + str(dc.glob))
         #print("CURRENT GLOB: " + str(dc.glob))
-        read_data = dc.receiving_flag != 1 and dc.glob != info_man.dc.glob
+        read_data = dc.receiving_flag != 1 and dc.glob != info_man.dc.glob and dc.stat == 1
         if read_data:
             
             print("#####+++++#####")

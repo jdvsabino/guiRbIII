@@ -204,11 +204,7 @@ class InfoManager():
                 print("ERROR: " + str(e))
                 print("No Abs pic set!!")
 
-            win.update_pics()
-
-            win.abs_pic = self.abs_pic
-            win.update_pics_controll = 1
-            
+                
             try:
                 self.atom_num = self.abs_pic.get_atom_number()
                 print(self.atom_num)
@@ -217,12 +213,11 @@ class InfoManager():
                 print("Not possible to compute Atom number!")
 
 
-        
-
-        
             self.update_history()
             self.update_status()
-            
+
+            win.abs_pic = self.abs_pic
+            win.update_pics()
             win.update_plot_window()
             
 

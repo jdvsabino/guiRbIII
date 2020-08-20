@@ -224,11 +224,11 @@ class Data_Collection():
     
     
     def stat_sending(self):
-        self.stat = "Sending"
+        self.stat = 1
         print("Receiving stuff!")
     
     def stat_waiting(self):
-        self.stat = "Waiting"        
+        self.stat = 0
         print("Waiting for stuff")
 
 data_collector = Data_Collection()

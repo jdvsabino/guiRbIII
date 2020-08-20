@@ -942,16 +942,18 @@ class mainWindow(Gtk.Window):
         self.canvasOriginal.draw_idle()
 
     def update_pics(self):
+        self.update_pics_controll = 1
+        
         if self.update_pics_controll:
-            self.set_picOriginal()
             self.set_picAtoms()
             self.set_picNoAtoms()
+            self.set_picOriginal()
             self.set_picBkg()
             self.update_pics_controll = 0
             return True
             
         else:
-            return True
+            return False
 
     def update_status(self):
         '''
