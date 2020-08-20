@@ -5,13 +5,13 @@ from analysis.picManager import PictureManager, AbsorptionPicture, Camera
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt # For teting purposes
 import copy
+import threading
 import scipy as sio
 import numpy as np
 from network.data_collection import Data_Collection
 from network.data_collection import data_collector as dc
 from network.data_collection import PIC_SRC
 from analysis.function_vars import *
-
 
 class InfoManager():
     """
@@ -83,6 +83,8 @@ class InfoManager():
         self.set_var_computer()
         self.set_vars()
 
+        self.update_lock = threading.Lock()
+
     def update_data_buffer(self):
         """
         Copies the information from the global Data Collector if it is
@@ -94,16 +96,17 @@ class InfoManager():
         False
             If the information in the local Data Collector is the same.
         """
-        if dc.glob == self.dc.glob:
-            return False
+        with self.update_lock:
+            if dc.glob == self.dc.glob:
+                return False
 
-        ###--- Make sure that dc is not being updated
-        while(dc.receiving_flag == 1):
-            continue
-        
-        dc.copy_flag = 1
-        self.dc = copy.deepcopy(dc)
-        dc.copy_flag = 0
+            ###--- Make sure that dc is not being updated
+            while(dc.receiving_flag == 1):
+                continue
+            
+            dc.copy_flag = 1
+            self.dc = copy.deepcopy(dc)
+            dc.copy_flag = 0
     
 
     def update_info(self, win):
@@ -124,98 +127,99 @@ class InfoManager():
         win - main window where the info is displayed to the user 
         """
 
-        ###----- Chack if an update is needed
-        if self.dc.last_pic == dc.last_pic and self.dc.imsc == dc.imsc:
-            print("WARNING: Not updating yet... waiting for new pic.")
-            return -1
-        
-        if self.cycle_num +1 == self.dc.loop:
-            self.cycle_num +=1
+        with self.update_lock:
+            ###----- Chack if an update is needed
+            if self.dc.last_pic == dc.last_pic and self.dc.imsc == dc.imsc:
+                print("WARNING: Not updating yet... waiting for new pic.")
+                return -1
             
-        else:
-            self.cycle_num = self.dc.loop
-            print("WARNING: Corrected loop number to " + str(self.cycle_num))
+            if self.cycle_num +1 == self.dc.loop:
+                self.cycle_num +=1
+                
+            else:
+                self.cycle_num = self.dc.loop
+                print("WARNING: Corrected loop number to " + str(self.cycle_num))
+                
+                
+            if self.global_cycle_num +1 == self.dc.glob:
+                self.global_cycle_num +=1
+                temp_label = win.label_global + str(self.global_cycle_num)
+                win.infoGlobalCounts.set_label(temp_label)
+            else:
+                self.global_cycle_num = self.dc.glob
+                temp_label = win.label_global + str(self.global_cycle_num)            
+                win.infoGlobalCounts.set_label(temp_label)
+                print("WARNING: Corrected global loop number to " + str(self.cycle_num))        
 
-        
-        if self.global_cycle_num +1 == self.dc.glob:
-            self.global_cycle_num +=1
-            temp_label = win.label_global + str(self.global_cycle_num)
-            win.infoGlobalCounts.set_label(temp_label)
-        else:
-            self.global_cycle_num = self.dc.glob
-            temp_label = win.label_global + str(self.global_cycle_num)            
-            win.infoGlobalCounts.set_label(temp_label)
-            print("WARNING: Corrected global loop number to " + str(self.cycle_num))        
-
-        temp_label = win.label_scan + str(self.dc.scan)
-        win.infoScanNum.set_label(temp_label)
-        self.scan_num = self.dc.scan
-
-        camera = self.gen_camera()
-
-        if camera == -1 or camera == None:
-            print("WARNING: Bad camera! Not updating.")
-            return -1
-
-        if self.dc.last_pic == -1:
-            print(dc.last_pic)
-            print("Dont know last pic...")
-            return -1
+            temp_label = win.label_scan + str(self.dc.scan)
+            win.infoScanNum.set_label(temp_label)
+            self.scan_num = self.dc.scan
+            
+            camera = self.gen_camera()
+            
+            if camera == -1 or camera == None:
+                print("WARNING: Bad camera! Not updating.")
+                return -1
+            
+            if self.dc.last_pic == -1:
+                print(dc.last_pic)
+                print("Dont know last pic...")
+                return -1
        
-        pic_atoms_name = camera.label + "_" + str(self.dc.last_pic[0]) + "atompic.tif"#"-withoutatoms.tif" ### name given by default
-        pic_no_atoms_name = camera.label + "_" + str(self.dc.last_pic[0]) + "backpic.tif"#"-atomcloud.tif" ### 
+            pic_atoms_name = camera.label + "_" + str(self.dc.last_pic[0]) + "atompic.tif"#"-withoutatoms.tif" ### name given by default
+            pic_no_atoms_name = camera.label + "_" + str(self.dc.last_pic[0]) + "backpic.tif"#"-atomcloud.tif" ### 
+            
+            temp_str = self.dc.file.strip("\\")
+            num = int(temp_str[-2]) - 4
+            
+            ###--- Paths from phantom
+            path_atom_pic = PIC_SRC + self.dc.file[:-7] + str(num) + pic_atoms_name
+            path_no_atom_pic = PIC_SRC + self.dc.file[:-7] + str(num) + pic_no_atoms_name
+            print(pic_atoms_name)
+            print(pic_no_atoms_name)
+            
+            ###--- Paths to network share
+            print(pic_atoms_name)
+            path_atom_pic = PIC_SRC + camera.label + "\\" + pic_atoms_name
+            path_no_atom_pic = PIC_SRC + camera.label + "\\" + pic_no_atoms_name
+            print("PATH my PATH: " + path_atom_pic)
+            
+            pic = mpimg.imread(path_atom_pic)
+            self.atom_pic = PictureManager(pic, path=path_atom_pic, cam = camera)
+            
+            
+            pic = mpimg.imread(path_no_atom_pic) 
+            self.no_atom_pic = PictureManager(pic, path=path_no_atom_pic, cam = camera)
+            self.background_pic = PictureManager(np.zeros(pic.shape)) # Creates a pic of zeros with same size as the other pics    
+            
+            
+            try:
+                self.abs_pic = AbsorptionPicture(self.atom_pic, self.no_atom_pic, cam = camera)
+            except Exception as e:
+                print("ERROR: " + str(e))
+                print("No Abs pic set!!")
 
-        temp_str = self.dc.file.strip("\\")
-        num = int(temp_str[-2]) - 4
+            win.update_pics()
 
-        ###--- Paths from phantom
-        path_atom_pic = PIC_SRC + self.dc.file[:-7] + str(num) + pic_atoms_name
-        path_no_atom_pic = PIC_SRC + self.dc.file[:-7] + str(num) + pic_no_atoms_name
-        print(pic_atoms_name)
-        print(pic_no_atoms_name)
+            win.abs_pic = self.abs_pic
+            win.update_pics_controll = 1
+            
+            try:
+                self.atom_num = self.abs_pic.get_atom_number()
+                print(self.atom_num)
+            except Exception as e:
+                print(e)
+                print("Not possible to compute Atom number!")
 
-        ###--- Paths to network share
-        print(pic_atoms_name)
-        path_atom_pic = PIC_SRC + camera.label + "\\" + pic_atoms_name
-        path_no_atom_pic = PIC_SRC + camera.label + "\\" + pic_no_atoms_name
-        print("PATH my PATH: " + path_atom_pic)
-
-        pic = mpimg.imread(path_atom_pic)
-        self.atom_pic = PictureManager(pic, path=path_atom_pic, cam = camera)
-
-        
-        pic = mpimg.imread(path_no_atom_pic) 
-        self.no_atom_pic = PictureManager(pic, path=path_no_atom_pic, cam = camera)
-        self.background_pic = PictureManager(np.zeros(pic.shape)) # Creates a pic of zeros with same size as the other pics    
-        
-        
-        try:
-            self.abs_pic = AbsorptionPicture(self.atom_pic, self.no_atom_pic, cam = camera)
-        except Exception as e:
-            print("ERROR: " + str(e))
-            print("No Abs pic set!!")
-
-        win.update_pics()
-
-        win.abs_pic = self.abs_pic
-        win.update_pics_controll = 1
-
-        try:
-            self.atom_num = self.abs_pic.get_atom_number()
-            print(self.atom_num)
-        except Exception as e:
-            print(e)
-            print("Not possible to compute Atom number!")
-
-
-        
 
         
-        self.update_history()
-        self.update_status()
 
-        win.update_plot_window()
-        print("STILL UPDATING BITCH!")
+        
+            self.update_history()
+            self.update_status()
+            
+            win.update_plot_window()
+            print("STILL UPDATING BITCH!")
 
 
     def set_vars(self):
