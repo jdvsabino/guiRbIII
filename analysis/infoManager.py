@@ -99,11 +99,11 @@ class InfoManager():
         with self.update_lock:
             if dc.glob == self.dc.glob:
                 return False
-
+        
             ###--- Make sure that dc is not being updated
             while(dc.receiving_flag == 1):
                 continue
-            
+        
             dc.copy_flag = 1
             self.dc = copy.deepcopy(dc)
             dc.copy_flag = 0
@@ -131,7 +131,8 @@ class InfoManager():
             ###----- Chack if an update is needed
             if self.dc.last_pic == dc.last_pic and self.dc.imsc == dc.imsc:
                 print("WARNING: Not updating yet... waiting for new pic.")
-                return -1
+                # return -1
+
             
             if self.cycle_num +1 == self.dc.loop:
                 self.cycle_num +=1

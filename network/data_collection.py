@@ -1,5 +1,6 @@
 import threading
 
+
 class Data_Collection():
     """
     Object that receives and stores information from Adwin and provides it
@@ -67,8 +68,6 @@ class Data_Collection():
         self.V_cam    = -1
         self.last_pic = -1
         self.adwin_data_start = 5
-
-        self.read_lock = threading.Lock()
     
     def set_data_adwin(self, data):
         ''' 
@@ -86,62 +85,62 @@ class Data_Collection():
         Nothing.
         '''
 
-        with self.read_lock:
-            ###--- Make sure that info is not being copied
-            while(self.copy_flag == 1):
-                continue
+
+        ###--- Make sure that info is not being copied
+        while(self.copy_flag == 1):
+            continue
             
-            self.receiving = 1
-            if "STAT_sending" in data:
-                self.last_pic = -1
-                self.stat_sending()
-                
-            elif "STAT_waiting" in data:
-                self.stat_waiting()
-                
-            elif "PATH" in data:
-                self.path = data[self.adwin_data_start:]
-                # return 1
-                
-            elif "FILE" in data:
-                self.file = data[self.adwin_data_start:]
-                # return 1
-                
-            elif "IMSC" in data:
-                self.imsc = int(data[self.adwin_data_start:])
-                # self.receiving = 0
-                # return 1
-                
-            elif "SCAN" in data:
-                self.scan = int(data[self.adwin_data_start:])
-                # print(self.scan)
-                # return 1
-                
-            elif "LOOP" in data:
-                self.loop = int(data[self.adwin_data_start:])
-                # print(self.loop)
-                # return 1
-                
-            elif "GLOB" in data:
-                self.glob = int(data[self.adwin_data_start:])
-                # print(self.glob)
-                # return 1
-                
-            elif "LCAM" in data:
-                self.set_data_c1(data)
-                
-            elif "TCAM" in data:
-                self.set_data_c2(data)
-                
-            elif "VCAM" in data:
-                self.set_data_c3(data)                    
-                
-            else:
-                print("Field Not recognized. Check spelling!")
-                return -1
+        self.receiving = 1
+        if "STAT_sending" in data:
+            self.last_pic = -1
+            self.stat_sending()
+            
+        elif "STAT_waiting" in data:
+            self.stat_waiting()
+            
+        elif "PATH" in data:
+            self.path = data[self.adwin_data_start:]
+            # return 1
+            
+        elif "FILE" in data:
+            self.file = data[self.adwin_data_start:]
+            # return 1
+            
+        elif "IMSC" in data:
+            self.imsc = int(data[self.adwin_data_start:])
+            # self.receiving = 0
+            # return 1
+            
+        elif "SCAN" in data:
+            self.scan = int(data[self.adwin_data_start:])
+            # print(self.scan)
+            # return 1
+            
+        elif "LOOP" in data:
+            self.loop = int(data[self.adwin_data_start:])
+            # print(self.loop)
+            # return 1
+            
+        elif "GLOB" in data:
+            self.glob = int(data[self.adwin_data_start:])
+            # print(self.glob)
+            # return 1
+            
+        elif "LCAM" in data:
+            self.set_data_c1(data)
+            
+        elif "TCAM" in data:
+            self.set_data_c2(data)
+            
+        elif "VCAM" in data:
+            self.set_data_c3(data)                    
+            
+        else:
+            print("Field Not recognized. Check spelling!")
+            return -1
         
-            self.receiving = 0
-            return 0
+        self.receiving = 0
+        return 0
         
     def set_data_c1(self, data):
         """

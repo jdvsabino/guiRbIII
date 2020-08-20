@@ -3,6 +3,7 @@ from open_port import start_comm
 import select
 import threading
 
+read_lock = threading.Lock()
 
 def get_data(local_ip, rec_port_adwin, rec_port_c1, rec_port_c2, rec_port_c3, input_info):
     '''
@@ -55,7 +56,8 @@ def get_data(local_ip, rec_port_adwin, rec_port_c1, rec_port_c2, rec_port_c3, in
             print("DATA: " + data)
 
             if socket is adwin_socket:
-                input_info.set_data_adwin(data)
+                with read_lock:
+                    input_info.set_data_adwin(data)
 
             # elif socket is c1_socket:
             #     input_info.set_data_c1(data)
