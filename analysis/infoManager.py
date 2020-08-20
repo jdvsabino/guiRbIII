@@ -98,15 +98,18 @@ class InfoManager():
         """
         with self.update_lock:
             if dc.glob == self.dc.glob:
+                print("Data Collectors are the same! Skipping Buffer update...")
                 return False
         
             ###--- Make sure that dc is not being updated
-            while(dc.receiving_flag == 1):
-                continue
+            # while(dc.receiving_flag == 1):
+            #     continue
         
             dc.copy_flag = 1
             self.dc = copy.deepcopy(dc)
             dc.copy_flag = 0
+
+            return True
     
 
     def update_info(self, win):
@@ -128,6 +131,7 @@ class InfoManager():
         """
 
         with self.update_lock:
+            
             ###----- Chack if an update is needed
             if self.dc.last_pic == dc.last_pic and self.dc.imsc == dc.imsc:
                 print("WARNING: Not updating yet... waiting for new pic.")
@@ -152,9 +156,9 @@ class InfoManager():
                 win.infoGlobalCounts.set_label(temp_label)
                 print("WARNING: Corrected global loop number to " + str(self.cycle_num))        
 
+            self.scan_num = self.dc.scan
             temp_label = win.label_scan + str(self.dc.scan)
             win.infoScanNum.set_label(temp_label)
-            self.scan_num = self.dc.scan
             
             camera = self.gen_camera()
             
@@ -220,7 +224,7 @@ class InfoManager():
             self.update_status()
             
             win.update_plot_window()
-            print("STILL UPDATING BITCH!")
+            
 
 
     def set_vars(self):
@@ -308,15 +312,26 @@ class InfoManager():
         int
             -1 if not successfull
         """
-        if self.dc.imsc == 0:
+
+        ###---- Conditions to have a specific camera
+        TCam = self.dc.imsc == 0 and self.dc.cam_flag == 0
+        LCam = (self.dc.imsc == 1 or self.dc.imsc == 2) and self.dc.cam_flag == 1
+        VCam = self.dc.imsc == 3 and self.dc.imsc == 3
+
+        print("RETURNING A CAMERA WITH INFO:")
+        print("ISMC: " + str(self.dc.imsc))
+        print("CAM FLAG: " + str(self.dc.cam_flag))        
+        
+        if TCam:
             return Camera(0)
         
-        elif self.dc.imsc == 1 or self.dc.imsc == 2:
+        elif LCam:
             return Camera(1)
         
-        elif self.dc.imsc == 3:
+        elif VCam:
             return Camera(3)
         
         else:
             print("Bad camera flag!")
+            print("Check that IMSC is correctly selected!")
             return -1
