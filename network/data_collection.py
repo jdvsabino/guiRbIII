@@ -53,8 +53,9 @@ class Data_Collection():
     def __init__(self):
         ###--- Flags
         self.receiving_flag = 0
-        self.copy_flag = 0
-        self.cam_flag = -1
+        self.copy_flag      = 0
+        self.cam_flag       = -1
+        self.cam_flag_used  = -1 # Used to select Im. Sys. in the Acq. Program
         
         self.path     = ""
         self.file     = ""
@@ -62,11 +63,12 @@ class Data_Collection():
         self.imsc     = -1
         self.loop     = -1
         self.glob     = -1
-        self.status   = "None"
+        self.status   = 0
         self.T_cam    = -1
         self.L_cam    = -1
         self.V_cam    = -1
         self.last_pic = -1
+        self.last_pic_used    = -1 # Same as 'cam_flag_used' member
         self.adwin_data_start = 5
     
     def set_data_adwin(self, data):
@@ -159,8 +161,9 @@ class Data_Collection():
         self.receiving = 1
         
         if 'LCAM' in data:
-            # self.L_cam = data[self.adwin_data_start:]
             self.last_pic = str(data[self.adwin_data_start:])
+            self.last_pic = str(int(self.last_pic[:len(self.last_pic)]))
+            self.L_cam = int(self.last_pic)
             self.cam_flag = 1
             self.receiving = 0
             return 0
@@ -186,8 +189,9 @@ class Data_Collection():
         self.receiving = 1
         
         if 'TCAM' in data:
-            #self.T_cam = data[self.adwin_data_start:]
             self.last_pic = str(data[self.adwin_data_start:])
+            self.last_pic = str(int(self.last_pic[:len(self.last_pic)]))
+            self.T_cam = int(self.last_pic)
             self.cam_flag = 0
             self.receiving = 0
             return 0
@@ -211,9 +215,10 @@ class Data_Collection():
             0 if the camera was set successfully, -1 otherwise.
         """        
         self.receiving = 1
-        if 'VCAM' in data:
-            #self.V_cam = data[self.adwin_data_start:]
+        if 'VCAM' in data:            
             self.last_pic = str(data[self.adwin_data_start:])
+            self.last_pic = str(int(self.last_pic[:len(self.last_pic)]))
+            self.V_cam = int(self.last_pic)
             self.cam_flag = 3
             self.receiving = 0
             return 0
@@ -224,11 +229,11 @@ class Data_Collection():
     
     
     def stat_sending(self):
-        self.stat = 1
+        self.status = 1
         print("Receiving stuff!")
     
     def stat_waiting(self):
-        self.stat = 0
+        self.status = 0
         print("Waiting for stuff")
 
 data_collector = Data_Collection()

@@ -229,6 +229,7 @@ class AbsorptionPicture(PictureManager):
             print("Couldnt compute atomnumber with ROI. Using whole picture!")
             final_pic = self.pic
 
+        print(final_pic)
         atom_number = self.cam.pixel_size*self.cam.pixel_size/(self.cam.magnification*self.cam.magnification)/self.cam.abs_cross*np.sum(np.sum(final_pic))
 
         return atom_number

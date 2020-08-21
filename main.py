@@ -78,24 +78,27 @@ dc.receiving_flag = 0
 
 def cycle():
 
+    temp_glob = -1
     while(1):
 
     
     # Holds the program while dc
     # does not receive data from  Adwin.
-        # while(dc.glob == -1):
-        #     continue
-        # dc.glob += 1
-        # print("Sleeping...")
+
         time.sleep(1)
-        #print("DC GLOB: " + str(dc.glob))
-        #print("CURRENT GLOB: " + str(dc.glob))
-        read_data = dc.receiving_flag != 1 and dc.glob != info_man.dc.glob and dc.stat == 1
-        if read_data:
+        
+        #read_data = dc.receiving_flag != 1 and dc.glob != info_man.dc.glob and dc.status == 1 ## OLD
+        read_data = (dc.status == 0 and dc.glob == temp_glob) and temp_glob != -1
+        temp_glob = dc.glob
+        #print("READ DATA: " + str(read_data))
+        if 1: #read_data:
             
             print("#####+++++#####")
-            info_man.update_data_buffer()
-            info_man.update_info(win) # Argument is none for testing purposes
+            
+            update = info_man.update_data_buffer()
+            if update:
+                info_man.update_info(win) # Argument is none for testing purposes
+
             print("STATUS: " + str(info_man.status))
             print("HIST: " + str(info_man.history))
             print("#####+++++#####")

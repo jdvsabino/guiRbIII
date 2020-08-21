@@ -74,6 +74,7 @@ class InfoManager():
         
         self.atom_num  = 0
 
+        self.update_flag = 0
         
         self.variables = []
         self.var_computer =  dict()
@@ -97,7 +98,13 @@ class InfoManager():
             If the information in the local Data Collector is the same.
         """
         with self.update_lock:
-            if dc.glob == self.dc.glob:
+            last_pic = int(self.dc.last_pic)
+            new_pic  = int(dc.last_pic) 
+            do_update = (last_pic != new_pic) or (self.dc.imsc != dc.imsc)            
+            if  do_update:
+                self.update_flag = 1
+
+            if self.update_flag == 0: #dc.glob == self.dc.glob:
                 print("Data Collectors are the same! Skipping Buffer update...")
                 return False
         
@@ -108,6 +115,7 @@ class InfoManager():
             dc.copy_flag = 1
             self.dc = copy.deepcopy(dc)
             dc.copy_flag = 0
+            self.update_flag = 0
 
             return True
     
@@ -131,16 +139,9 @@ class InfoManager():
         """
 
         with self.update_lock:
-            
-            ###----- Chack if an update is needed
-            if self.dc.last_pic == dc.last_pic and self.dc.imsc == dc.imsc:
-                print("WARNING: Not updating yet... waiting for new pic.")
-                # return -1
 
-            
             if self.cycle_num +1 == self.dc.loop:
                 self.cycle_num +=1
-                
             else:
                 self.cycle_num = self.dc.loop
                 print("WARNING: Corrected loop number to " + str(self.cycle_num))
@@ -154,25 +155,55 @@ class InfoManager():
                 self.global_cycle_num = self.dc.glob
                 temp_label = win.label_global + str(self.global_cycle_num)            
                 win.infoGlobalCounts.set_label(temp_label)
-                print("WARNING: Corrected global loop number to " + str(self.cycle_num))        
+                print("WARNING: Corrected global loop number to " + str(self.global_cycle_num))        
 
             self.scan_num = self.dc.scan
             temp_label = win.label_scan + str(self.dc.scan)
             win.infoScanNum.set_label(temp_label)
+
+            ###----- Chack if previous picture is known
+            if self.dc.last_pic == -1:
+                print(dc.last_pic)
+                print("Dont know last pic...")
+                return -1            
+
+
+            ###----- Selects camera according to user preferences
+            option = win.camSelect.get_active_text()
+
+            if option == "TAndor":
+                self.dc.cam_flag_used = 0
+                self.dc.last_pic_used = self.dc.T_cam
+
+            elif  option == "LAndor":
+                self.dc.cam_flag_used = 1
+                self.dc.last_pic_used = self.dc.L_cam    
+
+            elif  option == "VAndor":
+                self.dc.cam_flag_used = 3
+                self.dc.last_pic_used = self.dc.V_cam
+
+            elif  option == "Auto":
+                self.dc.cam_flag_used = self.dc.cam_flag
+                self.dc.last_pic_used = self.dc.last_pic
+                
+            else:                  
+                self.dc.cam_flag = -1 
             
             camera = self.gen_camera()
             
             if camera == -1 or camera == None:
                 print("WARNING: Bad camera! Not updating.")
                 return -1
-            
-            if self.dc.last_pic == -1:
-                print(dc.last_pic)
-                print("Dont know last pic...")
-                return -1
+        
        
-            pic_atoms_name = camera.label + "_" + str(self.dc.last_pic[0]) + "atompic.tif"#"-withoutatoms.tif" ### name given by default
-            pic_no_atoms_name = camera.label + "_" + str(self.dc.last_pic[0]) + "backpic.tif"#"-atomcloud.tif" ### 
+            #pic_atoms_name = camera.label + "_" + str(self.dc.last_pic[0]) + "atompic.tif"#"-withoutatoms.tif" ### name given by default
+            #pic_no_atoms_name = camera.label + "_" + str(self.dc.last_pic[0]) + "backpic.tif"#"-atomcloud.tif" ### 
+            print(str(self.dc.last_pic_used))
+            print("LPIC: " +str(self.dc.last_pic_used))
+            
+            pic_atoms_name = camera.label + "_" + str(self.dc.last_pic_used) + "atompic.tif"#"-withoutatoms.tif" ### name given by default
+            pic_no_atoms_name = camera.label + "_" + str(self.dc.last_pic_used) + "backpic.tif"#"-atomcloud.tif" ### 
             
             temp_str = self.dc.file.strip("\\")
             num = int(temp_str[-2]) - 4
@@ -189,13 +220,25 @@ class InfoManager():
             path_no_atom_pic = PIC_SRC + camera.label + "\\" + pic_no_atoms_name
             print("PATH my PATH: " + path_atom_pic)
             
-            pic = mpimg.imread(path_atom_pic)
-            self.atom_pic = PictureManager(pic, path=path_atom_pic, cam = camera)
-            
-            
-            pic = mpimg.imread(path_no_atom_pic) 
-            self.no_atom_pic = PictureManager(pic, path=path_no_atom_pic, cam = camera)
-            self.background_pic = PictureManager(np.zeros(pic.shape)) # Creates a pic of zeros with same size as the other pics    
+            try:
+                pic = mpimg.imread(path_atom_pic)
+                self.atom_pic = PictureManager(pic, path=path_atom_pic, cam = camera)
+            except Exception as e:
+                pic = np.ones((256, 256))
+                self.atom_pic = PictureManager(pic)
+                print("Could not load Pic with Atoms... ")
+                print("ERROR: " + str(e))
+                
+            try:
+                pic = mpimg.imread(path_no_atom_pic) 
+                self.no_atom_pic = PictureManager(pic, path=path_no_atom_pic, cam = camera)
+                self.background_pic = PictureManager(np.zeros(pic.shape)) # Creates a pic of zeros with same size as the other pics    
+            except Exception as e:
+                pic = np.ones((256, 256))
+                self.no_atom_pic = PictureManager(pic)
+                self.background_pic = PictureManager(np.zeros(pic.shape))
+                print("Could not load Pic with Atoms... ")
+                print("ERROR: " + str(e))
             
             
             try:
@@ -208,13 +251,15 @@ class InfoManager():
             try:
                 self.atom_num = self.abs_pic.get_atom_number()
                 print(self.atom_num)
+                print("ATOM NUMBER TODO COMPUTADOZINHO!!!")
             except Exception as e:
-                print(e)
+                print("ERROR: " + str(e))
                 print("Not possible to compute Atom number!")
 
 
-            self.update_history()
             self.update_status()
+            self.update_history()
+            
 
             win.abs_pic = self.abs_pic
             win.update_pics()
@@ -309,9 +354,9 @@ class InfoManager():
         """
 
         ###---- Conditions to have a specific camera
-        TCam = self.dc.imsc == 0 and self.dc.cam_flag == 0
-        LCam = (self.dc.imsc == 1 or self.dc.imsc == 2) and self.dc.cam_flag == 1
-        VCam = self.dc.imsc == 3 and self.dc.imsc == 3
+        TCam = self.dc.imsc == 0 and self.dc.cam_flag_used == 0
+        LCam = (self.dc.imsc == 1 or self.dc.imsc == 2) and self.dc.cam_flag_used == 1
+        VCam = self.dc.imsc == 3 and self.dc.cam_flag_used == 3
 
         print("RETURNING A CAMERA WITH INFO:")
         print("ISMC: " + str(self.dc.imsc))
